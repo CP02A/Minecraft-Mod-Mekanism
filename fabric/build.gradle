@@ -60,6 +60,10 @@ for (String name : secondaryModules) {
     sourceSets.gametest.compileClasspath += moduleSourceSet.output
     sourceSets.gametest.runtimeClasspath += moduleSourceSet.output
 }
+//Load the modules in the client and server runs (which use the main source set's runtime classpath) as well
+for (String name : secondaryModules) {
+    sourceSets.main.runtimeClasspath += sourceSets.named(name).get().output
+}
 
 group = 'mekanism'
 def basicVersion = "${mod_version}." + (System.getenv('BUILD_NUMBER') ?: 'homebaked')
@@ -165,8 +169,10 @@ loom {
             sourceSet(sourceSets.main)
         }
         for (String name : secondaryModules) {
-            register("mekanism${name}") {
-                sourceSet(sourceSets.named(name).get())
+            //Note: Copy the loop variable, as the closure is evaluated lazily
+            def module = name
+            register("mekanism${module}") {
+                sourceSet(sourceSets.named(module).get())
             }
         }
         register('mekanism_fabric_tests') {

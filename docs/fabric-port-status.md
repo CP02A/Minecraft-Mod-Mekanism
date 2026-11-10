@@ -57,5 +57,12 @@ saved/synced; recipes are synced to the client; the dedicated server boots.
    operation (NeoForge's `EnergyHandler`); MobSpawnEvent.SpawnPlacementCheck is not fired.
 4. Client side EntityTickEvent for non-passengers (ClientLevel#tickNonPassenger). Forced chunk persistence is tested via a codec round trip, not
    via an actual server restart with a chunk loader.
-5. Secondary modules (generators, additions, tools, defense) and integrations; datagen stays NeoForge-only.
+5. Secondary modules: Generators, Additions and Tools are separate Fabric mods (`generators`/`additions`/`tools` source sets in `:fabric`,
+   compiled from `neoforge/src/<module>` with Fabric entrypoints, `fabric.mod.json` and per module overrides in `fabric/src/<module>`, own jars via
+   `<module>Jar`), loaded in all runs and covered by game tests (generators produce energy, fusion/fission/turbine multiblocks form, baby mobs,
+   plastic fence gate, paxel, FinalizeSpawnEvent; client test renders generators and opens a generator GUI). Left: Additions' baby mob biome/structure
+   spawn modifiers aren't applied (BiomeModifierBridge only supports NeoForge's feature modifiers); FinalizeSpawnEvent spawn cancellation; beacon
+   colors, block friction and reequip animation extension hooks aren't called by vanilla; client: `neoforge:trimmed_armor` item model (Tools armor),
+   `neoforge:composite` children with element rotations (wind generator model fails with a Gson Vector3fc error). No defense module exists in this
+   repo; integrations not started; datagen stays NeoForge-only.
 6. Move shared sources from `neoforge/src` into `common/`; update docs/multiloader.md.
