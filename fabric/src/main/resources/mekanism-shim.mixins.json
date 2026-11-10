@@ -69,6 +69,7 @@
     "ChestRendererShimMixin",
     "EntityRenderStateShimMixin",
     "TextureAtlasSpriteShimMixin",
+    "ModelBakerShimMixin",
     "ModelBakery_BakingResultShimMixin",
     "ResolvedModelShimMixin",
     "UnbakedModelShimMixin",

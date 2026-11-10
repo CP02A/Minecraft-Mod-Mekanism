@@ -33,7 +33,12 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.neoforged.neoforge.client.IItemDecorator;
+import net.neoforged.neoforge.client.RecipeBookManager;
+import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
+import net.neoforged.neoforge.client.model.UnbakedModelParser;
+import net.neoforged.neoforge.client.model.obj.ObjLoader;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyEvent;
@@ -134,7 +139,18 @@ public final class ClientShimLoader {
 
         ModLoader.postEvent(new RegisterRenderStateModifiersEvent());
 
+        RecipeBookManager.init();
+        ModLoader.postEvent(new RegisterRenderPipelinesEvent((pipeline, optional) -> {
+            var registry = optional ? RenderPipelines.OPTIONAL_PIPELINES_BY_LOCATION : RenderPipelines.PIPELINES_BY_LOCATION;
+            if (registry.putIfAbsent(pipeline.getLocation(), pipeline) != null) {
+                throw new IllegalStateException("Duplicate RenderPipeline registration for location: " + pipeline.getLocation());
+            }
+        }));
+        UnbakedModelParser.init();
+
         AddClientReloadListenersEvent reloadListenersEvent = new AddClientReloadListenersEvent();
+        //NeoForge's own reload listeners (registered by ClientNeoForgeMod on NeoForge)
+        reloadListenersEvent.addListener(Identifier.fromNamespaceAndPath("neoforge", "obj_loader"), ObjLoader.INSTANCE);
         ModLoader.postEvent(reloadListenersEvent);
         reloadListenersEvent.getListeners().forEach((id, listener) -> ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(id, listener));
 

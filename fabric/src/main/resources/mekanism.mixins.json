@@ -24,15 +24,24 @@
     "hooks.TicketStorageMixin"
   ],
   "client": [
+    "client.BlockColorsMixin",
     "client.BlockStateModelLoaderMixin",
     "client.ClientLevelMixin",
     "client.ClientPacketListenerMixin",
+    "client.ClientRecipeBookMixin",
     "client.FirstPersonHandsAndItemsRendererMixin",
+    "client.FluidStateModelSetMixin",
     "client.FogRendererMixin",
     "client.LevelExtractorMixin",
     "client.MinecraftMixin",
+    "client.ModelDiscoveryMixin",
+    "client.ModelManagerMixin",
+    "client.ModelManagerReloadStateAccessor",
     "client.MouseHandlerMixin",
-    "client.SoundEngineMixin"
+    "client.ParticleResourcesMixin",
+    "client.SoundEngineMixin",
+    "client.TextureAtlasMixin",
+    "client.UnbakedModelJsonDeserializerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

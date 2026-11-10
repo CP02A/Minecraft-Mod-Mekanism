@@ -99,6 +99,9 @@
       "net/minecraft/client/renderer/texture/TextureAtlasSprite": [
         "net/neoforged/neoforge/shim/extensions/ITextureAtlasSpriteExtension"
       ],
+      "net/minecraft/client/resources/model/ModelBaker": [
+        "net/neoforged/neoforge/client/extensions/ModelBakerExtension"
+      ],
       "net/minecraft/client/resources/model/ModelBakery$BakingResult": [
         "net/neoforged/neoforge/shim/extensions/IBakingResultExtension"
       ],
