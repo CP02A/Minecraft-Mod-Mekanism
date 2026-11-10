@@ -27,8 +27,8 @@ import org.jspecify.annotations.Nullable;
  * <p>
  * This event is fired on {@link NeoForge#EVENT_BUS}, and is only fired on the logical server.
  * <p>
- * Mekanism shim: Fired at the start of {@link Mob#finalizeSpawn} (instead of before its call sites), without a spawner. Spawn cancellation (a NeoForge patch
- * to {@link Mob}) is not supported.
+ * Mekanism shim: Fired at the start of {@link Mob#finalizeSpawn} (instead of before its call sites), without a spawner. The spawn cancellation status is
+ * stored in the event (instead of the mob) and applied to the mob by the loader after the event was posted.
  */
 public class FinalizeSpawnEvent extends MobSpawnEvent implements ICancellableEvent {
     private final EntitySpawnReason spawnType;
@@ -37,6 +37,9 @@ public class FinalizeSpawnEvent extends MobSpawnEvent implements ICancellableEve
     private final Either<BlockEntity, Entity> spawner;
 
     private DifficultyInstance difficulty;
+
+    //Mekanism shim: NeoForge stores this in the mob
+    private boolean spawnCancelled;
 
     @Nullable
     private SpawnGroupData spawnData;
@@ -104,5 +107,26 @@ public class FinalizeSpawnEvent extends MobSpawnEvent implements ICancellableEve
     @Nullable
     public Either<BlockEntity, Entity> getSpawner() {
         return this.spawner;
+    }
+
+    /**
+     * This method can be used to cancel the spawn of this mob.<p>
+     * This method must be used if you want to block the spawn, as canceling the event only blocks the call to {@link Mob#finalizeSpawn}.<p>
+     * Note that if the spawn is cancelled, but the event is not, then {@link Mob#finalizeSpawn} will still be called, but the entity will not be spawned.
+     * Usually that has no side effects, but callers should be aware.
+     *
+     * @param cancel If the spawn should be cancelled (or not).
+     */
+    public void setSpawnCancelled(boolean cancel) {
+        this.spawnCancelled = cancel;
+    }
+
+    /**
+     * Returns the current spawn cancellation status, which can be changed via {@link FinalizeSpawnEvent#setSpawnCancelled(boolean)}.
+     *
+     * @return If this mob's spawn is cancelled or not.
+     */
+    public boolean isSpawnCancelled() {
+        return this.spawnCancelled;
     }
 }

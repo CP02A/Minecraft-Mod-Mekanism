@@ -33,6 +33,8 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.world.level.block.entity.BeaconBeamOwner;
+import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
@@ -121,6 +123,40 @@ public class AdditionsToolsTests {
             EntityType<?> baby = AdditionsEntityTypes.getBaby(type).get();
             helper.assertTrue(spawns.stream().anyMatch(spawn -> spawn.value().type() == baby && spawn.weight() > 0),
                   Component.literal(type.getSerializedName() + " should be in the monster spawns of " + where + ": " + spawns));
+        }
+    }
+
+    @GameTest(maxTicks = 200)
+    public void plasticColorsBeaconBeam(GameTestHelper helper) {
+        //Transparent plastic isn't a BeaconBeamBlock, it colors beams through NeoForge's IBlockExtension#getBeaconColorMultiplier
+        //Note: Beacons only expose their beam once they are active (levels are updated every 80 ticks)
+        BlockPos vanillaPos = POS.east(3);
+        placeBeacon(helper, POS, AdditionsBlocks.TRANSPARENT_PLASTIC_BLOCKS.pick(EnumColor.RED).defaultState());
+        placeBeacon(helper, vanillaPos, Blocks.STAINED_GLASS.red().defaultBlockState());
+        int expected = EnumColor.RED.getPackedColor();
+        helper.succeedWhen(() -> {
+            BeaconBlockEntity beacon = helper.getBlockEntity(POS, BeaconBlockEntity.class);
+            BeaconBlockEntity vanilla = helper.getBlockEntity(vanillaPos, BeaconBlockEntity.class);
+            helper.assertTrue(beacon.getBeamSections().stream().map(BeaconBeamOwner.Section::getColor).anyMatch(color -> color == expected),
+                  Component.literal("The beacon beam should be colored by the red transparent plastic: " + beacon.getBeamSections().stream()
+                        .map(section -> Integer.toHexString(section.getColor())).toList() + " vanilla: " + vanilla.getBeamSections().stream()
+                        .map(section -> Integer.toHexString(section.getColor())).toList()));
+        });
+    }
+
+    private static void placeBeacon(GameTestHelper helper, BlockPos pos, net.minecraft.world.level.block.state.BlockState colorer) {
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                helper.setBlock(pos.offset(x, -1, z), Blocks.IRON_BLOCK);
+            }
+        }
+        helper.setBlock(pos, Blocks.BEACON);
+        helper.setBlock(pos.above(), colorer);
+        //Remove the barrier ceiling of the test area, which blocks the beam
+        BlockPos absolute = helper.absolutePos(pos);
+        int surface = helper.getLevel().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, absolute.getX(), absolute.getZ());
+        for (BlockPos above = absolute.above(2); above.getY() < surface; above = above.above()) {
+            helper.getLevel().setBlockAndUpdate(above, Blocks.AIR.defaultBlockState());
         }
     }
 }

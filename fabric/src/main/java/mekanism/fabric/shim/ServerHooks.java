@@ -118,4 +118,19 @@ public final class ServerHooks {
         ConfigTracker.INSTANCE.loadConfigs(ModConfig.Type.SERVER, FabricLoader.getInstance().getConfigDir(), serverConfigs);
         serverConfigsLoadedEarly = true;
     }
+
+    /**
+     * {@return whether the entity is a mob whose spawn was cancelled by NeoForge's FinalizeSpawnEvent}
+     */
+    public static boolean isSpawnCancelled(Entity entity) {
+        return entity instanceof SpawnCancellable cancellable && cancellable.mekanism$isSpawnCancelled();
+    }
+
+    /**
+     * Implemented by {@link net.minecraft.world.entity.Mob} (through {@code MobMixin}): NeoForge's spawn cancellation flag.
+     */
+    public interface SpawnCancellable {
+
+        boolean mekanism$isSpawnCancelled();
+    }
 }

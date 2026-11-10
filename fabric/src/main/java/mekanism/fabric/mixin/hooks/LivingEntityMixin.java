@@ -3,6 +3,7 @@ package mekanism.fabric.mixin.hooks;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import net.minecraft.server.level.ServerLevel;
@@ -23,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * NeoForge's living entity damage, fall and jump hooks.
+ * NeoForge's living entity damage, fall and jump hooks, and the state, position and entity aware friction of the block below a living entity.
  */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
@@ -97,5 +98,12 @@ public abstract class LivingEntityMixin {
         if (getJumpPower() > 1.0E-5F) {
             NeoForge.EVENT_BUS.post(new LivingEvent.LivingJumpEvent(mekanism$self()));
         }
+    }
+
+    @WrapOperation(method = "travelInAir", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Block;getFriction()F"))
+    private float mekanism$getFriction(net.minecraft.world.level.block.Block block, Operation<Float> original) {
+        LivingEntity entity = (LivingEntity) (Object) this;
+        net.minecraft.core.BlockPos pos = entity.getBlockPosBelowThatAffectsMyMovement();
+        return entity.level().getBlockState(pos).getFriction(entity.level(), pos, entity);
     }
 }
