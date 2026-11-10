@@ -198,7 +198,7 @@ public class MekanismClientTests implements FabricClientGameTest {
     }
 
     /**
-     * Connects two energy cubes with universal cables and checks that the connections reach the client (rendered through model data).
+     * Connects two energy cubes with universal cables and checks that the connections (to the cables and the cubes) reach the client (rendered through model data).
      */
     private static void checkTransmitterConnections(ClientGameTestContext context, TestSingleplayerContext singleplayer) {
         BlockPos start = singleplayer.getServer().computeOnServer(server -> server.getPlayerList().getPlayers().getFirst().blockPosition()).offset(10, 0, 0);
@@ -207,12 +207,18 @@ public class MekanismClientTests implements FabricClientGameTest {
         singleplayer.getServer().runCommand("setblock " + pos(start.south(2)) + " mekanism:basic_universal_cable");
         singleplayer.getServer().runCommand("setblock " + pos(start.south(3)) + " mekanism:basic_energy_cube");
         singleplayer.getServer().runCommand("setblock " + pos(start.south().above()) + " mekanism:basic_universal_cable");
+        //Apply the energy cube item's default side configuration like placing it would, setblock leaves all sides disabled (also on NeoForge)
+        singleplayer.getServer().runOnServer(server -> {
+            for (BlockPos cube : List.of(start, start.south(3))) {
+                server.overworld().getBlockEntity(cube).applyComponentsFromItemStack(new ItemStack(MekanismBlocks.BASIC_ENERGY_CUBE));
+            }
+        });
         singleplayer.getServer().runCommand("tp @p " + (start.getX() - 2) + " " + start.getY() + " " + (start.getZ() + 2) + " -90 35");
         context.waitTicks(40);
         singleplayer.getConnection().waitForChunksRender();
         context.takeScreenshot("mekanism-transmitter-connections");
-        assertConnections(context, singleplayer, start.south(), Direction.SOUTH, Direction.UP);
-        assertConnections(context, singleplayer, start.south(2), Direction.NORTH);
+        assertConnections(context, singleplayer, start.south(), Direction.NORTH, Direction.SOUTH, Direction.UP);
+        assertConnections(context, singleplayer, start.south(2), Direction.NORTH, Direction.SOUTH);
     }
 
     /**
