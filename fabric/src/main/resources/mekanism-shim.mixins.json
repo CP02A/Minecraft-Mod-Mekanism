@@ -48,7 +48,9 @@
     "FluidShimMixin",
     "FluidStateShimMixin",
     "ValueInputShimMixin",
-    "ValueOutputShimMixin"
+    "ValueOutputShimMixin",
+    "RecipeBookTypeEnumAccessor",
+    "RecipeBookTypeEnumExtensionMixin"
   ],
   "client": [
     "KeyMappingShimMixin",

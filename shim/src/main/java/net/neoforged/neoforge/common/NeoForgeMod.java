@@ -110,6 +110,7 @@ import net.neoforged.neoforge.fluids.crafting.display.FluidStackSlotDisplay;
 import net.neoforged.neoforge.fluids.crafting.display.FluidTagSlotDisplay;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.common.world.NoneStructureModifier;
 import net.neoforged.neoforge.registries.holdersets.HolderSetType;
 import net.neoforged.neoforge.registries.holdersets.OrHolderSet;
 
@@ -151,6 +152,10 @@ public class NeoForgeMod {
           "intersection", () -> new FluidIngredientType<>(IntersectionFluidIngredient.CODEC));
     public static final DeferredHolder<FluidIngredientType<?>, FluidIngredientType<CustomDisplayFluidIngredient>> CUSTOM_DISPLAY_FLUID_INGREDIENT = register(NeoForgeRegistries.FLUID_INGREDIENT_TYPES,
           "custom_display", () -> new FluidIngredientType<>(CustomDisplayFluidIngredient.CODEC, CustomDisplayFluidIngredient.STREAM_CODEC));
+
+    // Mekanism shim: Registered so that the structure modifier serializer registry isn't empty
+    public static final DeferredHolder<MapCodec<? extends StructureModifier>, MapCodec<NoneStructureModifier>> NONE_STRUCTURE_MODIFIER_TYPE = register(NeoForgeRegistries.STRUCTURE_MODIFIER_SERIALIZERS,
+          "none", () -> NoneStructureModifier.CODEC);
 
     public static final Holder<HolderSetType> OR_HOLDER_SET = Registry.registerForHolder(NeoForgeRegistries.HOLDER_SET_TYPES,
           Identifier.fromNamespaceAndPath(MOD_ID, "or"), new OrHolderSet.Type());

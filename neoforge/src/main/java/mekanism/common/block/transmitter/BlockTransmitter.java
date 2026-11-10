@@ -83,7 +83,8 @@ public abstract class BlockTransmitter<TILE extends TileEntityTransmitter> exten
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        if (!context.isHoldingItem(MekanismItems.CONFIGURATOR.value())) {
+        //Note: The item may not be registered yet if the shape cache is initialized as blocks get registered (which happens on Fabric)
+        if (!MekanismItems.CONFIGURATOR.isBound() || !context.isHoldingItem(MekanismItems.CONFIGURATOR.value())) {
             return getRealShape(world, pos);
         }
         //Get the partial selection box if we are holding a configurator

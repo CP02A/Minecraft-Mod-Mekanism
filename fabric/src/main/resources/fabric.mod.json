@@ -30,13 +30,17 @@
     ],
     "client": [
       "mekanism.fabric.MekanismFabricClient"
+    ],
+    "neoforge-shim": [
+      "mekanism.fabric.MekanismShimMod"
     ]
   },
   "depends": {
     "fabricloader": "${fabric_loader_version_range}",
     "minecraft": "~26.3",
     "java": ">=${java_version}",
-    "fabric-api": "*"
+    "fabric-api": "*",
+    "forgeconfigapiport": "*"
   },
   "custom": {
     "loom:injected_interfaces": {
@@ -246,6 +250,7 @@
   },
   "accessWidener": "mekanism.accesswidener",
   "mixins": [
+    "mekanism.mixins.json",
     "mekanism-shim.mixins.json"
   ]
 }

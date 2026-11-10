@@ -138,6 +138,15 @@ loom {
             ideConfigGenerated(true)
             runDir('runs/server')
         }
+        //Starts a game test server (which loads a temporary world and exits once all game tests have run), useful as a smoke test
+        gameTestServer {
+            server()
+            setConfigName('Fabric Game Test Server')
+            ideConfigGenerated(false)
+            runDir('runs/gametest')
+            vmArg('-Dfabric-api.gametest')
+            vmArg("-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest/report.xml').get().asFile}")
+        }
     }
 }
 
@@ -154,12 +163,25 @@ tasks.named('compileJava', JavaCompile, {
 tasks.named('processResources', ProcessResources, {
     dependsOn(configurations.commonResources)
     from(configurations.commonResources)
+    //Shared resources, and the generated data (which still lives in the NeoForge project)
+    from(new File(neoSources, 'main/resources')) {
+        exclude('META-INF/neoforge.mods.toml', 'META-INF/accesstransformer.cfg', 'META-INF/enumextensions.json')
+        //Fabric provides its own implementations of the platform services
+        exclude('META-INF/services/mekanism.common.platform.services.IPlatformHelper', 'META-INF/services/mekanism.client.platform.IClientPlatformHelper')
+    }
+    from(new File(neoSources, 'datagen/generated/mekanism')) {
+        exclude('.cache/**', 'pack.mcmeta', '*-compat/**')
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     def expandProps = ['version'                    : version,
                        'minecraft_version_range'    : minecraft_version_range,
                        'fabric_loader_version_range': fabric_loader_version_range,
                        'java_version'               : java_version]
     inputs.properties(expandProps)
-    filesMatching('fabric.mod.json') { expand(expandProps) }
+    //Plain token replacement, as the injected interfaces contain nested class names ($) that would break template expansion
+    filesMatching('fabric.mod.json') {
+        filter { String line -> expandProps.inject(line) { String l, key, value -> l.replace('${' + key + '}', value.toString()) } }
+    }
 })
 
 tasks.named('sourcesJar', Jar, {

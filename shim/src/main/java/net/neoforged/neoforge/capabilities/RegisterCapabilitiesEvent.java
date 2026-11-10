@@ -19,13 +19,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Fired to register capability providers at an appropriate time.
  */
 public class RegisterCapabilitiesEvent extends Event implements IModBusEvent {
-    RegisterCapabilitiesEvent() {}
+    // Mekanism shim: public so that the loader can fire it
+    @ApiStatus.Internal
+    public RegisterCapabilitiesEvent() {}
 
     // BLOCKS
 

@@ -11,15 +11,14 @@ import java.util.Map;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.neoforged.bus.api.Event;
-import net.neoforged.fml.event.IModBusEvent;
 
 /**
  * Fired to register server side reload listeners.
  *
- * <p>Mekanism shim: Fired once by the loader during initialization; the listeners are then registered with the loader's resource reload system.
+ * <p>Mekanism shim: Fired once by the loader on the game bus during initialization; the listeners are then registered with the loader's resource reload system.
  * Dependency ordering between listeners is not supported.
  */
-public class AddServerReloadListenersEvent extends Event implements IModBusEvent {
+public class AddServerReloadListenersEvent extends Event {
 
     private final Map<Identifier, PreparableReloadListener> listeners = new LinkedHashMap<>();
 

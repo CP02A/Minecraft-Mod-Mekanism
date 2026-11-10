@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "mekanism.fabric.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "data.ExtraCodecsMixin",
+    "data.HolderSetCodecMixin",
+    "data.IngredientMixin",
+    "data.ResourceConditionsImplMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
