@@ -49,7 +49,7 @@ public class MekanismClient {
     private static RecipeMap clientRecipeMap = RecipeMap.EMPTY;
 
     public MekanismClient(ModContainer container, IEventBus modEventBus) {
-        ClientServices.PLATFORM.registerClientExtensions(container);
+        ClientServices.PLATFORM.registerClientExtensions(container, MekanismLang.MEKANISM::translate);
         modEventBus.register(TransmitterContentsManager.class);
         modEventBus.register(RobitSpriteUploader.class);
         modEventBus.register(RobitSkinManager.class);

@@ -4,8 +4,32 @@ plugins {
     id('net.fabricmc.fabric-loom')
 }
 
-//Fabric version of Mekanism. Currently this is only a skeleton that loads the loader agnostic code from :common;
-// the actual content still lives in :neoforge and needs to be migrated to :common (behind platform services) first.
+//Fabric version of Mekanism. The shared code is written against NeoForge's API (see :shim), and currently still lives in the :neoforge
+// project's source directories, so compile those here as well (excluding the NeoForge specific implementations).
+def neoSources = rootProject.file('neoforge/src')
+//Shared classes that have Fabric specific implementations (with the same name) in this project
+def fabricOverrides = [
+        'mekanism/client/gui/recipe_book/VirtualRecipeBookComponent.java',
+]
+
+//Gradle's source filters apply to all source directories of a source set, so copy the shared sources (minus the excluded ones) into a
+// separate directory instead of excluding them directly, which would also exclude the Fabric versions of the overridden classes
+def syncSharedSources = tasks.register('syncSharedSources', Sync) {
+    from(new File(neoSources, 'api/java'))
+    from(new File(neoSources, 'main/java'))
+    into(layout.buildDirectory.dir('generated/sharedSources'))
+    exclude('mekanism/api/datagen/**')
+    exclude('mekanism/common/platform/neoforge/**', 'mekanism/client/platform/neoforge/**')
+    exclude(fabricOverrides)
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir(syncSharedSources)
+        }
+    }
+}
 
 group = 'mekanism'
 def basicVersion = "${mod_version}." + (System.getenv('BUILD_NUMBER') ?: 'homebaked')
@@ -32,12 +56,27 @@ def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', Strin
 
 repositories {
     exclusiveContent {
+        forRepository { maven { url = 'https://maven.blamejared.com' } }
+        filter {
+            includeGroup('mezz.jei')
+            includeGroup('org.openzen.zencode')
+        }
+    }
+    exclusiveContent {
+        forRepository { maven { url = 'https://repo.sleeping.town/' } }
+        filter { includeGroup('dev.emi') }
+    }
+    exclusiveContent {
         forRepository { maven { url = 'https://raw.githubusercontent.com/Fuzss/modresources/main/maven/' } }
         filter { includeGroup('fuzs.forgeconfigapiport') }
     }
     exclusiveContent {
         forRepository { maven { url = 'https://maven.neoforged.net/releases' } }
-        filter { includeGroup('net.neoforged') }
+        filter { includeModule('net.neoforged', 'bus') }
+    }
+    exclusiveContent {
+        forRepository { maven { url = 'https://maven.neoforged.net/mojang-meta' } }
+        filter { includeModule('net.neoforged', 'minecraft-dependencies') }
     }
 }
 
@@ -46,6 +85,15 @@ dependencies {
     implementation("net.fabricmc:fabric-loader:${fabric_loader_version}")
     implementation("net.fabricmc.fabric-api:fabric-api:${fabric_api_version}")
     compileOnly('org.jspecify:jspecify:1.0.0')
+    compileOnly('com.google.errorprone:error_prone_annotations:2.36.0')
+    compileOnly('org.jetbrains:annotations:26.0.2')
+    compileOnly(project(':annotation-processor'))
+    annotationProcessor(project(':annotation-processor'))
+    //The API exposes helpers for recipe viewer integrations
+    compileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    compileOnly("dev.emi:emi-neoforge:${emi_version}:api") {
+        transitive = false
+    }
 
     compileOnly(project(':common')) {
         attributes {
@@ -75,6 +123,8 @@ dependencies {
 }
 
 loom {
+    //Generated from the access transformers by gen_fabric_glue.py
+    accessWidenerPath = file('src/main/resources/mekanism.accesswidener')
     runs {
         client {
             client()
@@ -93,7 +143,7 @@ loom {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-    options.compilerArgs.add('-parameters')
+    options.compilerArgs.addAll(['-parameters', '-AmekanismModule=mekanism', '-Xmaxerrs', '20000'])
 }
 
 tasks.named('compileJava', JavaCompile, {

@@ -1,9 +1,24 @@
 {
+  "com/mojang/math/Transformation": [
+    "net/neoforged/neoforge/common/extensions/ITransformationExtension"
+  ],
   "net/minecraft/client/KeyMapping": [
     "net/neoforged/neoforge/shim/extensions/IKeyMappingExtension"
   ],
+  "net/minecraft/client/Minecraft": [
+    "net/neoforged/neoforge/shim/extensions/IMinecraftExtension"
+  ],
   "net/minecraft/client/gui/GuiGraphicsExtractor": [
     "net/neoforged/neoforge/shim/extensions/IGuiGraphicsExtractorExtension"
+  ],
+  "net/minecraft/client/gui/components/AbstractWidget": [
+    "net/neoforged/neoforge/shim/extensions/IAbstractWidgetExtension"
+  ],
+  "net/minecraft/client/gui/screens/inventory/AbstractContainerScreen": [
+    "net/neoforged/neoforge/shim/extensions/IAbstractContainerScreenExtension"
+  ],
+  "net/minecraft/client/gui/screens/recipebook/RecipeButton": [
+    "net/neoforged/neoforge/shim/extensions/IRecipeButtonExtension"
   ],
   "net/minecraft/client/particle/Particle": [
     "net/neoforged/neoforge/shim/extensions/IParticleExtension"
@@ -11,11 +26,41 @@
   "net/minecraft/client/particle/TerrainParticle": [
     "net/neoforged/neoforge/shim/extensions/ITerrainParticleExtension"
   ],
+  "net/minecraft/client/renderer/OrderedSubmitNodeCollector": [
+    "net/neoforged/neoforge/client/extensions/OrderedSubmitNodeCollectorExtension"
+  ],
+  "net/minecraft/client/renderer/SubmitNodeStorage": [
+    "net/neoforged/neoforge/client/extensions/SubmitNodeStorageExtension"
+  ],
+  "net/minecraft/client/renderer/block/dispatch/BlockStateModel": [
+    "net/neoforged/neoforge/client/extensions/BlockStateModelExtension"
+  ],
+  "net/minecraft/client/renderer/block/dispatch/ModelState": [
+    "net/neoforged/neoforge/client/extensions/ModelStateExtension"
+  ],
   "net/minecraft/client/renderer/blockentity/BlockEntityRenderer": [
     "net/neoforged/neoforge/client/extensions/IBlockEntityRendererExtension<T>"
   ],
+  "net/minecraft/client/renderer/blockentity/ChestRenderer": [
+    "net/neoforged/neoforge/shim/extensions/IChestRendererExtension<T>"
+  ],
+  "net/minecraft/client/renderer/entity/state/EntityRenderState": [
+    "net/neoforged/neoforge/shim/extensions/IBaseRenderStateExtension"
+  ],
   "net/minecraft/client/renderer/texture/TextureAtlasSprite": [
     "net/neoforged/neoforge/shim/extensions/ITextureAtlasSpriteExtension"
+  ],
+  "net/minecraft/client/resources/model/ModelBakery$BakingResult": [
+    "net/neoforged/neoforge/shim/extensions/IBakingResultExtension"
+  ],
+  "net/minecraft/client/resources/model/ResolvedModel": [
+    "net/neoforged/neoforge/client/extensions/ResolvedModelExtension"
+  ],
+  "net/minecraft/client/resources/model/UnbakedModel": [
+    "net/neoforged/neoforge/client/extensions/UnbakedModelExtension"
+  ],
+  "net/minecraft/client/resources/model/geometry/UnbakedGeometry": [
+    "net/neoforged/neoforge/client/extensions/UnbakedGeometryExtension"
   ],
   "net/minecraft/core/Holder": [
     "net/neoforged/neoforge/common/extensions/IHolderExtension<T>"
@@ -108,6 +153,9 @@
   ],
   "net/minecraft/world/item/crafting/RecipeManager": [
     "net/neoforged/neoforge/shim/extensions/IRecipeManagerExtension"
+  ],
+  "net/minecraft/world/level/BlockGetter": [
+    "net/neoforged/neoforge/shim/extensions/IBlockGetterExtension"
   ],
   "net/minecraft/world/level/Level": [
     "net/neoforged/neoforge/common/extensions/ILevelExtension",

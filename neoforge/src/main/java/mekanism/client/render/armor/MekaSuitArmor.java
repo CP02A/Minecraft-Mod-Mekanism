@@ -1,5 +1,6 @@
 package mekanism.client.render.armor;
 
+import mekanism.client.platform.ClientServices;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -176,10 +177,10 @@ public class MekaSuitArmor implements ICustomArmor, ISpecialGear {
                 long gameTime = Minecraft.getInstance().level == null ? 0L : Minecraft.getInstance().level.getGameTime();
                 BoltRenderer boltRenderer = boltRenderMap.computeIfAbsent(entityUUID, _ -> new BoltRenderer());
                 if (IModuleHelper.INSTANCE.isEnabled(state.chestEquipment, MekanismModules.GRAVITATIONAL_MODULATING_UNIT)) {
-                    boltRenderer.update(0, LEFT_GRAV_BOLT, gameTime, state.partialTick);
-                    boltRenderer.update(1, RIGHT_GRAV_BOLT, gameTime, state.partialTick);
+                    boltRenderer.update(0, LEFT_GRAV_BOLT, gameTime, ClientServices.PLATFORM.getPartialTick(state));
+                    boltRenderer.update(1, RIGHT_GRAV_BOLT, gameTime, ClientServices.PLATFORM.getPartialTick(state));
                 }
-                List<BoltRenderState> boltRenderStates = boltRenderer.collectBoltStates(gameTime, state.partialTick);
+                List<BoltRenderState> boltRenderStates = boltRenderer.collectBoltStates(gameTime, ClientServices.PLATFORM.getPartialTick(state));
                 if (!boltRenderStates.isEmpty()) {
                     //Adjust the poseStack so that we render the lightning in the correct spot if the player is crouching
                     poseStack.pushPose();

@@ -1,5 +1,6 @@
 package mekanism.client.render;
 
+import mekanism.client.platform.ClientServices;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import java.util.Map;
@@ -315,10 +316,10 @@ public class RenderTickHandler {
                                 VoxelShape collisionShape = state.getCollisionShape(world, blastingTarget, context);
                                 VoxelShape occlusionShape = state.getOcclusionShape();
                                 VoxelShape interactionShape = state.getInteractionShape(world, blastingTarget);
-                                blockOutlineRenderState = new BlockOutlineRenderState(blastingTarget, isBlockTranslucent, highContrast, shape, collisionShape,
+                                blockOutlineRenderState = ClientServices.PLATFORM.createOutlineState(blastingTarget, isBlockTranslucent, highContrast, shape, collisionShape,
                                       occlusionShape, interactionShape, subEvent.getCustomRenderers());
                             } else {
-                                blockOutlineRenderState = new BlockOutlineRenderState(blastingTarget, isBlockTranslucent, highContrast, shape, subEvent.getCustomRenderers());
+                                blockOutlineRenderState = ClientServices.PLATFORM.createOutlineState(blastingTarget, isBlockTranslucent, highContrast, shape, null, null, null, subEvent.getCustomRenderers());
                             }
                             event.addCustomRenderer(new ProxyOutlineRenderer(blockOutlineRenderState, false));
                         }

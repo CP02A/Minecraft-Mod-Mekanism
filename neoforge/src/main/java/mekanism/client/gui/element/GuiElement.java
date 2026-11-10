@@ -592,9 +592,6 @@ public abstract class GuiElement extends AbstractWidget implements IFancyFontRen
 
     @Override
     public int getLabelTextColor() {
-        if (labelTextColor != null) {
-            return labelTextColor;
-        }
         return this.active ? activeButtonTextColor() : inactiveButtonTextColor();
     }
 

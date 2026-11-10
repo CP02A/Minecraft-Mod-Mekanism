@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client.gui.GuiLayer;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.client.model.standalone.StandaloneModelLoader;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -26,4 +27,9 @@ public interface ClientBackend {
      * @param above      {@code true} to render above the other layer(s), {@code false} to render below.
      */
     void registerGuiLayer(Identifier id, GuiLayer layer, @Nullable Identifier relativeTo, boolean above);
+
+    /**
+     * {@return the baked standalone models registered via NeoForge's standalone model registration event}
+     */
+    StandaloneModelLoader.BakedModels getStandaloneModels();
 }

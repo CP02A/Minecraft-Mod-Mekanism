@@ -1,5 +1,6 @@
 package mekanism.additions.client;
 
+import mekanism.client.platform.ClientServices;
 import io.netty.channel.local.LocalAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -7,15 +8,11 @@ import mekanism.additions.client.voice.VoiceClient;
 import mekanism.additions.common.AdditionsLang;
 import mekanism.additions.common.MekanismAdditions;
 import mekanism.additions.common.config.MekanismAdditionsConfig;
-import mekanism.client.MekanismModDisplayInfo;
 import mekanism.common.Mekanism;
 import net.minecraft.network.Connection;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.client.gui.ConfigurationScreen;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-import net.neoforged.neoforge.client.gui.modlist.ModDisplayInfo;
 import org.jspecify.annotations.Nullable;
 
 @Mod(value = MekanismAdditions.MODID, dist = Dist.CLIENT)
@@ -25,8 +22,7 @@ public class AdditionsClient {
     private static VoiceClient voiceClient;
 
     public AdditionsClient(ModContainer container) {
-        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
-        container.<ModDisplayInfo>registerExtensionPoint(ModDisplayInfo.class, () -> new MekanismModDisplayInfo(container, AdditionsLang.MEKANISM_ADDITIONS));
+        ClientServices.PLATFORM.registerClientExtensions(container, AdditionsLang.MEKANISM_ADDITIONS::translate);
     }
 
     public static void reset() {

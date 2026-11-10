@@ -1,5 +1,6 @@
 package mekanism.client.model.blockstate;
 
+import mekanism.client.platform.ClientServices;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -188,13 +189,13 @@ public class TransmitterBlockStateModel implements DynamicBlockStateModel {
                     partsVisibility.put(partName, true);
 
                     //bake core
-                    BlockStateModelPart baked = SimpleModelWrapper.bake(bakerToUse, partVisibilityDelegate.as(baseModel), modelStateToUse);
+                    BlockStateModelPart baked = ClientServices.PLATFORM.bakeSimpleModel(bakerToUse, partVisibilityDelegate.as(baseModel), modelStateToUse);
                     materialFlags |= baked.materialFlags();
                     baseParts.put(direction, connectionType, baked);
 
                     //if we have glass, bake that
                     if (glassModel != null) {
-                        baked = SimpleModelWrapper.bake(bakerToUse, partVisibilityDelegate.as(glassModel), modelStateToUse);
+                        baked = ClientServices.PLATFORM.bakeSimpleModel(bakerToUse, partVisibilityDelegate.as(glassModel), modelStateToUse);
                         glassParts.put(direction, connectionType, baked);
                         materialFlags |= baked.materialFlags();
                     }

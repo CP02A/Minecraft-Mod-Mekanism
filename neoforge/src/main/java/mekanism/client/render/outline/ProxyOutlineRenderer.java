@@ -1,5 +1,6 @@
 package mekanism.client.render.outline;
 
+import mekanism.client.platform.ClientServices;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -28,7 +29,7 @@ public class ProxyOutlineRenderer implements CustomBlockOutlineRenderer {
     @Override
     public final boolean render(BlockOutlineRenderState ignored, SubmitNodeCollector nodeCollector, PoseStack poseStack, LevelRenderState levelRenderState) {
         boolean cancel = false;
-        for (CustomBlockOutlineRenderer customRenderer : state.customRenderers()) {
+        for (CustomBlockOutlineRenderer customRenderer : ClientServices.PLATFORM.getCustomOutlineRenderers(state)) {
             cancel |= customRenderer.render(state, nodeCollector, poseStack, levelRenderState);
         }
         if (!cancel) {

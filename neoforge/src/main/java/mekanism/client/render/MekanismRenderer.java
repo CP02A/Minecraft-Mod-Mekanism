@@ -1,5 +1,6 @@
 package mekanism.client.render;
 
+import mekanism.client.platform.ClientServices;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
@@ -119,11 +120,7 @@ public class MekanismRenderer {
 
     public static int getColorARGB(TypedInstance<Fluid> typedInstance) {
         FluidModel fluidModel = getFluidModel(typedInstance);
-        FluidTintSource tintSource = fluidModel.fluidTintSource();
-        if (tintSource == null) {
-            return CommonColors.WHITE;
-        }
-        return tintSource.color(typedInstance.typeHolder().value().defaultFluidState());
+        return ClientServices.PLATFORM.getFluidTint(fluidModel, typedInstance.typeHolder().value());
     }
 
     public static int getColorARGB(FluidResource fluidType, float fluidScale) {

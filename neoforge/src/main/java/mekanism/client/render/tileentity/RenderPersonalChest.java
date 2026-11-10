@@ -22,7 +22,7 @@ public class RenderPersonalChest extends ChestRenderer<TileEntityPersonalChest> 
 
     @Nullable
     @Override
-    protected SpriteId getCustomSprite(TileEntityPersonalChest chest, ChestRenderState state) {
+    public SpriteId getCustomSprite(TileEntityPersonalChest chest, ChestRenderState state) {
         return MATERIAL;
     }
 }

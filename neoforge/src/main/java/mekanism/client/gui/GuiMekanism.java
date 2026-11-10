@@ -88,6 +88,16 @@ public abstract class GuiMekanism<CONTAINER extends AbstractContainerMenu> exten
     }
 
     @Override
+    public int getLeftPos() {
+        return leftPos;
+    }
+
+    @Override
+    public int getTopPos() {
+        return topPos;
+    }
+
+    @Override
     public int getImageWidth() {
         return imageWidth;
     }

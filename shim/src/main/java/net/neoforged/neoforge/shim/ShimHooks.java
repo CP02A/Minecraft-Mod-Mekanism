@@ -112,6 +112,28 @@ public final class ShimHooks {
         return KEY_MAPPING_DATA.computeIfAbsent(keyMapping, k -> new KeyMappingData());
     }
 
+    private static final Map<Object, Map<Object, Object>> RENDER_DATA = Collections.synchronizedMap(new WeakHashMap<>());
+
+    /**
+     * {@return the custom render data of a render state, which NeoForge stores in the render state itself}
+     */
+    public static Map<Object, Object> getRenderData(Object renderState) {
+        return RENDER_DATA.computeIfAbsent(renderState, k -> new java.util.IdentityHashMap<>());
+    }
+
+    @Nullable
+    private static Object blockModelResolver;
+
+    /**
+     * @param minecraft The client (typed as Object as this class is also loaded on dedicated servers).
+     */
+    public static net.minecraft.client.renderer.block.BlockModelResolver getBlockModelResolver(Object minecraft) {
+        if (blockModelResolver == null) {
+            blockModelResolver = new net.minecraft.client.renderer.block.BlockModelResolver(((net.minecraft.client.Minecraft) minecraft).getModelManager());
+        }
+        return (net.minecraft.client.renderer.block.BlockModelResolver) blockModelResolver;
+    }
+
     /**
      * Set by the loader once capabilities have been registered.
      */

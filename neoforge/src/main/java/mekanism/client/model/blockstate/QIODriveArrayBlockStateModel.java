@@ -1,5 +1,6 @@
 package mekanism.client.model.blockstate;
 
+import mekanism.client.platform.ClientServices;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.MapCodec;
 import java.util.List;
@@ -92,7 +93,7 @@ public record QIODriveArrayBlockStateModel(BlockStateModelPart basePart, BlockSt
         public QIODriveArrayBlockStateModel bake(ModelBaker baker) {
             ModelState baseTransforms = baseModel.modelState().asModelState();
             ResolvedModel model = baker.getModel(baseModel.modelLocation());
-            BlockStateModelPart bakedBase = SimpleModelWrapper.bake(baker, model, baseTransforms);
+            BlockStateModelPart bakedBase = ClientServices.PLATFORM.bakeSimpleModel(baker, model, baseTransforms);
             BlockStateModelPart[][] slotToBakedDrive = new BlockStateModelPart[TileEntityQIODriveArray.DRIVE_SLOTS][];
             for (int slot = 0; slot < TileEntityQIODriveArray.DRIVE_SLOTS; slot++) {
                 BlockStateModelPart[] slotBakedParts = new BlockStateModelPart[DriveStatus.VALUES.size()];

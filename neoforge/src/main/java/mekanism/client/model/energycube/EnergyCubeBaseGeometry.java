@@ -1,5 +1,6 @@
 package mekanism.client.model.energycube;
 
+import mekanism.client.platform.ClientServices;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
@@ -83,15 +84,7 @@ public class EnergyCubeBaseGeometry implements ExtendedUnbakedGeometry {
         Map<RelativeSide, UnbakedCuboidGeometry> ledsLit = new EnumMap<>(RelativeSide.class);
         for (Map.Entry<RelativeSide, UnbakedCuboidGeometry> entry : leds.entrySet()) {
             List<CuboidModelElement> litElements = entry.getValue().elements().stream()
-                  .map(unlit -> new CuboidModelElement(
-                        unlit.from(),
-                        unlit.to(),
-                        remapLedUVs(unlit, ledUShift, ledVShift),
-                        unlit.rotation(),
-                        Direction.UP,
-                        15,
-                        unlit.faceData()
-                  ))
+                  .map(unlit -> ClientServices.PLATFORM.copyCuboidElement(unlit, remapLedUVs(unlit, ledUShift, ledVShift), Direction.UP, 15))
                   .toList();
             ledsLit.put(entry.getKey(), new UnbakedCuboidGeometry(litElements));
         }
@@ -115,15 +108,7 @@ public class EnergyCubeBaseGeometry implements ExtendedUnbakedGeometry {
                         origUvs.maxV() + ledVShift
                   );
                   //attach them to a new face instance
-                  CuboidFace newFace = new CuboidFace(
-                        origFace.cullForDirection(),
-                        origFace.tintIndex(),
-                        origFace.texture(),
-                        newUVs,
-                        origFace.rotation(),
-                        origFace.faceData(),
-                        origFace.parent()
-                  );
+                  CuboidFace newFace = ClientServices.PLATFORM.copyCuboidFace(origFace, newUVs);
                   //zip it back up
                   return Map.entry(faceEntry.getKey(), newFace);
               })

@@ -114,7 +114,7 @@ public abstract class VirtualSlotContainerScreen<T extends AbstractContainerMenu
     }
 
     @Override
-    protected void renderSlotContents(GuiGraphicsExtractor graphics, ItemStack itemStack, Slot slot, @Nullable String itemCount) {
+    public void renderSlotContents(GuiGraphicsExtractor graphics, ItemStack itemStack, Slot slot, @Nullable String itemCount) {
         //Note: Technically we don't need to override this as we override the one caller in extractSlot to not call it for virtual slots,
         // but having it here in case we end up calling it from somewhere else doesn't hurt
         if (slot instanceof IVirtualSlot virtualSlot) {

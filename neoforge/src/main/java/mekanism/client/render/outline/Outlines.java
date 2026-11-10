@@ -1,5 +1,6 @@
 package mekanism.client.render.outline;
 
+import mekanism.client.platform.ClientServices;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -106,10 +107,10 @@ public class Outlines {
                     VoxelShape collisionShape = actualState.getCollisionShape(level, actualPos, context);
                     VoxelShape occlusionShape = actualState.getOcclusionShape();
                     VoxelShape interactionShape = actualState.getInteractionShape(level, actualPos);
-                    proxyState = new BlockOutlineRenderState(actualPos, isBlockTranslucent, highContrast, shape, collisionShape, occlusionShape, interactionShape,
+                    proxyState = ClientServices.PLATFORM.createOutlineState(actualPos, isBlockTranslucent, highContrast, shape, collisionShape, occlusionShape, interactionShape,
                           Collections.emptyList());
                 } else {
-                    proxyState = new BlockOutlineRenderState(actualPos, isBlockTranslucent, highContrast, shape, Collections.emptyList());
+                    proxyState = ClientServices.PLATFORM.createOutlineState(actualPos, isBlockTranslucent, highContrast, shape, null, null, null, Collections.emptyList());
                 }
                 event.addCustomRenderer(new ProxyOutlineRenderer(proxyState, true));
             }

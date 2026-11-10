@@ -1,6 +1,6 @@
 package mekanism.client.platform.neoforge;
 
-import mekanism.api.text.ILangEntry;
+import java.util.function.Supplier;
 import mekanism.common.base.holiday.HolidayManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -11,9 +11,9 @@ import org.jspecify.annotations.Nullable;
 
 public class MekanismModDisplayInfo extends DefaultModDisplayInfo {
 
-    private final ILangEntry translatableDisplayName;
+    private final Supplier<Component> translatableDisplayName;
 
-    public MekanismModDisplayInfo(ModContainer container, ILangEntry translatableDisplayName) {
+    public MekanismModDisplayInfo(ModContainer container, Supplier<Component> translatableDisplayName) {
         super(container);
         this.translatableDisplayName = translatableDisplayName;
     }
@@ -21,7 +21,7 @@ public class MekanismModDisplayInfo extends DefaultModDisplayInfo {
     @Override
     public Component displayName() {
         //Allow translating the display name so that it can display upside down
-        return translatableDisplayName.translate();
+        return translatableDisplayName.get();
     }
 
     @Override

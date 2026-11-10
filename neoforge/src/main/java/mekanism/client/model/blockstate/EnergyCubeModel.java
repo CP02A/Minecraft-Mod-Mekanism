@@ -1,5 +1,6 @@
 package mekanism.client.model.blockstate;
 
+import mekanism.client.platform.ClientServices;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
@@ -135,7 +136,7 @@ public class EnergyCubeModel implements DynamicBlockStateModel {
             ResolvedModel model = baker.getModel(tierModel.modelLocation());
 
             ModelState tierModelState = tierModel.modelState().asModelState();
-            BlockStateModelPart frame = SimpleModelWrapper.bake(baker, model, tierModelState);
+            BlockStateModelPart frame = ClientServices.PLATFORM.bakeSimpleModel(baker, model, tierModelState);
 
             for (RelativeSide side : RelativeSide.VALUES) {
                 Map<CubeSideState, BlockStateModelPart> sideMap = new HashMap<>(2);
@@ -149,7 +150,7 @@ public class EnergyCubeModel implements DynamicBlockStateModel {
         }
 
         private static void addSideState(ModelBaker baker, RelativeSide side, Map<CubeSideState, BlockStateModelPart> sideMap, ResolvedModel model, ModelState tierModelState, CubeSideState sideState) {
-            sideMap.put(sideState, SimpleModelWrapper.bake(baker, model, new CubeSideModelState(tierModelState, side, sideState)));
+            sideMap.put(sideState, ClientServices.PLATFORM.bakeSimpleModel(baker, model, new CubeSideModelState(tierModelState, side, sideState)));
         }
 
         @Override

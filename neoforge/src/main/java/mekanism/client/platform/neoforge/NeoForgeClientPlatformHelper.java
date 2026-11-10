@@ -1,7 +1,28 @@
 package mekanism.client.platform.neoforge;
 
 import mekanism.client.platform.IClientPlatformHelper;
-import mekanism.common.MekanismLang;
+import java.util.function.Supplier;
+import net.minecraft.network.chat.Component;
+import java.util.List;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.block.dispatch.ModelState;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.state.level.BlockOutlineRenderState;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ResolvedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.client.CustomBlockOutlineRenderer;
+import org.jspecify.annotations.Nullable;
+import net.minecraft.client.resources.model.SimpleModelWrapper;
+import net.minecraft.util.CommonColors;
+import net.neoforged.neoforge.client.fluid.FluidTintSource;
+import java.util.Map;
+import net.minecraft.client.resources.model.cuboid.CuboidFace;
+import net.minecraft.client.resources.model.cuboid.CuboidModelElement;
+import net.minecraft.core.Direction;
 import net.minecraft.client.gui.Hud;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
@@ -26,8 +47,45 @@ public class NeoForgeClientPlatformHelper implements IClientPlatformHelper {
     }
 
     @Override
-    public void registerClientExtensions(ModContainer container) {
+    public void registerClientExtensions(ModContainer container, Supplier<Component> modName) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
-        container.<ModDisplayInfo>registerExtensionPoint(ModDisplayInfo.class, () -> new MekanismModDisplayInfo(container, MekanismLang.MEKANISM));
+        container.<ModDisplayInfo>registerExtensionPoint(ModDisplayInfo.class, () -> new MekanismModDisplayInfo(container, modName));
+    }
+
+    @Override
+    public BlockStateModelPart bakeSimpleModel(ModelBaker baker, ResolvedModel model, ModelState state) {
+        return SimpleModelWrapper.bake(baker, model, state);
+    }
+
+    @Override
+    public int getFluidTint(FluidModel fluidModel, Fluid fluid) {
+        FluidTintSource tintSource = fluidModel.fluidTintSource();
+        return tintSource == null ? CommonColors.WHITE : tintSource.color(fluid.defaultFluidState());
+    }
+
+    @Override
+    public float getPartialTick(EntityRenderState state) {
+        return state.partialTick;
+    }
+
+    @Override
+    public BlockOutlineRenderState createOutlineState(BlockPos pos, boolean translucent, boolean highContrast, VoxelShape shape, @Nullable VoxelShape collisionShape,
+          @Nullable VoxelShape occlusionShape, @Nullable VoxelShape interactionShape, List<CustomBlockOutlineRenderer> customRenderers) {
+        return new BlockOutlineRenderState(pos, translucent, highContrast, shape, collisionShape, occlusionShape, interactionShape, customRenderers);
+    }
+
+    @Override
+    public List<CustomBlockOutlineRenderer> getCustomOutlineRenderers(BlockOutlineRenderState state) {
+        return state.customRenderers();
+    }
+
+    @Override
+    public CuboidModelElement copyCuboidElement(CuboidModelElement element, Map<Direction, CuboidFace> faces, @Nullable Direction shadeDirectionOverride, int lightEmission) {
+        return new CuboidModelElement(element.from(), element.to(), faces, element.rotation(), shadeDirectionOverride, lightEmission, element.faceData());
+    }
+
+    @Override
+    public CuboidFace copyCuboidFace(CuboidFace face, CuboidFace.UVs uvs) {
+        return new CuboidFace(face.cullForDirection(), face.tintIndex(), face.texture(), uvs, face.rotation(), face.faceData(), face.parent());
     }
 }

@@ -1,5 +1,6 @@
 package mekanism.client.model.blockstate;
 
+import mekanism.client.platform.ClientServices;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
@@ -77,7 +78,7 @@ public class QIORedstoneAdapterModel implements DynamicBlockStateModel {
 
         private static BlockStateModelPart bakePart(ModelBaker baker, ModelState modelState, Identifier identifier) {
             ResolvedModel model = baker.getModel(identifier);
-            return SimpleModelWrapper.bake(baker, model, modelState);
+            return ClientServices.PLATFORM.bakeSimpleModel(baker, model, modelState);
         }
 
         @Override

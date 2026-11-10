@@ -108,7 +108,7 @@ public class MekanismRecipeButton extends RecipeButton implements IRecipeViewerI
     }
 
     @Override
-    protected void extractDisplayRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, boolean displayMultiple) {
+    public void extractDisplayRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, boolean displayMultiple) {
         switch (getGeneralDisplayStack()) {
             case ItemStack currentItemStack -> {
                 int offset = 4;
