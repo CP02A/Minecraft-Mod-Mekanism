@@ -130,4 +130,44 @@ public class TransferBridgeTests {
             helper.succeed();
         });
     }
+
+    @GameTest(maxTicks = 600)
+    public void poweredMachineProcessesRecipe(GameTestHelper helper) {
+        helper.setBlock(POS, MekanismBlocks.ENRICHMENT_CHAMBER.defaultState());
+        helper.getLevel().getBlockEntity(helper.absolutePos(POS)).applyComponentsFromItemStack(new ItemStack(MekanismBlocks.ENRICHMENT_CHAMBER));
+        helper.runAfterDelay(2, () -> {
+            BlockPos absolute = helper.absolutePos(POS);
+            ResourceHandler<ItemResource> items = Capabilities.Item.BLOCK.getCapability(helper.getLevel(), absolute, null, null, null);
+            net.neoforged.neoforge.transfer.energy.EnergyHandler energy = Capabilities.Energy.BLOCK.getCapability(helper.getLevel(), absolute, null, null, null);
+            helper.assertTrue(items != null && energy != null, net.minecraft.network.chat.Component.literal("Expected item and energy handlers"));
+            try (Transaction transaction = Transaction.openRoot()) {
+                int insertedOre = 0;
+                for (Direction side : Direction.values()) {
+                    ResourceHandler<ItemResource> sided = Capabilities.Item.BLOCK.getCapability(helper.getLevel(), absolute, null, null, side);
+                    if (sided != null && (insertedOre = sided.insert(ItemResource.of(Items.IRON_ORE), 1, transaction)) > 0) {
+                        break;
+                    }
+                }
+                helper.assertValueEqual(insertedOre, 1, "inserted iron ore");
+                int insertedEnergy = 0;
+                for (Direction side : Direction.values()) {
+                    net.neoforged.neoforge.transfer.energy.EnergyHandler sided = Capabilities.Energy.BLOCK.getCapability(helper.getLevel(), absolute, null, null, side);
+                    if (sided != null && (insertedEnergy = sided.insert(Integer.MAX_VALUE, transaction)) > 0) {
+                        break;
+                    }
+                }
+                helper.assertTrue(insertedEnergy > 0, net.minecraft.network.chat.Component.literal("The machine should accept energy"));
+                transaction.commit();
+            }
+            //Wait for the recipe (which requires the #c:ores/iron tag and Mekanism's recipe format to have loaded) to finish processing
+            helper.succeedWhen(() -> {
+                for (int slot = 0; slot < items.size(); slot++) {
+                    if (items.getResource(slot).getItem() == mekanism.common.registries.MekanismItems.PROCESSED_RESOURCES.get(mekanism.common.resource.ResourceType.DUST, mekanism.common.resource.PrimaryResource.IRON).asItem() && items.getAmountAsInt(slot) == 2) {
+                        return;
+                    }
+                }
+                throw helper.assertionException("Expected 2 iron dust in the enrichment chamber");
+            });
+        });
+    }
 }
