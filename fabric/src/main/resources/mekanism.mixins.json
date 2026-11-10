@@ -20,6 +20,7 @@
     "hooks.RecipeMapAccessor",
     "hooks.ResultSlotMixin",
     "hooks.ServerPlayerMixin",
+    "hooks.SlotMixin",
     "hooks.ServerLevelMixin",
     "hooks.TicketStorageMixin"
   ],
@@ -40,6 +41,7 @@
     "client.ModelManagerReloadStateAccessor",
     "client.MouseHandlerMixin",
     "client.ParticleResourcesMixin",
+    "client.SessionSearchTreesMixin",
     "client.SoundEngineMixin",
     "client.TextureAtlasMixin",
     "client.UnbakedModelJsonDeserializerMixin"

@@ -3,11 +3,14 @@ package mekanism.fabric.gametest;
 import mekanism.client.MekanismClient;
 import mekanism.client.gui.GuiMekanism;
 import com.mojang.blaze3d.platform.InputConstants;
+import io.netty.buffer.Unpooled;
 import java.util.List;
 import mekanism.api.RelativeSide;
 import mekanism.client.gui.GuiMekanismTile;
 import mekanism.client.gui.element.button.SideDataButton;
+import mekanism.client.gui.element.tab.window.GuiRecipeBookWindowTab;
 import mekanism.client.gui.element.tab.window.GuiSideConfigurationTab;
+import mekanism.client.gui.element.window.GuiRecipeBookWindow;
 import mekanism.client.gui.element.window.GuiSideConfiguration;
 import mekanism.client.gui.element.window.GuiWindow;
 import mekanism.client.model.MekanismModelCache;
@@ -19,6 +22,11 @@ import mekanism.common.util.WorldUtils;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.stats.RecipeBookSettings;
+import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.level.Level;
 import mekanism.client.render.MekanismRenderer;
 import mekanism.common.recipe.MekanismRecipeType;
@@ -38,9 +46,11 @@ public class MekanismClientTests implements FabricClientGameTest {
     @Override
     public void runTest(ClientGameTestContext context) {
         context.takeScreenshot("mekanism-title-screen");
+        checkModdedRecipeBookSettings();
         try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
             singleplayer.getConnection().waitForChunksRender();
             singleplayer.getServer().runCommand("time set day");
+            singleplayer.getServer().runCommand("recipe give @a *");
             singleplayer.getServer().runCommand("execute as @p at @s run setblock ~2 ~ ~ mekanism:basic_energy_cube");
             singleplayer.getServer().runCommand("execute as @p at @s run setblock ~2 ~ ~1 mekanism:osmium_ore");
             singleplayer.getServer().runCommand("execute as @p at @s run setblock ~2 ~ ~-1 mekanism:basic_fluid_tank");
@@ -105,8 +115,37 @@ public class MekanismClientTests implements FabricClientGameTest {
             context.waitFor(client -> bottomDataType(client.player.level(), machinePos) != before);
             context.waitTicks(5);
             context.takeScreenshot("mekanism-side-config");
+
+            //Open Mekanism's recipe book (modded recipe book type and search category)
+            context.runOnClient(client -> List.copyOf(((GuiMekanism<?>) client.gui.screen()).getWindows()).forEach(GuiWindow::close));
+            context.waitTicks(2);
+            clickElement(context, context.computeOnClient(client -> findElement(client.gui.screen().children(), GuiRecipeBookWindowTab.class)));
+            context.waitFor(client -> client.gui.screen() instanceof GuiMekanism<?> gui && gui.getWindows().stream().anyMatch(GuiRecipeBookWindow.class::isInstance));
+            context.waitTicks(5);
+            context.takeScreenshot("mekanism-recipe-book");
             context.setScreen(() -> null);
             context.waitTicks(5);
+        }
+    }
+
+    /**
+     * Checks that the settings of modded recipe book types are saved and synced.
+     */
+    private static void checkModdedRecipeBookSettings() {
+        RecipeBookType type = RecipeBookType.valueOf("MEKANISM_ENRICHING");
+        RecipeBookSettings settings = new RecipeBookSettings();
+        settings.setOpen(type, true);
+        settings.setFiltering(type, true);
+        Tag saved = RecipeBookSettings.MAP_CODEC.codec().encodeStart(NbtOps.INSTANCE, settings).getOrThrow();
+        RecipeBookSettings loaded = RecipeBookSettings.MAP_CODEC.codec().parse(NbtOps.INSTANCE, saved).getOrThrow();
+        if (!loaded.isOpen(type) || !loaded.isFiltering(type)) {
+            throw new AssertionError("Modded recipe book settings were not saved: " + saved);
+        }
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        RecipeBookSettings.STREAM_CODEC.encode(buf, settings);
+        RecipeBookSettings synced = RecipeBookSettings.STREAM_CODEC.decode(buf);
+        if (!synced.isOpen(type) || !synced.isFiltering(type) || buf.isReadable()) {
+            throw new AssertionError("Modded recipe book settings were not synced");
         }
     }
 
