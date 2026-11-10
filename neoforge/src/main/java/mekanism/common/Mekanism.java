@@ -62,6 +62,7 @@ import mekanism.common.network.PacketUtils;
 import mekanism.common.network.to_client.transmitter.PacketChemicalNetworkContents;
 import mekanism.common.network.to_client.transmitter.PacketFluidNetworkContents;
 import mekanism.common.network.to_client.transmitter.PacketNetworkScale;
+import mekanism.common.platform.MekanismCommon;
 import mekanism.common.recipe.MekanismRecipeType;
 import mekanism.common.recipe.condition.MekanismRecipeConditions;
 import mekanism.common.registries.MekanismAttachmentTypes;
@@ -168,6 +169,7 @@ public class Mekanism {
 
     public Mekanism(ModContainer modContainer, IEventBus modEventBus) {
         instance = this;
+        MekanismCommon.init();
         //Set our version number to match the neoforge.mods.toml file, which matches the one in our build.gradle
         versionNumber = new Version(modContainer);
         MekanismConfig.registerConfigs(modContainer);

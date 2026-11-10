@@ -1,0 +1,102 @@
+plugins {
+    id('java')
+    id('idea')
+    id('net.fabricmc.fabric-loom')
+}
+
+//Fabric version of Mekanism. Currently this is only a skeleton that loads the loader agnostic code from :common;
+// the actual content still lives in :neoforge and needs to be migrated to :common (behind platform services) first.
+
+group = 'mekanism'
+def basicVersion = "${mod_version}." + (System.getenv('BUILD_NUMBER') ?: 'homebaked')
+version = "${minecraft_version}-${basicVersion}"
+base.archivesName = 'Mekanism-fabric'
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of("${java_version}")
+    withSourcesJar()
+}
+
+configurations {
+    commonJava {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+    commonResources {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+}
+
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+
+dependencies {
+    minecraft("com.mojang:minecraft:${minecraft_version}")
+    implementation("net.fabricmc:fabric-loader:${fabric_loader_version}")
+    implementation("net.fabricmc.fabric-api:fabric-api:${fabric_api_version}")
+    compileOnly('org.jspecify:jspecify:1.0.0')
+
+    compileOnly(project(':common')) {
+        attributes {
+            attribute(loaderAttribute, 'common')
+        }
+    }
+    commonJava(project(path: ':common', configuration: 'commonJava'))
+    commonResources(project(path: ':common', configuration: 'commonResources'))
+}
+
+loom {
+    runs {
+        client {
+            client()
+            setConfigName('Fabric Client')
+            ideConfigGenerated(true)
+            runDir('runs/client')
+        }
+        server {
+            server()
+            setConfigName('Fabric Server')
+            ideConfigGenerated(true)
+            runDir('runs/server')
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-parameters')
+}
+
+tasks.named('compileJava', JavaCompile, {
+    dependsOn(configurations.commonJava)
+    source(configurations.commonJava)
+})
+
+tasks.named('processResources', ProcessResources, {
+    dependsOn(configurations.commonResources)
+    from(configurations.commonResources)
+    def expandProps = ['version'                    : version,
+                       'minecraft_version_range'    : minecraft_version_range,
+                       'fabric_loader_version_range': fabric_loader_version_range,
+                       'java_version'               : java_version]
+    inputs.properties(expandProps)
+    filesMatching('fabric.mod.json') { expand(expandProps) }
+})
+
+tasks.named('sourcesJar', Jar, {
+    dependsOn(configurations.commonJava, configurations.commonResources)
+    from(configurations.commonJava)
+    from(configurations.commonResources)
+})
+
+tasks.withType(Jar).configureEach {
+    from(rootProject.file('LICENSE')) {
+        rename { "${it}_Mekanism" }
+    }
+}
+
+idea {
+    module {
+        excludeDirs.add(file('runs'))
+    }
+}

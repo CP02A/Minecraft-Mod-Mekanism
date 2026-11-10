@@ -66,15 +66,15 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           path: |
-            build/libs/
-            build/changelog.html
+            neoforge/build/libs/
+            neoforge/build/changelog.html
 
       - name: GH Release
         id: gh_release
         uses: softprops/action-gh-release@v3
         with:
-          files: build/libs/!(MekanismDefense*).jar
-          body_path: build/changelog.md
+          files: neoforge/build/libs/!(MekanismDefense*).jar
+          body_path: neoforge/build/changelog.md
           tag_name: v${{ steps.gradle_props.outputs.minecraft_version }}-${{ steps.gradle_props.outputs.mod_version }}.${{ github.run_number }}
           target_commitish: ${{ github.sha }}
 
@@ -92,7 +92,7 @@ jobs:
         id: read_changelog
         uses: andstor/file-reader-action@v1
         with:
-          path: "build/changelog.md"
+          path: "neoforge/build/changelog.md"
 
       - name: Announce Release
         uses: tsickert/discord-webhook@v7.0.0

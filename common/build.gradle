@@ -1,0 +1,66 @@
+plugins {
+    id('java-library')
+    id('net.neoforged.moddev')
+}
+
+//Loader agnostic Mekanism code. This project only compiles against vanilla Minecraft (via NeoForm), and its sources
+// and resources get compiled directly into each of the loader specific projects (:neoforge and :fabric).
+// Anything in here must not reference NeoForge or Fabric classes; instead access loader specific functionality
+// through the services in mekanism.common.platform.services (see mekanism.common.platform.Services)
+
+group = 'mekanism'
+base.archivesName = 'Mekanism-common'
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of("${java_version}")
+}
+
+neoForge {
+    neoFormVersion = neo_form_version
+}
+
+dependencies {
+    compileOnly('org.jspecify:jspecify:1.0.0')
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-parameters')
+}
+
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+}
+
+artifacts {
+    commonJava(sourceSets.main.java.sourceDirectories.singleFile)
+    commonResources(sourceSets.main.resources.sourceDirectories.singleFile)
+}
+
+//Mark the variants as being for the "common" loader, so that the loader projects can depend on this project without
+// Gradle getting confused between this and the loader specific Minecraft artifacts
+// (mcgradleconventions loader attribute, as used by the MultiLoader-Template)
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+['apiElements', 'runtimeElements'].each { variant ->
+    configurations.named(variant) {
+        attributes {
+            attribute(loaderAttribute, 'common')
+        }
+    }
+}
+sourceSets.configureEach {
+    [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant ->
+        configurations.named(variant) {
+            attributes {
+                attribute(loaderAttribute, 'common')
+            }
+        }
+    }
+}

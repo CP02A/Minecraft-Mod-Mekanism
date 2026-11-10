@@ -1,6 +1,27 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Fabric'
+                    url = uri('https://maven.fabricmc.net')
+                }
+            }
+            filter {
+                includeGroupAndSubgroups('net.fabricmc')
+            }
+        }
+    }
+}
 
 plugins {
     id('org.gradle.toolchains.foojay-resolver-convention') version('1.0.0')
 }
 
 include('annotation-processor')
+//Multiloader layout: loader agnostic code lives in common and is compiled into each of the loader specific projects
+include('common')
+include('neoforge')
+include('fabric')
