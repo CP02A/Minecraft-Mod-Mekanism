@@ -66,7 +66,8 @@ public final class GameEventBridge {
         });
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> {
             MinecraftServer server = player.level().getServer();
-            NeoForge.EVENT_BUS.post(new OnDatapackSyncEvent(server.getPlayerList(), player));
+            OnDatapackSyncEvent event = NeoForge.EVENT_BUS.post(new OnDatapackSyncEvent(server.getPlayerList(), player));
+            RecipeContentSync.send(player, event.getRecipeTypesToSend(), server.getRecipeManager().getRecipes());
         });
         CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> {
             if (client) {

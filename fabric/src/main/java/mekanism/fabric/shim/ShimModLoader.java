@@ -164,6 +164,8 @@ public final class ShimModLoader {
         ModLoader.postEvent(new RegisterDataMapTypesEvent(dataMaps));
         dataMapTypes = dataMaps;
         DataMapLoader.register();
+        RecipeContentSync.register();
+        AdvancedMenuOpening.register();
 
         ModLoader.postEvent(new RegisterPayloadHandlersEvent());
         FabricNetworkBackend.registerConfigurationTasks();

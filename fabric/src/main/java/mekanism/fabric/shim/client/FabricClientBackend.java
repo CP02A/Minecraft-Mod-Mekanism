@@ -2,11 +2,13 @@ package mekanism.fabric.shim.client;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedExtraModel;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;
@@ -98,21 +100,29 @@ public class FabricClientBackend implements ClientBackend {
           Map.entry(VanillaGuiLayers.SUBTITLE_OVERLAY, VanillaHudElements.SUBTITLES)
     );
 
+    /**
+     * Calls the consumer with NeoForge's id and the corresponding Fabric HUD element id of each vanilla HUD layer.
+     */
+    static void forEachVanillaLayer(BiConsumer<Identifier, Identifier> consumer) {
+        VANILLA_LAYERS.forEach(consumer);
+    }
+
     @Override
     public void registerGuiLayer(Identifier id, GuiLayer layer, @Nullable Identifier relativeTo, boolean above) {
+        HudElement element = ClientGameEventBridge.wrapLayer(id, layer);
         if (relativeTo != null) {
             relativeTo = VANILLA_LAYERS.getOrDefault(relativeTo, relativeTo);
         }
         if (relativeTo == null) {
             if (above) {
-                HudElementRegistry.addLast(id, layer::render);
+                HudElementRegistry.addLast(id, element);
             } else {
-                HudElementRegistry.addFirst(id, layer::render);
+                HudElementRegistry.addFirst(id, element);
             }
         } else if (above) {
-            HudElementRegistry.attachElementAfter(relativeTo, id, layer::render);
+            HudElementRegistry.attachElementAfter(relativeTo, id, element);
         } else {
-            HudElementRegistry.attachElementBefore(relativeTo, id, layer::render);
+            HudElementRegistry.attachElementBefore(relativeTo, id, element);
         }
     }
 

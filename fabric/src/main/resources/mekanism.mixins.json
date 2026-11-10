@@ -12,12 +12,24 @@
     "hooks.LevelChunkMixin",
     "hooks.LevelMixin",
     "hooks.LivingEntityMixin",
+    "hooks.MenuTypeAccessor",
     "hooks.PlayerMixin",
+    "hooks.RecipeBookSettingsMixin",
+    "hooks.RecipeMapAccessor",
     "hooks.ResultSlotMixin",
+    "hooks.ServerPlayerMixin",
     "hooks.ServerLevelMixin"
   ],
   "client": [
-    "client.BlockStateModelLoaderMixin"
+    "client.BlockStateModelLoaderMixin",
+    "client.ClientLevelMixin",
+    "client.ClientPacketListenerMixin",
+    "client.FirstPersonHandsAndItemsRendererMixin",
+    "client.FogRendererMixin",
+    "client.LevelExtractorMixin",
+    "client.MinecraftMixin",
+    "client.MouseHandlerMixin",
+    "client.SoundEngineMixin"
   ],
   "injectors": {
     "defaultRequire": 1

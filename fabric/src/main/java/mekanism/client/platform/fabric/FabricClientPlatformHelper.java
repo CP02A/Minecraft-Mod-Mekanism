@@ -2,6 +2,7 @@ package mekanism.client.platform.fabric;
 
 import mekanism.client.platform.IClientPlatformHelper;
 import java.util.List;
+import mekanism.fabric.shim.client.BlockOutlineBridge;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.block.dispatch.ModelState;
@@ -85,12 +86,14 @@ public class FabricClientPlatformHelper implements IClientPlatformHelper {
     public BlockOutlineRenderState createOutlineState(BlockPos pos, boolean translucent, boolean highContrast, VoxelShape shape, @Nullable VoxelShape collisionShape,
           @Nullable VoxelShape occlusionShape, @Nullable VoxelShape interactionShape, List<CustomBlockOutlineRenderer> customRenderers) {
         //Custom outline renderers are tracked by the Fabric outline integration instead of the render state
-        return new BlockOutlineRenderState(pos, translucent, highContrast, shape, collisionShape, occlusionShape, interactionShape);
+        BlockOutlineRenderState state = new BlockOutlineRenderState(pos, translucent, highContrast, shape, collisionShape, occlusionShape, interactionShape);
+        BlockOutlineBridge.setRenderers(state, customRenderers);
+        return state;
     }
 
     @Override
     public List<CustomBlockOutlineRenderer> getCustomOutlineRenderers(BlockOutlineRenderState state) {
-        return List.of();
+        return BlockOutlineBridge.getRenderers(state);
     }
 
     @Override

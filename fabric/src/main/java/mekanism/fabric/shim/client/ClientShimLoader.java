@@ -70,6 +70,7 @@ public final class ClientShimLoader {
 
     public static void init() {
         ClientExtensionsManager.init();
+        ClientGameEventBridge.register();
 
         List<KeyMapping.Category> categories = new ArrayList<>();
         RegisterKeyMappingsEvent keyMappingsEvent = new RegisterKeyMappingsEvent(KeyMappingHelper::registerKeyMapping);
