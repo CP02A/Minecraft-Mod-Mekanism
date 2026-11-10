@@ -1,6 +1,15 @@
 {
+  "net/minecraft/client/renderer/blockentity/BlockEntityRenderer": [
+    "net/neoforged/neoforge/client/extensions/IBlockEntityRendererExtension<T>"
+  ],
   "net/minecraft/core/Holder": [
     "net/neoforged/neoforge/common/extensions/IHolderExtension<T>"
+  ],
+  "net/minecraft/core/HolderLookup$Provider": [
+    "net/neoforged/neoforge/common/extensions/IHolderLookupProviderExtension"
+  ],
+  "net/minecraft/core/HolderLookup$RegistryLookup": [
+    "net/neoforged/neoforge/shim/extensions/IRegistryLookupExtension<T>"
   ],
   "net/minecraft/core/HolderSet": [
     "net/neoforged/neoforge/common/extensions/IHolderSetExtension<T>"
@@ -23,18 +32,58 @@
   "net/minecraft/core/component/DataComponentPatch": [
     "net/neoforged/neoforge/shim/extensions/IDataComponentPatchExtension"
   ],
+  "net/minecraft/network/protocol/configuration/ServerConfigurationPacketListener": [
+    "net/neoforged/neoforge/shim/extensions/IServerConfigurationPacketListenerExtension"
+  ],
+  "net/minecraft/world/MenuProvider": [
+    "net/neoforged/neoforge/common/extensions/IMenuProviderExtension"
+  ],
   "net/minecraft/world/entity/Entity": [
-    "net/neoforged/neoforge/common/extensions/IEntityExtension"
+    "net/neoforged/neoforge/common/extensions/IEntityExtension",
+    "net/neoforged/neoforge/attachment/IAttachmentHolder"
+  ],
+  "net/minecraft/world/entity/EntityType": [
+    "net/neoforged/neoforge/shim/extensions/IEntityTypeExtension"
+  ],
+  "net/minecraft/world/entity/LightningBolt": [
+    "net/neoforged/neoforge/shim/extensions/ILightningBoltExtension"
+  ],
+  "net/minecraft/world/entity/LivingEntity": [
+    "net/neoforged/neoforge/common/extensions/ILivingEntityExtension"
+  ],
+  "net/minecraft/world/entity/player/Player": [
+    "net/neoforged/neoforge/common/extensions/IPlayerExtension"
+  ],
+  "net/minecraft/world/inventory/Slot": [
+    "net/neoforged/neoforge/shim/extensions/ISlotExtension"
+  ],
+  "net/minecraft/world/item/DispensibleContainerItem": [
+    "net/neoforged/neoforge/common/extensions/IDispensibleContainerItemExtension"
   ],
   "net/minecraft/world/item/DyeColor": [
     "net/neoforged/neoforge/shim/extensions/IDyeColorExtension"
   ],
+  "net/minecraft/world/item/Item": [
+    "net/neoforged/neoforge/common/extensions/IItemExtension"
+  ],
   "net/minecraft/world/item/Item$Properties": [
     "net/neoforged/neoforge/common/extensions/IItemPropertiesExtensions"
+  ],
+  "net/minecraft/world/item/Item$TooltipContext": [
+    "net/neoforged/neoforge/shim/extensions/ITooltipContextExtension"
+  ],
+  "net/minecraft/world/item/ItemInstance": [
+    "net/neoforged/neoforge/common/extensions/ItemInstanceExtension"
   ],
   "net/minecraft/world/item/ItemStack": [
     "net/neoforged/neoforge/common/extensions/IItemStackExtension",
     "net/neoforged/neoforge/common/MutableDataComponentHolder"
+  ],
+  "net/minecraft/world/item/TooltipFlag": [
+    "net/neoforged/neoforge/common/extensions/TooltipFlagExtension"
+  ],
+  "net/minecraft/world/item/component/BlocksAttacks": [
+    "net/neoforged/neoforge/shim/extensions/IBlocksAttacksExtension"
   ],
   "net/minecraft/world/item/component/ItemContainerContents": [
     "net/neoforged/neoforge/shim/extensions/IItemContainerContentsExtension"
@@ -42,16 +91,51 @@
   "net/minecraft/world/item/crafting/Ingredient": [
     "net/neoforged/neoforge/shim/extensions/IIngredientExtension"
   ],
+  "net/minecraft/world/item/crafting/RecipeManager": [
+    "net/neoforged/neoforge/shim/extensions/IRecipeManagerExtension"
+  ],
   "net/minecraft/world/level/Level": [
-    "net/neoforged/neoforge/common/extensions/ILevelExtension"
+    "net/neoforged/neoforge/common/extensions/ILevelExtension",
+    "net/neoforged/neoforge/attachment/IAttachmentHolder"
+  ],
+  "net/minecraft/world/level/LevelReader": [
+    "net/neoforged/neoforge/common/extensions/ILevelReaderExtension"
+  ],
+  "net/minecraft/world/level/ServerExplosion": [
+    "net/neoforged/neoforge/shim/extensions/IServerExplosionExtension"
   ],
   "net/minecraft/world/level/TicketStorage": [
     "net/neoforged/neoforge/common/extensions/ITicketStorageExtension"
+  ],
+  "net/minecraft/world/level/biome/Biome": [
+    "net/neoforged/neoforge/shim/extensions/IBiomeExtension"
+  ],
+  "net/minecraft/world/level/block/Block": [
+    "net/neoforged/neoforge/common/extensions/IBlockExtension"
+  ],
+  "net/minecraft/world/level/block/BucketPickup": [
+    "net/neoforged/neoforge/common/extensions/IBucketPickupExtension"
+  ],
+  "net/minecraft/world/level/block/entity/BlockEntity": [
+    "net/neoforged/neoforge/common/extensions/IBlockEntityExtension",
+    "net/neoforged/neoforge/attachment/IAttachmentHolder"
+  ],
+  "net/minecraft/world/level/block/state/BlockState": [
+    "net/neoforged/neoforge/common/extensions/IBlockStateExtension"
+  ],
+  "net/minecraft/world/level/chunk/ChunkAccess": [
+    "net/neoforged/neoforge/attachment/IAttachmentHolder"
   ],
   "net/minecraft/world/level/material/Fluid": [
     "net/neoforged/neoforge/common/extensions/IFluidExtension"
   ],
   "net/minecraft/world/level/material/FluidState": [
     "net/neoforged/neoforge/common/extensions/IFluidStateExtension"
+  ],
+  "net/minecraft/world/level/storage/ValueInput": [
+    "net/neoforged/neoforge/common/extensions/ValueInputExtension"
+  ],
+  "net/minecraft/world/level/storage/ValueOutput": [
+    "net/neoforged/neoforge/common/extensions/ValueOutputExtension"
   ]
 }

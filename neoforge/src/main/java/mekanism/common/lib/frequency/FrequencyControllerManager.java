@@ -46,7 +46,8 @@ public class FrequencyControllerManager {
             SavedDataType<FrequencyLookup<FREQ>> dataType = new SavedDataType<>(
                   FrequencyLookup.getId(uuid, securityMode, frequencyType),
                   () -> new FrequencyLookup<>(frequencyType, uuid, securityMode),
-                codec
+                codec,
+          null
             );
             lookup = dataStorage.computeIfAbsent(dataType);
         }

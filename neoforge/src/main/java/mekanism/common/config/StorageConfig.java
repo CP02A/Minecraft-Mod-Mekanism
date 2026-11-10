@@ -1,7 +1,6 @@
 package mekanism.common.config;
 
 import mekanism.common.config.value.CachedLongValue;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class StorageConfig extends BaseMekanismConfig {
@@ -46,7 +45,7 @@ public class StorageConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.SYNCED;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.SYNCED;
     }
 }

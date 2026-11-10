@@ -28,7 +28,7 @@ public final class ResourceUtils {
     }
 
     public static SlotDisplay asSlotDisplay(ItemResource resource) {
-        return resource.isEmpty() ? SlotDisplay.Empty.INSTANCE : new ItemStackSlotDisplay(new ItemStackTemplate(resource.typeHolder(), resource.getComponentsPatch()));
+        return resource.isEmpty() ? SlotDisplay.Empty.INSTANCE : new ItemStackSlotDisplay(new ItemStackTemplate(resource.typeHolder(), 1, resource.getComponentsPatch()));
     }
 
     public static <TYPE, RESOURCE extends RegisteredResource<TYPE>> long getContainedResource(@Nullable ResourceHandler<RESOURCE> handler, ResourceKey<TYPE> type) {

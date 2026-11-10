@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -65,6 +66,32 @@ public final class ShimHooks {
               new TicketTracker<>(s, NeoForgeMod.BLOCK_TICKET, NeoForgeMod.BLOCK_WITH_NATURAL_SPAWNING_TICKET),
               new TicketTracker<>(s, NeoForgeMod.ENTITY_TICKET, NeoForgeMod.ENTITY_WITH_NATURAL_SPAWNING_TICKET)
         ));
+    }
+
+    private static final Map<net.minecraft.world.inventory.Slot, Identifier> SLOT_BACKGROUNDS = Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<net.minecraft.world.entity.LightningBolt, Float> LIGHTNING_DAMAGE = Collections.synchronizedMap(new WeakHashMap<>());
+
+    /**
+     * Replacement for NeoForge's {@code Slot#setBackground}; the loader renders the background for empty slots.
+     */
+    public static void setSlotBackground(net.minecraft.world.inventory.Slot slot, Identifier sprite) {
+        SLOT_BACKGROUNDS.put(slot, sprite);
+    }
+
+    @Nullable
+    public static Identifier getSlotBackground(net.minecraft.world.inventory.Slot slot) {
+        return SLOT_BACKGROUNDS.get(slot);
+    }
+
+    /**
+     * Replacement for NeoForge's {@code LightningBolt#setDamage}; the loader applies the damage when the bolt hurts entities.
+     */
+    public static void setLightningDamage(net.minecraft.world.entity.LightningBolt bolt, float damage) {
+        LIGHTNING_DAMAGE.put(bolt, damage);
+    }
+
+    public static float getLightningDamage(net.minecraft.world.entity.LightningBolt bolt, float defaultDamage) {
+        return LIGHTNING_DAMAGE.getOrDefault(bolt, defaultDamage);
     }
 
     /**

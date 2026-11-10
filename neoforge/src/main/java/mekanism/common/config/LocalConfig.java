@@ -3,7 +3,6 @@ package mekanism.common.config;
 import mekanism.common.config.value.CachedBooleanValue;
 import mekanism.common.config.value.CachedEnumValue;
 import mekanism.common.util.UnitDisplayUtils.TemperatureUnit;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class LocalConfig extends BaseMekanismConfig {
@@ -49,7 +48,7 @@ public class LocalConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.LOCAL;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.LOCAL;
     }
 }

@@ -1,11 +1,11 @@
 package mekanism.generators.common.config;
 
+import mekanism.common.config.MekanismConfigType;
 import mekanism.common.config.BaseMekanismConfig;
 import mekanism.common.config.GearConfig;
 import mekanism.common.config.MekanismConfigTranslations;
 import mekanism.common.config.value.CachedFloatValue;
 import mekanism.common.config.value.CachedIntValue;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class GeneratorsGearConfig extends BaseMekanismConfig {
@@ -50,7 +50,7 @@ public class GeneratorsGearConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.SYNCED;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.SYNCED;
     }
 }

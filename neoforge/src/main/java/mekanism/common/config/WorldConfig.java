@@ -14,7 +14,6 @@ import mekanism.common.resource.ore.BaseOreConfig;
 import mekanism.common.resource.ore.OreType;
 import mekanism.common.resource.ore.OreType.OreVeinType;
 import mekanism.common.world.height.ConfigurableHeightRange;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class WorldConfig extends BaseMekanismConfig {
@@ -60,8 +59,8 @@ public class WorldConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.SYNCED;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.SYNCED;
     }
 
     public OreVeinConfig getVeinConfig(OreVeinType oreVeinType) {

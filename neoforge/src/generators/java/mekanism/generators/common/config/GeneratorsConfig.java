@@ -1,5 +1,6 @@
 package mekanism.generators.common.config;
 
+import mekanism.common.config.MekanismConfigType;
 import mekanism.common.config.BaseMekanismConfig;
 import mekanism.common.config.value.CachedBooleanValue;
 import mekanism.common.config.value.CachedDoubleValue;
@@ -12,7 +13,6 @@ import mekanism.generators.common.content.fission.FissionReactorMultiblockData;
 import mekanism.generators.common.content.fusion.FusionReactorMultiblockData;
 import mekanism.generators.common.content.turbine.TurbineValidator;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.fluids.FluidType;
 
@@ -231,7 +231,7 @@ public class GeneratorsConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.SYNCED;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.SYNCED;
     }
 }

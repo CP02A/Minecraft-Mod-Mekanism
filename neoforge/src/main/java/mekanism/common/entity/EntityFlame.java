@@ -1,5 +1,6 @@
 package mekanism.common.entity;
 
+import mekanism.common.platform.Services;
 import java.util.Objects;
 import java.util.Optional;
 import mekanism.common.config.MekanismConfig;
@@ -200,9 +201,9 @@ public class EntityFlame extends Projectile implements IEntityWithComplexSpawn {
             level().setBlockAndUpdate(pos, modifiedState);
         }
         if (modifiedState == null || EventHooks.onBlockPlace(shooter, blockSnapshot, hitSide)) {
-            level().restoringBlockSnapshots = true;
+            Services.PLATFORM.setRestoringBlockSnapshots(level(), true);
             blockSnapshot.restore(blockSnapshot.getFlags() | Block.UPDATE_CLIENTS);
-            level().restoringBlockSnapshots = false;
+            Services.PLATFORM.setRestoringBlockSnapshots(level(), false);
             return false;
         }
         return true;
@@ -212,9 +213,9 @@ public class EntityFlame extends Projectile implements IEntityWithComplexSpawn {
         BlockSnapshot blockSnapshot = BlockSnapshot.create(level().dimension(), level(), pos);
         level().setBlockAndUpdate(pos, newState);
         if (EventHooks.onBlockPlace(shooter, blockSnapshot, hitSide)) {
-            level().restoringBlockSnapshots = true;
+            Services.PLATFORM.setRestoringBlockSnapshots(level(), true);
             blockSnapshot.restore(blockSnapshot.getFlags() | Block.UPDATE_CLIENTS);
-            level().restoringBlockSnapshots = false;
+            Services.PLATFORM.setRestoringBlockSnapshots(level(), false);
             return false;
         }
         return true;

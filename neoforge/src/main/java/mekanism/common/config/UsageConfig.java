@@ -2,7 +2,6 @@ package mekanism.common.config;
 
 import mekanism.common.config.value.CachedBooleanValue;
 import mekanism.common.config.value.CachedIntValue;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class UsageConfig extends BaseMekanismConfig {
@@ -143,7 +142,7 @@ public class UsageConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.SYNCED;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.SYNCED;
     }
 }

@@ -16,6 +16,10 @@ import org.jspecify.annotations.Nullable;
 
 public class RegistryUtils {
 
+    /// Compares identifiers by namespace and then by path.
+    public static final java.util.Comparator<Identifier> NAMESPACED_COMPARATOR = java.util.Comparator.comparing(Identifier::getNamespace)
+          .thenComparing(Identifier::getPath);
+
     private RegistryUtils() {
     }
 

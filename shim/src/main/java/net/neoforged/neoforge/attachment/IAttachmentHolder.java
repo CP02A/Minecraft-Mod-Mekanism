@@ -5,6 +5,7 @@
 
 package net.neoforged.neoforge.attachment;
 
+import net.neoforged.neoforge.shim.ShimServices;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
@@ -16,12 +17,16 @@ public interface IAttachmentHolder {
     /**
      * Returns {@code true} if there is any data attachments, {@code false} otherwise.
      */
-    boolean hasAttachments();
+    default boolean hasAttachments() {
+        return ShimServices.ATTACHMENTS.hasAttachments(this);
+    }
 
     /**
      * Returns {@code true} if there is a data attachment of the give type, {@code false} otherwise.
      */
-    boolean hasData(AttachmentType<?> type);
+    default boolean hasData(AttachmentType<?> type) {
+        return ShimServices.ATTACHMENTS.hasData(this, type);
+    }
 
     /**
      * Returns {@code true} if there is a data attachment of the give type, {@code false} otherwise.
@@ -36,7 +41,9 @@ public interface IAttachmentHolder {
      *
      * <p>If there is no data attachment of the given type, <b>the default value is stored in this holder and returned.</b>
      */
-    <T> T getData(AttachmentType<T> type);
+    default <T> T getData(AttachmentType<T> type) {
+        return ShimServices.ATTACHMENTS.getData(this, type);
+    }
 
     /**
      * {@return the data attachment of the given type}
@@ -69,7 +76,9 @@ public interface IAttachmentHolder {
      * @return an existing data attachment value of the given type, or null if there is no data attachment of the given type
      */
     @Nullable
-    <T> T getExistingDataOrNull(AttachmentType<T> type);
+    default <T> T getExistingDataOrNull(AttachmentType<T> type) {
+        return ShimServices.ATTACHMENTS.getExistingData(this, type);
+    }
 
     /**
      * @return an existing data attachment value of the given type, or null if there is no data attachment of the given type
@@ -84,7 +93,9 @@ public interface IAttachmentHolder {
      *
      * @return the previous value for that attachment type, if any, or {@code null} if there was none
      */
-    <T> @Nullable T setData(AttachmentType<T> type, T data);
+    default <T> @Nullable T setData(AttachmentType<T> type, T data) {
+        return ShimServices.ATTACHMENTS.setData(this, type, data);
+    }
 
     /**
      * Sets the data attachment of the given type.
@@ -100,7 +111,9 @@ public interface IAttachmentHolder {
      *
      * @return the previous value for that attachment type, if any, or {@code null} if there was none
      */
-    <T> @Nullable T removeData(AttachmentType<T> type);
+    default <T> @Nullable T removeData(AttachmentType<T> type) {
+        return ShimServices.ATTACHMENTS.removeData(this, type);
+    }
 
     /**
      * Removes the data attachment of the given type.
@@ -120,7 +133,7 @@ public interface IAttachmentHolder {
      * @see AttachmentSyncHandler
      */
     default void syncData(AttachmentType<?> type) {
-        // Do nothing by default, implementers should override this method if needed.
+        ShimServices.ATTACHMENTS.syncData(this, type);
     }
 
     /**

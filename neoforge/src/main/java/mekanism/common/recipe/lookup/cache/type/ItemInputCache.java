@@ -1,5 +1,6 @@
 package mekanism.common.recipe.lookup.cache.type;
 
+import mekanism.common.platform.Services;
 import java.util.List;
 import java.util.Objects;
 import mekanism.api.recipes.MekanismRecipe;
@@ -33,10 +34,10 @@ public class ItemInputCache<RECIPE extends MekanismRecipe<?, ?, ?>> extends Comp
         } else if (input.isSimple()) {
             //Simple ingredients don't actually check anything related to NBT,
             // so we can add the items to our base/raw input cache directly
-            for (Holder<Item> item : Objects.requireNonNull(input.getCustomIngredient()).items().toList()) {
+            for (Holder<Item> item : Objects.requireNonNull(Services.PLATFORM.getCustomIngredient(input)).items().toList()) {
                 addInputCache(item, recipeHolder);
             }
-        } else if (input.getCustomIngredient() instanceof CompoundIngredient(List<Ingredient> children)) {
+        } else if (Services.PLATFORM.getCustomIngredient(input) instanceof CompoundIngredient(List<Ingredient> children)) {
             //Special handling for neo's compound ingredient to map all children as best as we can
             // as maybe some of them are simple
             boolean result = false;
@@ -44,7 +45,7 @@ public class ItemInputCache<RECIPE extends MekanismRecipe<?, ?, ?>> extends Comp
                 result |= mapIngredient(recipeHolder, child);
             }
             return result;
-        } else if (input.getCustomIngredient() instanceof DataComponentIngredient componentIngredient && componentIngredient.componentsExhaustive()) {
+        } else if (Services.PLATFORM.getCustomIngredient(input) instanceof DataComponentIngredient componentIngredient && componentIngredient.componentsExhaustive()) {
             //Special handling for neo's NBT Ingredient as it requires an exact component match
             DataComponentPatch components = componentIngredient.components();
             for (Holder<Item> holder : componentIngredient.itemSet()) {

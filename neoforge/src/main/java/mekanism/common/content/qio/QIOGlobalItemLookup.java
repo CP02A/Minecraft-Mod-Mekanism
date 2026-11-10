@@ -56,7 +56,8 @@ public class QIOGlobalItemLookup {
     static final SavedDataType<QIOGlobalItemLookupDataHandler> TYPE = new SavedDataType<>(
           Mekanism.rl("qio_type_cache"),
           QIOGlobalItemLookupDataHandler::new,
-          CODEC
+          CODEC,
+          null
     );
 
     public static class QIOGlobalItemLookupDataHandler extends SavedData {

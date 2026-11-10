@@ -7,6 +7,8 @@ package net.neoforged.neoforge.registries;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Registry;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.StructureModifier;
@@ -23,6 +25,8 @@ import net.neoforged.neoforge.shim.ShimServices;
  */
 public class NeoForgeRegistries {
 
+    public static final Registry<EntityDataSerializer<?>> ENTITY_DATA_SERIALIZERS = ShimServices.BACKEND.createRegistry(Keys.ENTITY_DATA_SERIALIZERS, true);
+    public static final Registry<AttachmentType<?>> ATTACHMENT_TYPES = ShimServices.BACKEND.createRegistry(Keys.ATTACHMENT_TYPES, false);
     public static final Registry<FluidType> FLUID_TYPES = ShimServices.BACKEND.createRegistry(Keys.FLUID_TYPES, true);
     public static final Registry<IngredientType<?>> INGREDIENT_TYPES = ShimServices.BACKEND.createRegistry(Keys.INGREDIENT_TYPES, true);
     public static final Registry<FluidIngredientType<?>> FLUID_INGREDIENT_TYPES = ShimServices.BACKEND.createRegistry(Keys.FLUID_INGREDIENT_TYPES, true);
@@ -33,6 +37,8 @@ public class NeoForgeRegistries {
 
     public static final class Keys {
 
+        public static final ResourceKey<Registry<EntityDataSerializer<?>>> ENTITY_DATA_SERIALIZERS = key("entity_data_serializers");
+        public static final ResourceKey<Registry<AttachmentType<?>>> ATTACHMENT_TYPES = key("attachment_types");
         public static final ResourceKey<Registry<FluidType>> FLUID_TYPES = key("fluid_type");
         public static final ResourceKey<Registry<IngredientType<?>>> INGREDIENT_TYPES = key("ingredient_serializer");
         public static final ResourceKey<Registry<FluidIngredientType<?>>> FLUID_INGREDIENT_TYPES = key("fluid_ingredient_type");

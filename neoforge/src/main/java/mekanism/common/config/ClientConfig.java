@@ -12,7 +12,6 @@ import mekanism.common.inventory.container.QIOItemViewerContainer.SortDirection;
 import mekanism.common.inventory.container.SelectedWindowData.CachedWindowPosition;
 import mekanism.common.inventory.container.SelectedWindowData.WindowType;
 import mekanism.common.inventory.container.SelectedWindowData.WindowType.ConfigSaveData;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class ClientConfig extends BaseMekanismConfig {
@@ -176,7 +175,7 @@ public class ClientConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.CLIENT;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.CLIENT;
     }
 }

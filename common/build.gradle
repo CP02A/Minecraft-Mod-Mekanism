@@ -33,6 +33,12 @@ neoForge {
 
 dependencies {
     compileOnly('org.jspecify:jspecify:1.0.0')
+    //Shared code is written against NeoForge's API; on Fabric the shim provides the parts of it that are used
+    compileOnly(project(':shim')) {
+        attributes {
+            attribute(Attribute.of('io.github.mcgradleconventions.loader', String), 'common')
+        }
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -102,7 +108,9 @@ sourceSets {
         compileClasspath += sourceSets.main.compileClasspath
     }
     mainCheck {
-        java.srcDirs = [rootProject.file('neoforge/src/main/java')]
+        java.srcDirs = [rootProject.file('neoforge/src/main/java'), file('src/main/java')]
+        //NeoForge specific implementations of the platform services
+        java.exclude('mekanism/common/platform/neoforge/**')
         resources.srcDirs = []
         compileClasspath += sourceSets.main.compileClasspath + sourceSets.apiCheck.output + sourceSets.apiCheck.compileClasspath
     }
@@ -114,6 +122,7 @@ dependencies {
         }
     }
     apiCheckCompileOnly('org.jspecify:jspecify:1.0.0')
+    apiCheckCompileOnly('com.google.errorprone:error_prone_annotations:2.36.0')
     //The API exposes helpers for recipe viewer integrations
     apiCheckCompileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     apiCheckCompileOnly("dev.emi:emi-neoforge:${emi_version}:api") {

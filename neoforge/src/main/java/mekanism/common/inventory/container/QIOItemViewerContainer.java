@@ -1,5 +1,6 @@
 package mekanism.common.inventory.container;
 
+import mekanism.common.util.RegistryUtils;
 import com.google.common.primitives.Ints;
 import com.mojang.blaze3d.platform.InputConstants;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
@@ -786,8 +787,8 @@ public abstract class QIOItemViewerContainer extends MekanismContainer implement
               Comparator.comparing(IScrollableSlot::getModID).thenComparing(IScrollableSlot::getDisplayName),
               Comparator.comparing(IScrollableSlot::getModID).reversed().thenComparing(IScrollableSlot::getDisplayName)),
         REGISTRY_NAME(MekanismLang.LIST_SORT_REGISTRY_NAME, MekanismLang.LIST_SORT_REGISTRY_NAME_DESC, true,
-              Comparator.comparing(IScrollableSlot::getRegistryName, Identifier::compareNamespaced).thenComparingLong(IScrollableSlot::count),
-              Comparator.comparing(IScrollableSlot::getRegistryName, Identifier::compareNamespaced).reversed().thenComparingLong(IScrollableSlot::count));
+              Comparator.comparing(IScrollableSlot::getRegistryName, RegistryUtils.NAMESPACED_COMPARATOR).thenComparingLong(IScrollableSlot::count),
+              Comparator.comparing(IScrollableSlot::getRegistryName, RegistryUtils.NAMESPACED_COMPARATOR).reversed().thenComparingLong(IScrollableSlot::count));
 
         private final ILangEntry name;
         private final ILangEntry tooltip;

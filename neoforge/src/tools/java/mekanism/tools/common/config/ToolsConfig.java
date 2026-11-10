@@ -1,12 +1,12 @@
 package mekanism.tools.common.config;
 
+import mekanism.common.config.MekanismConfigType;
 import mekanism.common.config.BaseMekanismConfig;
 import mekanism.common.config.IMekanismConfig;
 import mekanism.common.config.value.CachedBooleanValue;
 import mekanism.common.config.value.CachedFloatValue;
 import mekanism.tools.common.config.ToolsConfigTranslations.ArmorSpawnChanceTranslations;
 import mekanism.tools.common.material.MaterialCreator;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class ToolsConfig extends BaseMekanismConfig {
@@ -61,8 +61,8 @@ public class ToolsConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.SYNCED;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.SYNCED;
     }
 
     public static class ArmorSpawnChanceConfig {

@@ -240,7 +240,7 @@ public class TileEntityNutritionalLiquifier extends TileEntityProgressMachine<It
             return null;
         }
         UseRemainder remainder = stack.get(DataComponents.USE_REMAINDER);
-        Identifier syntheticId = RegistryUtils.synthetic(stack.typeHolder().key().identifier(), "liquification", Mekanism.MODID);
+        Identifier syntheticId = RegistryUtils.synthetic(stack.typeHolder().getKey().identifier(), "liquification", Mekanism.MODID);
         return new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, syntheticId), new BasicLiquificationRecipe(
               NO_DISPLAY, new LiquificationBookInfo(LiquificationBookCategory.MISC, "dynamic"),
               IngredientCreatorAccess.item().from(stack, 1),

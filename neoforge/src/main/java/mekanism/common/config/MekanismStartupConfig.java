@@ -4,7 +4,6 @@ import mekanism.common.config.value.CachedFloatValue;
 import mekanism.common.config.value.CachedIntValue;
 import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.equipment.ArmorType;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class MekanismStartupConfig extends BaseMekanismConfig {
@@ -99,7 +98,7 @@ public class MekanismStartupConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.STARTUP;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.STARTUP;
     }
 }

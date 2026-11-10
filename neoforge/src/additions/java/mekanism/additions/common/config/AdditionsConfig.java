@@ -1,5 +1,6 @@
 package mekanism.additions.common.config;
 
+import mekanism.common.config.MekanismConfigType;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -26,7 +27,6 @@ import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class AdditionsConfig extends BaseMekanismConfig {
@@ -86,8 +86,8 @@ public class AdditionsConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.SYNCED;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.SYNCED;
     }
 
     public SpawnConfig getConfig(BabyType babyType) {

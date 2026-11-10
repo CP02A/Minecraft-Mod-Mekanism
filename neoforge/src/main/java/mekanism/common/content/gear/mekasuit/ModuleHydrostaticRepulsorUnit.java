@@ -40,7 +40,7 @@ public record ModuleHydrostaticRepulsorUnit(boolean swimBoost) implements ICusto
 
     @Override
     public void tickServer(IModule<ModuleHydrostaticRepulsorUnit> module, ItemAccess itemAccess, Player player, TransactionContext transaction) {
-        if (isSwimBoost(module) && player.getFluidInteraction().isInFluidMatching(player, (entity, type, _) -> entity.canSwimInFluidType(type))) {
+        if (isSwimBoost(module) && player.isInFluidType((entity, type, _) -> entity.canSwimInFluidType(type))) {
             //Note: While we let creative players not use energy, we require that enough energy is present when we modify the attributes, as we don't have an entity context
             module.useAllEnergy(null, itemAccess, MekanismConfig.gear.mekaSuitEnergyUsageHydrostaticRepulsion.get(), transaction);
         }

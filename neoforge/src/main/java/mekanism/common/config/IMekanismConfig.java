@@ -16,7 +16,7 @@ public interface IMekanismConfig {
         return getConfigSpec().isLoaded();
     }
 
-    ModConfig.Type getConfigType();
+    MekanismConfigType getConfigType();
 
     void save();
 

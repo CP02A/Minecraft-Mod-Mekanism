@@ -1,5 +1,6 @@
 package mekanism.tools.common.config;
 
+import mekanism.common.config.MekanismConfigType;
 import mekanism.common.config.BaseMekanismConfig;
 import mekanism.tools.common.material.MaterialCreator;
 import mekanism.tools.common.material.VanillaPaxelMaterialCreator;
@@ -10,7 +11,6 @@ import mekanism.tools.common.material.impl.RefinedGlowstoneMaterialDefaults;
 import mekanism.tools.common.material.impl.RefinedObsidianMaterialDefaults;
 import mekanism.tools.common.material.impl.SteelMaterialDefaults;
 import net.minecraft.world.item.ToolMaterial;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class ToolsMaterialConfig extends BaseMekanismConfig {
@@ -70,7 +70,7 @@ public class ToolsMaterialConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.STARTUP;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.STARTUP;
     }
 }

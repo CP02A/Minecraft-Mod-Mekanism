@@ -1,9 +1,9 @@
 package mekanism.generators.common.config;
 
+import mekanism.common.config.MekanismConfigType;
 import mekanism.common.config.BaseMekanismConfig;
 import mekanism.common.config.value.CachedLongValue;
 import net.minecraft.SharedConstants;
-import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class GeneratorsStorageConfig extends BaseMekanismConfig {
@@ -49,7 +49,7 @@ public class GeneratorsStorageConfig extends BaseMekanismConfig {
     }
 
     @Override
-    public Type getConfigType() {
-        return Type.SYNCED;
+    public MekanismConfigType getConfigType() {
+        return MekanismConfigType.SYNCED;
     }
 }

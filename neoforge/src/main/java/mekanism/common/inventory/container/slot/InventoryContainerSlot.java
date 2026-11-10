@@ -108,8 +108,6 @@ public class InventoryContainerSlot extends StackCopySlot implements ITransactio
     public boolean mayPickup(Player player) {
         return !slot.isEmpty() && slot.isCurrentValidForExtraction(AutomationType.MANUAL);
     }
-
-    @Override
     public boolean isSameInventory(Slot other) {
         return other instanceof InventoryContainerSlot rhs && rhs.slot == this.slot;
     }

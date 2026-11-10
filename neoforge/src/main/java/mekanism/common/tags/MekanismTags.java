@@ -230,11 +230,11 @@ public class MekanismTags {
         public static final TagKey<Item> COLORABLE_CUSHIONS = tag("colorable/cushions");
 
         private static TagKey<Item> commonTag(String name) {
-            return ItemTags.create(Identifier.fromNamespaceAndPath("c", name));
+            return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", name));
         }
 
         private static TagKey<Item> tag(String name) {
-            return ItemTags.create(Mekanism.rl(name));
+            return TagKey.create(Registries.ITEM, Mekanism.rl(name));
         }
     }
 
@@ -254,11 +254,11 @@ public class MekanismTags {
         public static final TagKey<Block> BARRELS_PERSONAL = commonTag("barrels/personal");
 
         private static TagKey<Block> commonTag(String name) {
-            return BlockTags.create(Identifier.fromNamespaceAndPath("c", name));
+            return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("c", name));
         }
 
         private static TagKey<Block> tag(String name) {
-            return BlockTags.create(Mekanism.rl(name));
+            return TagKey.create(Registries.BLOCK, Mekanism.rl(name));
         }
     }
 
@@ -323,7 +323,7 @@ public class MekanismTags {
         public static final TagKey<Fluid> NUTRITIONAL_PASTE = commonTag("nutritional_paste");
 
         private static TagKey<Fluid> commonTag(String name) {
-            return FluidTags.create(Identifier.fromNamespaceAndPath("c", name));
+            return TagKey.create(Registries.FLUID, Identifier.fromNamespaceAndPath("c", name));
         }
     }
 

@@ -6,6 +6,23 @@
 package net.neoforged.neoforge.common;
 
 import net.minecraft.core.BlockPos;
+import java.util.Optional;
+import java.util.Set;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.TippedArrowItem;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerLevel;
@@ -71,5 +88,36 @@ public class CommonHooks {
         LivingShieldBlockEvent e = new LivingShieldBlockEvent(blocker, container, blockedDamage, originalBlocked);
         NeoForge.EVENT_BUS.post(e);
         return e;
+    }
+
+    public static String getDefaultCreatorModId(HolderLookup.Provider registries, ItemStack itemStack) {
+        Item item = itemStack.getItem();
+        Identifier registryName = BuiltInRegistries.ITEM.getKey(item);
+        String modId = registryName == null ? null : registryName.getNamespace();
+        if ("minecraft".equals(modId)) {
+            if (itemStack.has(DataComponents.STORED_ENCHANTMENTS)) {
+                Set<Holder<Enchantment>> enchantments = itemStack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY).keySet();
+                if (enchantments.size() == 1) {
+                    Holder<Enchantment> enchantmentHolder = enchantments.iterator().next();
+                    Optional<ResourceKey<Enchantment>> key = enchantmentHolder.unwrapKey();
+                    if (key.isPresent()) {
+                        return key.get().identifier().getNamespace();
+                    }
+                }
+            } else if (item instanceof PotionItem || item instanceof TippedArrowItem) {
+                PotionContents potionContents = itemStack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+                Optional<Holder<Potion>> potionType = potionContents.potion();
+                Optional<ResourceKey<Potion>> key = potionType.flatMap(Holder::unwrapKey);
+                if (key.isPresent()) {
+                    return key.get().identifier().getNamespace();
+                }
+            } else if (item instanceof SpawnEggItem spawnEggItem) {
+                Optional<ResourceKey<EntityType<?>>> key = BuiltInRegistries.ENTITY_TYPE.getResourceKey(spawnEggItem.getType(itemStack));
+                if (key.isPresent()) {
+                    return key.get().identifier().getNamespace();
+                }
+            }
+        }
+        return modId;
     }
 }

@@ -18,6 +18,7 @@ public final class ShimServices {
     public static final TransactionBackend TRANSACTIONS = load(TransactionBackend.class);
     public static final ShimBackend BACKEND = load(ShimBackend.class);
     public static final NetworkBackend NETWORK = load(NetworkBackend.class);
+    public static final AttachmentBackend ATTACHMENTS = load(AttachmentBackend.class);
     /**
      * Only available on the client.
      */

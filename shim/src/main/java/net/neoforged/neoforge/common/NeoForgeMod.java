@@ -73,6 +73,9 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.neoforged.neoforge.common.BooleanAttribute;
+import net.neoforged.neoforge.common.PercentageAttribute;
 import net.neoforged.neoforge.common.conditions.*;
 import net.neoforged.neoforge.common.util.NeoForgeExtraCodecs;
 import net.neoforged.neoforge.common.world.BiomeModifier;
@@ -242,6 +245,32 @@ public class NeoForgeMod {
 
     private static Holder<TicketType> registerTicket(String name, TicketType type) {
         return Registry.registerForHolder(BuiltInRegistries.TICKET_TYPE, Identifier.fromNamespaceAndPath(MOD_ID, name), type);
+    }
+
+    /// If the server is intended to be vanilla-compatible then this attribute must not be applied via item attribute modifiers.
+    public static final Holder<Attribute> SWIM_SPEED = registerAttribute("swim_speed", new PercentageAttribute("neoforge.swim_speed", 1.0D, 0.0D, 1024.0D).setSyncable(true));
+    /// This attribute controls if the player may use creative flight when not in creative mode.
+    public static final Holder<Attribute> CREATIVE_FLIGHT = registerAttribute("creative_flight", new BooleanAttribute("neoforge.creative_flight", false).setSyncable(true));
+    /// This attribute controls if an entity may use gliding flight (elytra).
+    public static final Holder<Attribute> GLIDING_FLIGHT = registerAttribute("gliding_flight", new BooleanAttribute("neoforge.gliding_flight", false).setSyncable(true));
+
+    private static boolean enableMilkFluid = false;
+
+    /**
+     * Requests NeoForge's milk fluid to be registered.
+     *
+     * @apiNote Mekanism shim: The loader registers the milk fluid if this was called during mod initialization.
+     */
+    public static void enableMilkFluid() {
+        enableMilkFluid = true;
+    }
+
+    public static boolean isMilkFluidEnabled() {
+        return enableMilkFluid;
+    }
+
+    private static Holder<Attribute> registerAttribute(String name, Attribute attribute) {
+        return Registry.registerForHolder(BuiltInRegistries.ATTRIBUTE, Identifier.fromNamespaceAndPath(MOD_ID, name), attribute);
     }
 
     public static final Holder<FluidType> EMPTY_TYPE = registerVanillaFluidType("empty", () -> new FluidType(FluidType.Properties.create()

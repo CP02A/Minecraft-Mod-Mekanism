@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.configuration.ICustomConfigurationTask;
 public record SyncAllSecurityData(ServerConfigurationPacketListener listener) implements ICustomConfigurationTask {
 
     private static final Identifier ID = Mekanism.rl("sync_security");
-    private static final Type TYPE = new Type(ID);
+    private static final Type TYPE = new Type(ID.toString());
 
     @Override
     public void run(Consumer<CustomPacketPayload> sender) {
