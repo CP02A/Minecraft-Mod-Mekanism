@@ -170,4 +170,14 @@ public class TransferBridgeTests {
             });
         });
     }
+
+    @GameTest
+    public void biomeModifiersAddMekanismOres(GameTestHelper helper) {
+        //Mekanism's ores are added to biomes through NeoForge biome modifiers
+        var biome = helper.getLevel().registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.BIOME).getOrThrow(net.minecraft.world.level.biome.Biomes.PLAINS);
+        boolean hasOsmium = biome.value().getGenerationSettings().features().stream().flatMap(net.minecraft.core.HolderSet::stream)
+              .anyMatch(feature -> feature.is(net.minecraft.resources.Identifier.fromNamespaceAndPath("mekanism", "ore_osmium_upper")));
+        helper.assertTrue(hasOsmium, net.minecraft.network.chat.Component.literal("Plains should generate Mekanism's osmium ore"));
+        helper.succeed();
+    }
 }

@@ -126,6 +126,7 @@ public final class ShimModLoader {
         NewRegistryEvent newRegistryEvent = new NewRegistryEvent();
         ModLoader.postEvent(newRegistryEvent);
         newRegistryEvent.fill();
+        BiomeModifierBridge.register();
         NewDatapackRegistryEvent datapackRegistryEvent = new NewDatapackRegistryEvent();
         ModLoader.postEvent(datapackRegistryEvent);
         datapackRegistryEvent.process();
