@@ -14,10 +14,13 @@
     `item_unlit` shader) and `neoforge:trimmed_armor` item models (registered by `ClientShimLoader`),
     `ClientGameEventBridge` (client tick, entity join, recipe sync, HUD layer, custom geometry and menu screen events), `BlockOutlineBridge`
     (custom block outline renderers, tracked by identity as vanilla's `BlockOutlineRenderState` can't hold them), `LevelAwareBlockStateModel`
-    (added to `BlockStateModel`: Fabric's `emitQuads` uses NeoForge's level aware `collectParts`, i.e. model data).
+    (added to `BlockStateModel`: Fabric's `emitQuads` uses NeoForge's level aware `collectParts`, i.e. model data), NeoForge's `ModelDataManager`
+    (shim; per client level, snapshotted per meshing region by `RenderRegionCacheMixin`), `ItemLayerFaceData` (item layer `neoforge_data` light
+    emission for generated item models).
   - `RecipeContentSync` (NeoForge's `OnDatapackSyncEvent#sendRecipes` / `RecipesReceivedEvent`), `AdvancedMenuOpening` (menu extra data from
     `IMenuProviderExtension#writeClientSideData` passed to `IContainerFactory`).
-  - `mekanism/fabric/mixin/`: `data/` (NeoForge ingredient/holder set/conditions formats), `hooks/` (BlockEntity#onLoad, tick, damage,
+  - `mekanism/fabric/mixin/`: `data/` (NeoForge ingredient/holder set/conditions formats), `hooks/` (BlockEntity#onLoad, capability
+    invalidation and model data refresh on block entity placement/removal, tick, damage,
     fall, jump, invulnerability, attributes, break speed, crafting events, menu opening, modded recipe book type settings incl. saving/syncing,
     slot backgrounds, entity/passenger tick, forced chunk persistence, chunk ticket level events), `client/` (level load/unload, login/logout/clone,
     mouse scroll, fog, first person arm, sound engine/play sound, block outline extraction, NeoForge's model `loader` key in Fabric's unbaked model
@@ -32,11 +35,12 @@
 ## Verification
 - `./gradlew :neoforge:build :neoforge:runGameTestServer` (72 tests)
 - `./gradlew :fabric:runGameTestServer` (Fabric game tests in `fabric/src/gametest`: transfer bridge, machine processing, ore gen, Team Reborn
-  energy and item capability interop, forced chunk persistence, ticket level/passenger tick events)
+  energy and item capability interop, universal cables/logistical transporters/mechanical pipes connecting to cubes, machines, tanks and vanilla
+  chests placed after them (and disconnecting on removal), energy flowing through cables, forced chunk persistence, ticket level/passenger tick events)
 - `./gradlew :fabric:runGameTestClient` (opens a client, loads a world, checks model/atlas/fluid model events, modded recipe book settings
   codecs and that recipes reached the client, opens a machine GUI, clicks its side config tab and a side button (checked on the server) and
-  opens Mekanism's recipe book, renders filled fluid tanks and buckets in hand/hotbar, connects transmitters (connections checked against the
-  server), checks the wind generator's composite model and Tools' trimmed armor item models; screenshots in `fabric/runs/gametestclient/screenshots`)
+  opens Mekanism's recipe book, renders filled fluid tanks and buckets in hand/hotbar, emissive item layers, connects transmitters to each other and
+  to energy cubes (connections checked against the server, model data snapshot checked against the ModelDataManager), checks the wind generator's composite model and Tools' trimmed armor item models; screenshots in `fabric/runs/gametestclient/screenshots`)
 - `./gradlew :fabric:runServer` (dedicated server; `fabric/runs/server/eula.txt` is accepted locally)
 
 ## Working
@@ -53,10 +57,9 @@ saved/synced; recipes are synced to the client; the dedicated server boots.
 ## Not done yet (rough priority)
 1. Client: RenderLevelStageEvent, ScreenEvent and tooltip events (RenderTooltipEvent, ItemTooltipEvent, ...) are not fired (Mekanism doesn't
    subscribe to them). Vanilla's `AbstractContainerScreen#extractSlot` doesn't call `renderSlotContents` (Mekanism's screens call it themselves).
-   Model data is read from the block entity on the meshing thread (no `ModelDataManager` snapshot); `neoforge:conditional` model loader not
-   ported. Respawn (Clone) and fog/arm events are wired but not checked by tests; JEI/EMI absent.
-2. Model leftovers: item layer face data (`neoforge_data`) is parsed but vanilla's `ItemModelGenerator` doesn't apply it; vanilla's
-   `BakedQuad.MaterialInfo` has no ambient occlusion flag; other vanilla `bakeTopGeometry` callers (missing model) don't pass properties.
+   `neoforge:conditional` model loader not ported. Respawn (Clone) and fog/arm events are wired but not checked by tests; JEI/EMI absent.
+2. Model leftovers: only the light emission of NeoForge's `ExtraFaceData` is applied (item layers and `UnbakedElementsHelper`; vanilla's face baking
+   has no color/per face light/ambient occlusion support); vanilla's `BakedQuad.MaterialInfo` has no ambient occlusion flag.
 3. Interop gaps: Mekanism chemicals have no Fabric equivalent (not exposed); `ItemAccess` can't distinguish a container item's main slot from
    overflow, so Fabric `ContainerItemContext` main slot insertions of a matching item may overflow; energy amounts are saturated to `int` per
    operation (NeoForge's `EnergyHandler`); MobSpawnEvent.SpawnPlacementCheck is not fired.
