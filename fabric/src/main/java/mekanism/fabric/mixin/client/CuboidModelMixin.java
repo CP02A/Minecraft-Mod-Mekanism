@@ -52,7 +52,12 @@ public abstract class CuboidModelMixin implements ModelPropertiesBridge.CuboidMo
      */
     public void fillAdditionalProperties(ContextMap.Builder propertiesBuilder) {
         NeoForgeModelProperties.fillRootTransformProperty(propertiesBuilder, mekanism$rootTransform);
-        NeoForgeModelProperties.fillPartVisibilityProperty(propertiesBuilder, mekanism$partVisibility);
-        NeoForgeModelProperties.fillItemLayerFaceData(propertiesBuilder, mekanism$itemLayerFaceData);
+        //Note: The fields can be null for models that weren't created by the json deserializer (such as the missing model)
+        if (mekanism$partVisibility != null) {
+            NeoForgeModelProperties.fillPartVisibilityProperty(propertiesBuilder, mekanism$partVisibility);
+        }
+        if (mekanism$itemLayerFaceData != null) {
+            NeoForgeModelProperties.fillItemLayerFaceData(propertiesBuilder, mekanism$itemLayerFaceData);
+        }
     }
 }

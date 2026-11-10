@@ -165,6 +165,18 @@ public class MekanismClientTests implements FabricClientGameTest {
             if (!(model instanceof DynamicFluidContainerModel)) {
                 throw new AssertionError("Expected a dynamic fluid container model for the brine bucket, got " + model);
             }
+            //The portable QIO dashboard's LED layer is emissive (item layer neoforge_data)
+            ItemModel dashboard = client.getModelManager().getItemModel(net.minecraft.resources.Identifier.parse("mekanism:portable_qio_dashboard"));
+            try {
+                java.lang.reflect.Field field = dashboard.getClass().getDeclaredField("itemQuads");
+                field.setAccessible(true);
+                net.minecraft.client.resources.model.geometry.ItemQuads quads = (net.minecraft.client.resources.model.geometry.ItemQuads) field.get(dashboard);
+                if (quads.all().stream().noneMatch(quad -> quad.materialInfo().tintIndex() == 1 && quad.materialInfo().lightEmission() == 15)) {
+                    throw new AssertionError("The portable QIO dashboard's second layer should have a light emission of 15");
+                }
+            } catch (ReflectiveOperationException e) {
+                throw new AssertionError("Unexpected portable QIO dashboard item model " + dashboard, e);
+            }
         });
         context.waitFor(client -> !client.player.getInventory().getItem(5).isEmpty());
         context.getInput().pressKey(options -> options.keyHotbarSlots[2]);
