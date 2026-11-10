@@ -79,6 +79,7 @@ import net.neoforged.neoforge.common.PercentageAttribute;
 import net.neoforged.neoforge.common.conditions.*;
 import net.neoforged.neoforge.common.util.NeoForgeExtraCodecs;
 import net.neoforged.neoforge.common.world.BiomeModifier;
+import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.common.world.BiomeModifiers.*;
 import net.neoforged.neoforge.common.world.StructureModifier;
 import net.neoforged.neoforge.common.world.StructureModifiers;
@@ -184,38 +185,86 @@ public class NeoForgeMod {
     /**
      * Stock biome modifier for adding mob spawns to biomes.
      */
+    public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<AddSpawnsBiomeModifier>> ADD_SPAWNS_BIOME_MODIFIER_TYPE = register(NeoForgeRegistries.BIOME_MODIFIER_SERIALIZERS, "add_spawns", () -> RecordCodecBuilder.mapCodec(
+            builder -> builder
+                    .group(
+                            Biome.LIST_CODEC.fieldOf("biomes").forGetter(AddSpawnsBiomeModifier::biomes),
+                            // Allow either a list or single spawner, attempting to decode the list format first.
+                            // Uses the better EitherCodec that logs both errors if both formats fail to parse.
+                            Codec.either(WeightedList.codec(SpawnerData.CODEC), Weighted.codec(SpawnerData.CODEC)).xmap(
+                                    either -> either.map(Function.identity(), WeightedList::<SpawnerData>of), // convert list/singleton to list when decoding
+                                    list -> list.unwrap().size() == 1 ? Either.right(list.unwrap().get(0)) : Either.left(list) // convert list to singleton/list when encoding
+                            ).fieldOf("spawners").forGetter(AddSpawnsBiomeModifier::spawners))
+                    .apply(builder, AddSpawnsBiomeModifier::new)));
 
     /**
      * Stock biome modifier for removing mob spawns from biomes.
      */
+    public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<RemoveSpawnsBiomeModifier>> REMOVE_SPAWNS_BIOME_MODIFIER_TYPE = register(NeoForgeRegistries.BIOME_MODIFIER_SERIALIZERS, "remove_spawns", () -> RecordCodecBuilder.mapCodec(
+            builder -> builder
+                    .group(
+                            Biome.LIST_CODEC.fieldOf("biomes").forGetter(RemoveSpawnsBiomeModifier::biomes),
+                            RegistryCodecs.holderSet(Registries.ENTITY_TYPE).fieldOf("entity_types").forGetter(RemoveSpawnsBiomeModifier::entityTypes))
+                    .apply(builder, RemoveSpawnsBiomeModifier::new)));
 
     /**
      * Stock biome modifier for adding carvers to biomes.
      */
+    public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<BiomeModifiers.AddCarversBiomeModifier>> ADD_CARVERS_BIOME_MODIFIER_TYPE = register(NeoForgeRegistries.BIOME_MODIFIER_SERIALIZERS, "add_carvers", () -> RecordCodecBuilder.mapCodec(builder -> builder.group(
+            Biome.LIST_CODEC.fieldOf("biomes").forGetter(BiomeModifiers.AddCarversBiomeModifier::biomes),
+            WorldCarver.LIST_CODEC.fieldOf("carvers").forGetter(BiomeModifiers.AddCarversBiomeModifier::carvers)).apply(builder, BiomeModifiers.AddCarversBiomeModifier::new)));
 
     /**
      * Stock biome modifier for removing carvers from biomes.
      */
+    public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<BiomeModifiers.RemoveCarversBiomeModifier>> REMOVE_CARVERS_BIOME_MODIFIER_TYPE = register(NeoForgeRegistries.BIOME_MODIFIER_SERIALIZERS, "remove_carvers", () -> RecordCodecBuilder.mapCodec(builder -> builder.group(
+            Biome.LIST_CODEC.fieldOf("biomes").forGetter(BiomeModifiers.RemoveCarversBiomeModifier::biomes),
+            WorldCarver.LIST_CODEC.fieldOf("carvers").forGetter(BiomeModifiers.RemoveCarversBiomeModifier::carvers))
+            .apply(builder, BiomeModifiers.RemoveCarversBiomeModifier::new)));
 
     /**
      * Stock biome modifier for adding mob spawn costs to biomes.
      */
+    public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<BiomeModifiers.AddSpawnCostsBiomeModifier>> ADD_SPAWN_COSTS_BIOME_MODIFIER_TYPE = register(NeoForgeRegistries.BIOME_MODIFIER_SERIALIZERS, "add_spawn_costs", () -> RecordCodecBuilder.mapCodec(builder -> builder.group(
+            Biome.LIST_CODEC.fieldOf("biomes").forGetter(BiomeModifiers.AddSpawnCostsBiomeModifier::biomes),
+            RegistryCodecs.holderSet(Registries.ENTITY_TYPE).fieldOf("entity_types").forGetter(BiomeModifiers.AddSpawnCostsBiomeModifier::entityTypes),
+            MobSpawnSettings.MobSpawnCost.CODEC.fieldOf("spawn_cost").forGetter(BiomeModifiers.AddSpawnCostsBiomeModifier::spawnCost)).apply(builder, BiomeModifiers.AddSpawnCostsBiomeModifier::new)));
 
     /**
      * Stock biome modifier for removing mob spawn costs from biomes.
      */
+    public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<BiomeModifiers.RemoveSpawnCostsBiomeModifier>> REMOVE_SPAWN_COSTS_BIOME_MODIFIER_TYPE = register(NeoForgeRegistries.BIOME_MODIFIER_SERIALIZERS, "remove_spawn_costs", () -> RecordCodecBuilder.mapCodec(builder -> builder.group(
+            Biome.LIST_CODEC.fieldOf("biomes").forGetter(BiomeModifiers.RemoveSpawnCostsBiomeModifier::biomes),
+            RegistryCodecs.holderSet(Registries.ENTITY_TYPE).fieldOf("entity_types").forGetter(BiomeModifiers.RemoveSpawnCostsBiomeModifier::entityTypes)).apply(builder, BiomeModifiers.RemoveSpawnCostsBiomeModifier::new)));
 
     /**
      * Stock structure modifier for adding mob spawns to structures.
      */
+    public static final DeferredHolder<MapCodec<? extends StructureModifier>, MapCodec<StructureModifiers.AddSpawnsStructureModifier>> ADD_SPAWNS_STRUCTURE_MODIFIER_TYPE = register(NeoForgeRegistries.STRUCTURE_MODIFIER_SERIALIZERS, "add_spawns", () -> RecordCodecBuilder.mapCodec(builder -> builder.group(
+            RegistryCodecs.holderSet(Registries.STRUCTURE, Structure.DIRECT_CODEC).fieldOf("structures").forGetter(StructureModifiers.AddSpawnsStructureModifier::structures),
+            // Allow either a list or single spawner, attempting to decode the list format first.
+            // Uses the better EitherCodec that logs both errors if both formats fail to parse.
+            Codec.either(WeightedList.codec(SpawnerData.CODEC), Weighted.codec(SpawnerData.CODEC)).xmap(
+                    either -> either.map(Function.identity(), WeightedList::<SpawnerData>of), // convert list/singleton to list when decoding
+                    list -> list.unwrap().size() == 1 ? Either.right(list.unwrap().get(0)) : Either.left(list) // convert list to singleton/list when encoding
+            ).fieldOf("spawners").forGetter(StructureModifiers.AddSpawnsStructureModifier::spawners)).apply(builder, StructureModifiers.AddSpawnsStructureModifier::new)));
 
     /**
      * Stock structure modifier for removing mob spawns from structures.
      */
+    public static final DeferredHolder<MapCodec<? extends StructureModifier>, MapCodec<StructureModifiers.RemoveSpawnsStructureModifier>> REMOVE_SPAWNS_STRUCTURE_MODIFIER_TYPE = register(NeoForgeRegistries.STRUCTURE_MODIFIER_SERIALIZERS, "remove_spawns", () -> RecordCodecBuilder.mapCodec(builder -> builder.group(
+            RegistryCodecs.holderSet(Registries.STRUCTURE, Structure.DIRECT_CODEC).fieldOf("structures").forGetter(StructureModifiers.RemoveSpawnsStructureModifier::structures),
+            RegistryCodecs.holderSet(Registries.ENTITY_TYPE).fieldOf("entity_types").forGetter(StructureModifiers.RemoveSpawnsStructureModifier::entityTypes)).apply(builder, StructureModifiers.RemoveSpawnsStructureModifier::new)));
 
     /**
      * Stock structure modifier for removing spawn override lists from structures.
      */
+    public static final DeferredHolder<MapCodec<? extends StructureModifier>, MapCodec<StructureModifiers.ClearSpawnsStructureModifier>> CLEAR_SPAWNS_STRUCTURE_MODIFIER_TYPE = register(NeoForgeRegistries.STRUCTURE_MODIFIER_SERIALIZERS, "clear_spawns", () -> RecordCodecBuilder.mapCodec(builder -> builder.group(
+            RegistryCodecs.holderSet(Registries.STRUCTURE, Structure.DIRECT_CODEC).fieldOf("structures").forGetter(StructureModifiers.ClearSpawnsStructureModifier::structures),
+            Codec.<List<MobCategory>, MobCategory>either(MobCategory.CODEC.listOf(), MobCategory.CODEC).<Set<MobCategory>>xmap(
+                    either -> either.map(Set::copyOf, Set::of), // convert list/singleton to set when decoding
+                    set -> set.size() == 1 ? Either.right(set.toArray(MobCategory[]::new)[0]) : Either.left(List.copyOf(set))).optionalFieldOf("categories", EnumSet.allOf(MobCategory.class)).forGetter(StructureModifiers.ClearSpawnsStructureModifier::categories))
+            .apply(builder, StructureModifiers.ClearSpawnsStructureModifier::new)));
 
     /**
      * Stock holder set type that represents any/all values in a registry. Can be used in a holderset object with {@code { "type": "neoforge:any" }}

@@ -45,6 +45,23 @@ public class MobSpawnSettingsBuilder extends MobSpawnSettings.Builder {
     }
 
 
+    public MobSpawnSettingsBuilder removeSpawns(Predicate<Weighted<MobSpawnSettings.SpawnerData>> filter) {
+        //Mekanism shim: vanilla's WeightedList.Builder is backed by an immutable list builder, so rebuild the lists without the removed entries
+        for (java.util.Map.Entry<MobCategory, WeightedList.Builder<MobSpawnSettings.SpawnerData>> entry : this.spawnsByCategory.entrySet()) {
+            java.util.List<Weighted<MobSpawnSettings.SpawnerData>> spawns = entry.getValue().getList();
+            if (spawns.stream().anyMatch(filter)) {
+                WeightedList.Builder<MobSpawnSettings.SpawnerData> rebuilt = WeightedList.builder();
+                for (Weighted<MobSpawnSettings.SpawnerData> spawn : spawns) {
+                    if (!filter.test(spawn)) {
+                        rebuilt.add(spawn);
+                    }
+                }
+                entry.setValue(rebuilt);
+            }
+        }
+        return this;
+    }
+
     public MobSpawnSettingsBuilder removeSpawnCost(EntityType<?>... entityTypes) {
         for (EntityType<?> entityType : entityTypes) {
             this.mobSpawnCosts.remove(entityType);

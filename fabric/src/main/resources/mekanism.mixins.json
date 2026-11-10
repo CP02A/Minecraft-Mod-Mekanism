@@ -15,6 +15,7 @@
     "hooks.LevelMixin",
     "hooks.LivingEntityMixin",
     "hooks.MenuTypeAccessor",
+    "hooks.MinecraftServerConfigMixin",
     "hooks.MinecraftServerMixin",
     "hooks.MobMixin",
     "hooks.PlayerMixin",
@@ -23,6 +24,7 @@
     "hooks.ResultSlotMixin",
     "hooks.ServerPlayerMixin",
     "hooks.SlotMixin",
+    "hooks.StructureMixin",
     "hooks.ServerLevelMixin",
     "hooks.TicketStorageMixin"
   ],

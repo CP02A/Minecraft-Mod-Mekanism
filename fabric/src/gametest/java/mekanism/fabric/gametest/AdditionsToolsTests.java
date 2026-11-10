@@ -9,6 +9,17 @@ import mekanism.tools.common.registries.ToolsItems;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.util.random.Weighted;
+import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -82,5 +93,34 @@ public class AdditionsToolsTests {
         zombie.finalizeSpawn(helper.getLevel(), helper.getLevel().getCurrentDifficultyAt(zombie.blockPosition()), EntitySpawnReason.SPAWN_ITEM_USE, null);
         helper.assertTrue(FINALIZE_SPAWN_FIRED.get(), Component.literal("FinalizeSpawnEvent should fire when a mob's spawn is finalized"));
         helper.succeed();
+    }
+
+    @GameTest
+    public void babyMobsInBiomeSpawns(GameTestHelper helper) {
+        //Added by Additions' biome modifiers (mekanismadditions:baby_mob_spawn), based on the adult mob's spawn entries
+        Biome plains = helper.getLevel().registryAccess().lookupOrThrow(Registries.BIOME).getValueOrThrow(Biomes.PLAINS);
+        MobSpawnSettings spawns = plains.getAttributes().applyModifier(EnvironmentAttributes.NATURAL_MOB_SPAWNS, MobSpawnSettings.EMPTY);
+        assertSpawns(helper, spawns.getMobsToSpawn(MobCategory.MONSTER).unwrap(), "plains", BabyType.SKELETON, BabyType.CREEPER, BabyType.ENDERMAN);
+        EntityType<?> babySkeleton = AdditionsEntityTypes.getBaby(BabyType.SKELETON).get();
+        helper.assertTrue(spawns.getMobSpawnCost(babySkeleton) == null, Component.literal("Plains have no skeleton spawn cost, so baby skeletons shouldn't have one"));
+        helper.succeed();
+    }
+
+    @GameTest
+    public void babyMobsInStructureSpawns(GameTestHelper helper) {
+        //Added by Additions' structure modifiers (mekanismadditions:baby_mob_spawn), based on the adult mob's spawn overrides
+        Structure fortress = helper.getLevel().registryAccess().lookupOrThrow(Registries.STRUCTURE).getValueOrThrow(BuiltinStructures.FORTRESS);
+        StructureSpawnOverride monsters = fortress.spawnOverrides().get(MobCategory.MONSTER);
+        helper.assertTrue(monsters != null, Component.literal("Fortresses should have monster spawn overrides"));
+        assertSpawns(helper, monsters.spawns().unwrap(), "fortress", BabyType.SKELETON, BabyType.WITHER_SKELETON);
+        helper.succeed();
+    }
+
+    private static void assertSpawns(GameTestHelper helper, java.util.List<Weighted<MobSpawnSettings.SpawnerData>> spawns, String where, BabyType... types) {
+        for (BabyType type : types) {
+            EntityType<?> baby = AdditionsEntityTypes.getBaby(type).get();
+            helper.assertTrue(spawns.stream().anyMatch(spawn -> spawn.value().type() == baby && spawn.weight() > 0),
+                  Component.literal(type.getSerializedName() + " should be in the monster spawns of " + where + ": " + spawns));
+        }
     }
 }

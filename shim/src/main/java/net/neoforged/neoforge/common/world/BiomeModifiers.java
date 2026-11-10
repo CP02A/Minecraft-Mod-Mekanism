@@ -104,9 +104,232 @@ public final class BiomeModifiers {
         }
     }
 
+    /**
+     * <p>Stock biome modifier that adds a mob spawn to a biome. Has the following json format:</p>
+     *
+     * <pre>
+     * {
+     *   "type": "neoforge:add_spawns", // Required
+     *   "biomes": "#namespace:biome_tag", // Accepts a biome id, [list of biome ids], or #namespace:biome_tag
+     *   "spawners":
+     *   {
+     *     "type": "namespace:entity_type", // Type of mob to spawn
+     *     "weight": 100, // int, spawn weighting
+     *     "minCount": 1, // int, minimum pack size
+     *     "maxCount": 4, // int, maximum pack size
+     *   }
+     * }
+     * </pre>
+     *
+     * <p>Optionally accepts a list of spawner objects instead of a single spawner:</p>
+     *
+     * <pre>
+     * {
+     *   "type": "neoforge:add_spawns", // Required
+     *   "biomes": "#namespace:biome_tag", // Accepts a biome id, [list of biome ids], or #namespace:biome_tag
+     *   "spawners":
+     *   [
+     *     {
+     *       "type": "namespace:entity_type", // Type of mob to spawn
+     *       "weight": 100, // int, spawn weighting
+     *       "minCount": 1, // int, minimum pack size
+     *       "maxCount": 4, // int, maximum pack size
+     *     },
+     *     {
+     *       // additional spawner object
+     *     }
+     *   ]
+     * }
+     * </pre>
+     *
+     * @param biomes   Biomes to add mob spawns to.
+     * @param spawners List of Weighted SpawnerDatas specifying EntityType, weight, and pack size.
+     */
+    public record AddSpawnsBiomeModifier(HolderSet<Biome> biomes, WeightedList<SpawnerData> spawners) implements BiomeModifier {
+        /**
+         * Convenience method for using a single {@linkplain SpawnerData}s.
+         *
+         * @param biomes  Biomes to add mob spawns to.
+         * @param spawner Weighted SpawnerData specifying EntityTYpe, weight, and pack size.
+         * @return AddSpawnsBiomeModifier that adds a single spawn entry to the specified biomes.
+         */
+        public static AddSpawnsBiomeModifier singleSpawn(HolderSet<Biome> biomes, Weighted<SpawnerData> spawner) {
+            return new AddSpawnsBiomeModifier(biomes, WeightedList.<SpawnerData>of(spawner));
+        }
 
+        @Override
+        public void modify(RegistryAccess registries, Holder<Biome> biome, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
+            if (phase == Phase.ADD && this.biomes.contains(biome)) {
+                MobSpawnSettingsBuilder spawns = builder.getMobSpawnSettings();
+                for (Weighted<SpawnerData> spawner : this.spawners.unwrap()) {
+                    EntityType<?> type = spawner.value().type();
+                    spawns.addSpawn(type, spawner.weight(), spawner.value().count());
+                }
+            }
+        }
 
+        @Override
+        public MapCodec<? extends BiomeModifier> codec() {
+            return NeoForgeMod.ADD_SPAWNS_BIOME_MODIFIER_TYPE.get();
+        }
+    }
 
+    /**
+     * <p>Stock biome modifier that removes mob spawns from a biome. Has the following json format:</p>
+     *
+     * <pre>
+     * {
+     *   "type": "neoforge:remove_spawns", // Required
+     *   "biomes": "#namespace:biome_tag", // Accepts a biome id, [list of biome ids], or #namespace:biome_tag
+     *   "entity_types": #namespace:entitytype_tag // Accepts an entity type, [list of entity types], or #namespace:entitytype_tag
+     * }
+     * </pre>
+     *
+     * @param biomes      Biomes to remove mob spawns from.
+     * @param entityTypes EntityTypes to remove from spawn lists.
+     */
+    public record RemoveSpawnsBiomeModifier(HolderSet<Biome> biomes,
+            HolderSet<EntityType<?>> entityTypes) implements BiomeModifier {
+        @Override
+        public void modify(RegistryAccess registries, Holder<Biome> biome, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
+            if (phase == Phase.REMOVE && this.biomes.contains(biome)) {
+                MobSpawnSettingsBuilder spawnBuilder = builder.getMobSpawnSettings();
+                spawnBuilder.removeSpawns(data -> this.entityTypes.contains(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(data.value().type())));
+            }
+        }
 
+        @Override
+        public MapCodec<? extends BiomeModifier> codec() {
+            return NeoForgeMod.REMOVE_SPAWNS_BIOME_MODIFIER_TYPE.get();
+        }
+    }
 
+    /**
+     * <p>Stock biome modifier that adds carvers to biomes (from the configured_carver json registry). Has the following json format:</p>
+     * 
+     * <pre>
+     * {
+     *   "type": "neoforge:add_carvers", // required
+     *   "biomes": "#namespace:your_biome_tag" // accepts a biome id, [list of biome ids], or #namespace:biome_tag
+     *   "carvers": "namespace:your_carver", // accepts a configured carver id, [list of configured carver ids], or #namespace:carver_tag
+     *   "step": "air" // Carving step, can be "air" or "liquid"
+     * }
+     * </pre>
+     *
+     * @param biomes  Biomes to add features to.
+     * @param carvers ConfiguredWorldCarvers to add to biomes.
+     */
+    public record AddCarversBiomeModifier(HolderSet<Biome> biomes, HolderSet<WorldCarver> carvers) implements BiomeModifier {
+        @Override
+        public void modify(RegistryAccess registries, Holder<Biome> biome, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
+            if (phase == Phase.ADD && this.biomes.contains(biome)) {
+                BiomeGenerationSettingsBuilder generationSettings = builder.getGenerationSettings();
+                this.carvers.forEach(generationSettings::addCarver);
+            }
+        }
+
+        @Override
+        public MapCodec<? extends BiomeModifier> codec() {
+            return NeoForgeMod.ADD_CARVERS_BIOME_MODIFIER_TYPE.get();
+        }
+    }
+
+    /**
+     * <p>Stock biome modifier that removes carvers from biomes. Has the following json format:</p>
+     * 
+     * <pre>
+     * {
+     *   "type": "neoforge:remove_carvers", // required
+     *   "biomes": "#namespace:your_biome_tag", // accepts a biome id, [list of biome ids], or #namespace:biome_tag
+     *   "carvers": "namespace:your_carver", // accepts a configured carver id, [list of configured carver ids], or #namespace:carver_tag
+     *   "steps": "air" OR "liquid" OR ["air", "liquid"] // one or more carving steps; optional field, defaults to all steps if not specified
+     * }
+     * </pre>
+     *
+     * @param biomes  Biomes to remove carvers from.
+     * @param carvers ConfiguredWorldCarvers to remove from biomes.
+     */
+    public record RemoveCarversBiomeModifier(HolderSet<Biome> biomes, HolderSet<WorldCarver> carvers) implements BiomeModifier {
+        @Override
+        public void modify(RegistryAccess registries, Holder<Biome> biome, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
+            if (phase == Phase.REMOVE && this.biomes.contains(biome)) {
+                BiomeGenerationSettingsBuilder generationSettings = builder.getGenerationSettings();
+                generationSettings.getCarvers().removeIf(this.carvers::contains);
+            }
+        }
+
+        @Override
+        public MapCodec<? extends BiomeModifier> codec() {
+            return NeoForgeMod.REMOVE_CARVERS_BIOME_MODIFIER_TYPE.get();
+        }
+    }
+
+    /**
+     * <p>Stock biome modifier at adds spawn costs to a biome. Has the following json format:</p>
+     * 
+     * <pre>
+     * {
+     *   "type": "neoforge:add_spawn_costs", // Required
+     *   "biomes": "#namespace:biome_tag", // Accepts a biome id, [list of biome ids], or #namespace:biome_tag
+     *   "entity_types": #namespace:entitytype_tag, // Accepts an entity type, [list of entity types], or #namespace:entitytype_tag
+     *   "spawn_cost": {
+     *     "energy_budget": 1.0, // double
+     *     "charge": 1.0 // double
+     *   }
+     * }
+     * </pre>
+     *
+     * @param biomes      Biomes to add spawn costs to.
+     * @param entityTypes EntityTypes to add spawn costs for.
+     * @param spawnCost   MobSpawnCost to add for those entity types.
+     */
+    public record AddSpawnCostsBiomeModifier(HolderSet<Biome> biomes, HolderSet<EntityType<?>> entityTypes,
+            MobSpawnSettings.MobSpawnCost spawnCost) implements BiomeModifier {
+        @Override
+        public void modify(RegistryAccess registries, Holder<Biome> biome, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
+            if (phase == Phase.ADD) {
+                MobSpawnSettingsBuilder spawnBuilder = builder.getMobSpawnSettings();
+                for (var entityType : entityTypes) {
+                    spawnBuilder.addMobSpawnCost(entityType.value(), spawnCost.charge(), spawnCost.energyBudget());
+                }
+            }
+        }
+
+        @Override
+        public MapCodec<? extends BiomeModifier> codec() {
+            return NeoForgeMod.ADD_SPAWN_COSTS_BIOME_MODIFIER_TYPE.get();
+        }
+    }
+
+    /**
+     * <p>Stock biome modifier that removes mob spawn costs from a biome. Has the following json format:</p>
+     * 
+     * <pre>
+     * {
+     *   "type": "neoforge:remove_spawn_costs", // Required
+     *   "biomes": "#namespace:biome_tag", // Accepts a biome id, [list of biome ids], or #namespace:biome_tag
+     *   "entity_types": #namespace:entitytype_tag // Accepts an entity type, [list of entity types], or #namespace:entitytype_tag
+     * }
+     * </pre>
+     *
+     * @param biomes      Biomes to remove mob spawns from.
+     * @param entityTypes EntityTypes to remove from spawn lists.
+     */
+    public record RemoveSpawnCostsBiomeModifier(HolderSet<Biome> biomes,
+            HolderSet<EntityType<?>> entityTypes) implements BiomeModifier {
+        @Override
+        public void modify(RegistryAccess registries, Holder<Biome> biome, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
+            if (phase == Phase.REMOVE) {
+                MobSpawnSettingsBuilder spawnBuilder = builder.getMobSpawnSettings();
+                for (var entityType : entityTypes) {
+                    spawnBuilder.removeSpawnCost(entityType.value());
+                }
+            }
+        }
+
+        @Override
+        public MapCodec<? extends BiomeModifier> codec() {
+            return NeoForgeMod.REMOVE_SPAWN_COSTS_BIOME_MODIFIER_TYPE.get();
+        }
+    }
 }
