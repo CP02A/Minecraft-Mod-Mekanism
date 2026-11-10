@@ -1,29 +1,29 @@
 package mekanism.fabric.mixin.hooks;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import mekanism.fabric.shim.ServerHooks;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.common.world.chunk.ForcedChunkManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * NeoForge's entity tick events for entities that aren't passengers (on the server).
- * <p>
- * Note: Unlike on NeoForge, cancelling the pre event doesn't prevent the entity from ticking.
+ * NeoForge's entity tick events for entities that aren't passengers (on the server; passengers are handled by {@link EntityMixin}), and keeping
+ * levels with forced chunks of ticket controllers active.
  */
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin {
 
-    @Inject(method = "tickNonPassenger", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;tick()V"))
-    private void mekanism$entityTickPre(Entity entity, CallbackInfo ci) {
-        NeoForge.EVENT_BUS.post(new EntityTickEvent.Pre(entity));
+    @WrapOperation(method = "tickNonPassenger", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;tick()V"))
+    private void mekanism$entityTick(Entity entity, Operation<Void> original) {
+        ServerHooks.tickWithEvents(entity, () -> original.call(entity));
     }
 
-    @Inject(method = "tickNonPassenger", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;tick()V", shift = At.Shift.AFTER))
-    private void mekanism$entityTickPost(Entity entity, CallbackInfo ci) {
-        NeoForge.EVENT_BUS.post(new EntityTickEvent.Post(entity));
+    @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;hasActiveTickets()Z"))
+    private boolean mekanism$hasForcedChunks(boolean hasActiveTickets) {
+        return hasActiveTickets || ForcedChunkManager.hasForcedChunks((ServerLevel) (Object) this);
     }
 }

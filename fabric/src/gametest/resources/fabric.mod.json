@@ -12,7 +12,8 @@
     ],
     "fabric-gametest": [
       "mekanism.fabric.gametest.TransferBridgeTests",
-      "mekanism.fabric.gametest.InteropTests"
+      "mekanism.fabric.gametest.InteropTests",
+      "mekanism.fabric.gametest.ServerHookTests"
     ],
     "fabric-client-gametest": [
       "mekanism.fabric.gametest.MekanismClientTests"

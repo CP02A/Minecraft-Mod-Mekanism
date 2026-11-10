@@ -7,18 +7,21 @@
     "data.HolderSetCodecMixin",
     "data.IngredientMixin",
     "data.ResourceConditionsImplMixin",
+    "hooks.ChunkMapMixin",
     "hooks.EntityMixin",
     "hooks.ItemStackMixin",
     "hooks.LevelChunkMixin",
     "hooks.LevelMixin",
     "hooks.LivingEntityMixin",
     "hooks.MenuTypeAccessor",
+    "hooks.MinecraftServerMixin",
     "hooks.PlayerMixin",
     "hooks.RecipeBookSettingsMixin",
     "hooks.RecipeMapAccessor",
     "hooks.ResultSlotMixin",
     "hooks.ServerPlayerMixin",
-    "hooks.ServerLevelMixin"
+    "hooks.ServerLevelMixin",
+    "hooks.TicketStorageMixin"
   ],
   "client": [
     "client.BlockStateModelLoaderMixin",

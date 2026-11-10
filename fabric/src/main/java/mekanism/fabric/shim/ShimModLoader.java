@@ -60,7 +60,6 @@ import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.RegisterCauldronInteractionEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.registries.NewDatapackRegistryEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
@@ -190,11 +189,7 @@ public final class ShimModLoader {
         ModLoader.postEvent(new EntityAttributeCreationEvent(attributes));
         attributes.forEach((type, supplier) -> FabricDefaultAttributeRegistry.register(type, supplier));
 
-        Map<EntityType<?>, RegisterSpawnPlacementsEvent.MergedSpawnPredicate<?>> spawnPlacements = new IdentityHashMap<>();
-        ModLoader.postEvent(new RegisterSpawnPlacementsEvent(spawnPlacements));
-        if (!spawnPlacements.isEmpty()) {
-            LOGGER.warn("Ignoring spawn placements registered for {}, as they are not supported on Fabric", spawnPlacements.keySet());
-        }
+        ServerHooks.registerSpawnPlacements();
 
         DefaultItemComponentEvents.MODIFY.register(context -> {
             Map<Item, ModifyDefaultComponentsEvent.Initializer> byItem = new Object2ObjectOpenHashMap<>();

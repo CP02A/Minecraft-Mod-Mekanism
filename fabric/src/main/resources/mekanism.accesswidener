@@ -269,6 +269,8 @@ accessible class net/minecraft/world/entity/EquipmentSlot
 accessible class net/minecraft/world/entity/ExperienceOrb
 accessible class net/minecraft/world/entity/LivingEntity
 accessible class net/minecraft/world/entity/Mob
+accessible class net/minecraft/world/entity/SpawnPlacements
+accessible class net/minecraft/world/entity/SpawnPlacements$Data
 accessible class net/minecraft/world/entity/ai/sensing/SensorType
 accessible class net/minecraft/world/entity/animal/equine/AbstractHorse
 accessible class net/minecraft/world/entity/item/ItemEntity
@@ -699,6 +701,7 @@ accessible field net/minecraft/world/entity/EquipmentSlot countLimit I
 accessible field net/minecraft/world/entity/LivingEntity effectsDirty Z
 accessible field net/minecraft/world/entity/Mob goalSelector Lnet/minecraft/world/entity/ai/goal/GoalSelector;
 accessible field net/minecraft/world/entity/Mob targetSelector Lnet/minecraft/world/entity/ai/goal/GoalSelector;
+accessible field net/minecraft/world/entity/SpawnPlacements DATA_BY_TYPE Ljava/util/Map;
 accessible field net/minecraft/world/entity/animal/equine/AbstractHorse inventory Lnet/minecraft/world/SimpleContainer;
 accessible field net/minecraft/world/entity/item/ItemEntity age I
 accessible field net/minecraft/world/entity/item/PrimedTnt explosionPower F
@@ -1027,6 +1030,7 @@ accessible method net/minecraft/world/entity/LivingEntity getHitbox ()Lnet/minec
 accessible method net/minecraft/world/entity/LivingEntity jumpOutOfFluid (D)V
 accessible method net/minecraft/world/entity/LivingEntity refreshDirtyAttributes ()V
 accessible method net/minecraft/world/entity/LivingEntity shouldTakeDrowningDamage ()Z
+accessible method net/minecraft/world/entity/SpawnPlacements$Data <init> (Lnet/minecraft/world/level/levelgen/Heightmap$Types;Lnet/minecraft/world/entity/SpawnPlacementType;Lnet/minecraft/world/entity/SpawnPlacements$SpawnPredicate;)V
 accessible method net/minecraft/world/entity/ai/sensing/SensorType <init> (Ljava/util/function/Supplier;)V
 accessible method net/minecraft/world/entity/item/ItemEntity setFluidMovement (D)V
 accessible method net/minecraft/world/entity/player/Player closeContainer ()V
