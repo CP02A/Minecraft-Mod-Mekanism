@@ -2,7 +2,24 @@ package mekanism.fabric.gametest;
 
 import mekanism.client.MekanismClient;
 import mekanism.client.gui.GuiMekanism;
+import com.mojang.blaze3d.platform.InputConstants;
+import java.util.List;
+import mekanism.api.RelativeSide;
+import mekanism.client.gui.GuiMekanismTile;
+import mekanism.client.gui.element.button.SideDataButton;
+import mekanism.client.gui.element.tab.window.GuiSideConfigurationTab;
+import mekanism.client.gui.element.window.GuiSideConfiguration;
+import mekanism.client.gui.element.window.GuiWindow;
 import mekanism.client.model.MekanismModelCache;
+import mekanism.common.tile.base.TileEntityMekanism;
+import mekanism.common.tile.component.TileComponentConfig;
+import mekanism.common.tile.component.config.DataType;
+import mekanism.common.tile.interfaces.ISideConfiguration;
+import mekanism.common.util.WorldUtils;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import mekanism.client.render.MekanismRenderer;
 import mekanism.common.recipe.MekanismRecipeType;
 import mekanism.common.registries.MekanismFluids;
@@ -29,11 +46,15 @@ public class MekanismClientTests implements FabricClientGameTest {
             singleplayer.getServer().runCommand("execute as @p at @s run setblock ~2 ~ ~-1 mekanism:basic_fluid_tank");
             //Uses NeoForge's composite model loader
             singleplayer.getServer().runCommand("execute as @p at @s run setblock ~2 ~1 ~1 mekanism:basic_combining_factory[facing=west]");
+            //Connected transmitters use model data
+            singleplayer.getServer().runCommand("execute as @p at @s run setblock ~2 ~2 ~-1 mekanism:basic_universal_cable");
+            singleplayer.getServer().runCommand("execute as @p at @s run setblock ~2 ~2 ~-2 mekanism:basic_universal_cable");
             //In the crosshair
             singleplayer.getServer().runCommand("execute as @p at @s run setblock ~2 ~1 ~ mekanism:enrichment_chamber[facing=west]");
             singleplayer.getServer().runCommand("execute as @p at @s run tp @s ~ ~ ~ -90 20");
             context.waitTicks(40);
             singleplayer.getConnection().waitForChunksRender();
+            context.runOnClient(client -> client.gui.hud.getChat().clearMessages(false));
             context.takeScreenshot("mekanism-blocks");
 
             //Model and texture events
@@ -60,8 +81,54 @@ public class MekanismClientTests implements FabricClientGameTest {
             context.waitFor(client -> client.gui.screen() instanceof GuiMekanism<?>);
             context.waitTicks(5);
             context.takeScreenshot("mekanism-machine-gui");
+
+            //Open the side configuration window, and change the bottom side's configuration (sent to the server)
+            clickElement(context, context.computeOnClient(client -> findElement(client.gui.screen().children(), GuiSideConfigurationTab.class)));
+            context.waitFor(client -> client.gui.screen() instanceof GuiMekanism<?> gui && gui.getWindows().stream().anyMatch(GuiSideConfiguration.class::isInstance));
+            context.waitTicks(5);
+            BlockPos machinePos = context.computeOnClient(client -> ((GuiMekanismTile<?, ?>) client.gui.screen()).getTileEntity().getBlockPos());
+            DataType before = context.computeOnClient(client -> bottomDataType(client.player.level(), machinePos));
+            if (before != singleplayer.getServer().computeOnServer(server -> bottomDataType(server.overworld(), machinePos))) {
+                throw new AssertionError("Side configuration is not synced to the client");
+            }
+            clickElement(context, context.computeOnClient(client -> {
+                GuiWindow window = ((GuiMekanism<?>) client.gui.screen()).getWindows().stream().filter(GuiSideConfiguration.class::isInstance).findFirst().orElseThrow();
+                //The first side data button is the bottom side
+                return findElement(window.children(), SideDataButton.class);
+            }));
+            for (int tick = 0; singleplayer.getServer().computeOnServer(server -> bottomDataType(server.overworld(), machinePos)) == before; tick++) {
+                if (tick == 100) {
+                    throw new AssertionError("Side configuration change was not applied on the server");
+                }
+                context.waitTick();
+            }
+            context.waitFor(client -> bottomDataType(client.player.level(), machinePos) != before);
+            context.waitTicks(5);
+            context.takeScreenshot("mekanism-side-config");
             context.setScreen(() -> null);
             context.waitTicks(5);
         }
+    }
+
+    private static DataType bottomDataType(Level level, BlockPos pos) {
+        TileEntityMekanism tile = WorldUtils.getTileEntity(TileEntityMekanism.class, level, pos);
+        if (!(tile instanceof ISideConfiguration config)) {
+            throw new AssertionError("No configurable machine at " + pos);
+        }
+        TileComponentConfig component = config.getConfig();
+        return component.getConfig(component.getTransmissions().getFirst()).getDataType(RelativeSide.BOTTOM);
+    }
+
+    private static <T extends GuiEventListener> T findElement(List<? extends GuiEventListener> elements, Class<T> type) {
+        return elements.stream().filter(type::isInstance).map(type::cast).findFirst().orElseThrow(() -> new AssertionError("No " + type.getSimpleName()));
+    }
+
+    /**
+     * Clicks the center of the given widget.
+     */
+    private static void clickElement(ClientGameTestContext context, AbstractWidget widget) {
+        double scale = context.computeOnClient(client -> client.getWindow().getGuiScale());
+        context.getInput().setCursorPos((widget.getX() + widget.getWidth() / 2.0) * scale, (widget.getY() + widget.getHeight() / 2.0) * scale);
+        context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
     }
 }

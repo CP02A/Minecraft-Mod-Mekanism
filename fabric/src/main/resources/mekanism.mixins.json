@@ -25,6 +25,7 @@
   ],
   "client": [
     "client.BlockColorsMixin",
+    "client.BlockStateModelMixin",
     "client.BlockStateModelLoaderMixin",
     "client.ClientLevelMixin",
     "client.ClientPacketListenerMixin",
