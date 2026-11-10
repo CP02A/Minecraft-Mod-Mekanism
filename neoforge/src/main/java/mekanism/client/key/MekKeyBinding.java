@@ -22,7 +22,10 @@ public class MekKeyBinding extends KeyMapping {
 
     MekKeyBinding(String description, IKeyConflictContext keyConflictContext, KeyModifier keyModifier, InputConstants.Key key, KeyMapping.Category category,
           @Nullable BiConsumer<KeyMapping, Boolean> onKeyDown, @Nullable Consumer<KeyMapping> onKeyUp, @Nullable BooleanSupplier toggleable, boolean repeating) {
-        super(description, keyConflictContext, keyModifier, key, category);
+        //Note: Use the vanilla constructor and set the conflict context and modifier separately so that this works on all loaders
+        super(description, key.getType(), key.getValue(), category);
+        setKeyConflictContext(keyConflictContext);
+        setKeyModifierAndCode(keyModifier, key);
         this.onKeyDown = onKeyDown;
         this.onKeyUp = onKeyUp;
         this.toggleable = toggleable;

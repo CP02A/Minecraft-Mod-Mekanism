@@ -61,7 +61,7 @@ public class MekanismRenderPipelines {
           .withColorTargetState(ColorTargetState.DEFAULT)
           .build();
     //TODO: Is there a vanilla OitPipelineSet we can use in place of this?
-    public static final OitPipelineSet OIT_ARMOR_TRANSLUCENT_GLINT = OitPipelineSet.builder(Mekanism.rl("pipeline/armor_translucent_glint"), RenderPipeline.builder(RenderPipelines.OIT_ENTITY_SNIPPET))
+    public static final OitPipelineSet OIT_ARMOR_TRANSLUCENT_GLINT = OitPipelineSet.builder("mekanism_armor_translucent_glint", RenderPipeline.builder(RenderPipelines.OIT_ENTITY_SNIPPET))
           .withAccumulateModifier(accumulate -> accumulate
                 .withShaderDefine("PER_FACE_LIGHTING")
                 .withBindGroupLayout(BindGroupLayouts.GLOBALS)
@@ -86,7 +86,7 @@ public class MekanismRenderPipelines {
           .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
           .build();
 
-    public static final OitPipelineSet OIT_SPS = OitPipelineSet.builder(Mekanism.rl("pipeline/sps"), RenderPipeline.builder(SPS_SNIPPET)
+    public static final OitPipelineSet OIT_SPS = OitPipelineSet.builder("mekanism_sps", RenderPipeline.builder(SPS_SNIPPET)
                 .withShaderDefine("OIT_ADDITIVE")
           ).withAccumulateModifier(accumulate -> accumulate.withBindGroupLayout(BindGroupLayouts.SAMPLER0))
           .build();

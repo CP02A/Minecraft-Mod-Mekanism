@@ -94,6 +94,24 @@ public final class ShimHooks {
         return LIGHTNING_DAMAGE.getOrDefault(bolt, defaultDamage);
     }
 
+    private static final Map<Object, KeyMappingData> KEY_MAPPING_DATA = Collections.synchronizedMap(new WeakHashMap<>());
+
+    /**
+     * NeoForge's per key mapping conflict context and modifier, which NeoForge stores in the key mapping itself.
+     */
+    public static final class KeyMappingData {
+
+        public @Nullable Object conflictContext;
+        public @Nullable Object modifier;
+    }
+
+    /**
+     * @param keyMapping The key mapping (typed as Object as this class is also loaded on dedicated servers).
+     */
+    public static KeyMappingData getKeyMappingData(Object keyMapping) {
+        return KEY_MAPPING_DATA.computeIfAbsent(keyMapping, k -> new KeyMappingData());
+    }
+
     /**
      * Set by the loader once capabilities have been registered.
      */

@@ -1,5 +1,6 @@
 package mekanism.client.render.hud;
 
+import mekanism.client.platform.ClientServices;
 import mekanism.client.gui.GuiUtils;
 import mekanism.common.item.interfaces.IModeItem;
 import mekanism.common.lib.Color;
@@ -40,7 +41,7 @@ public class MekanismStatusOverlay implements GuiLayer {
                     Color color = Color.rgbad(1, 1, 1, modeSwitchTimer / (float) BASE_TIMER);
                     Font font = minecraft.gui.hud.getFont();
                     int componentWidth = font.width(scrollTextComponent);
-                    int targetShift = Math.max(59, Math.max(minecraft.gui.hud.leftHeight, minecraft.gui.hud.rightHeight));
+                    int targetShift = Math.max(59, Math.max(ClientServices.PLATFORM.getHudLeftHeight(minecraft.gui.hud), ClientServices.PLATFORM.getHudRightHeight(minecraft.gui.hud)));
                     if (minecraft.gameMode != null && !minecraft.gameMode.canHurtPlayer()) {
                         //Same shift as done in Gui#renderSelectedItemName
                         targetShift -= 14;

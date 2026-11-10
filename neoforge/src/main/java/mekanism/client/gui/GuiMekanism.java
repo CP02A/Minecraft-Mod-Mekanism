@@ -81,6 +81,21 @@ public abstract class GuiMekanism<CONTAINER extends AbstractContainerMenu> exten
         super(container, inv, title, imageWidth, imageHeight);
     }
 
+
+    /// {@return the slot that is currently hovered, or {@code null} if no slot is hovered}
+    public net.minecraft.world.inventory.@org.jspecify.annotations.Nullable Slot getHoveredSlotOrNull() {
+        return hoveredSlot;
+    }
+
+    @Override
+    public int getImageWidth() {
+        return imageWidth;
+    }
+
+    @Override
+    public int getImageHeight() {
+        return imageHeight;
+    }
     @Override
     public BooleanSupplier trackWarning(WarningType type, BooleanSupplier warningSupplier) {
         if (warningTracker == null) {

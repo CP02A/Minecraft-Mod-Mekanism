@@ -170,7 +170,7 @@ public class MekanismRecipeButton extends RecipeButton implements IRecipeViewerI
     public List<Component> getTooltipText(FluidStack stack) {
         Minecraft minecraft = Minecraft.getInstance();
         List<Component> texts = new ArrayList<>(stack.getTooltipLines(
-              Item.TooltipContext.of(minecraft.level, minecraft.player),
+              Item.TooltipContext.of(minecraft.level),
               minecraft.player,
               ClientTooltipFlag.of(minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL)
         ));
@@ -183,7 +183,7 @@ public class MekanismRecipeButton extends RecipeButton implements IRecipeViewerI
     public List<Component> getTooltipText(ChemicalStack stack) {
         Minecraft minecraft = Minecraft.getInstance();
         List<Component> texts = new ArrayList<>(stack.getTooltipLines(
-              Item.TooltipContext.of(minecraft.level, minecraft.player),
+              Item.TooltipContext.of(minecraft.level),
               minecraft.player,
               ClientTooltipFlag.of(minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL)
         ));

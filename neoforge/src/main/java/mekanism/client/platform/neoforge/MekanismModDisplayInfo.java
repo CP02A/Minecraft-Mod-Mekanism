@@ -1,4 +1,4 @@
-package mekanism.client;
+package mekanism.client.platform.neoforge;
 
 import mekanism.api.text.ILangEntry;
 import mekanism.common.base.holiday.HolidayManager;

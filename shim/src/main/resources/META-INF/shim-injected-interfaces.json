@@ -1,6 +1,21 @@
 {
+  "net/minecraft/client/KeyMapping": [
+    "net/neoforged/neoforge/shim/extensions/IKeyMappingExtension"
+  ],
+  "net/minecraft/client/gui/GuiGraphicsExtractor": [
+    "net/neoforged/neoforge/shim/extensions/IGuiGraphicsExtractorExtension"
+  ],
+  "net/minecraft/client/particle/Particle": [
+    "net/neoforged/neoforge/shim/extensions/IParticleExtension"
+  ],
+  "net/minecraft/client/particle/TerrainParticle": [
+    "net/neoforged/neoforge/shim/extensions/ITerrainParticleExtension"
+  ],
   "net/minecraft/client/renderer/blockentity/BlockEntityRenderer": [
     "net/neoforged/neoforge/client/extensions/IBlockEntityRendererExtension<T>"
+  ],
+  "net/minecraft/client/renderer/texture/TextureAtlasSprite": [
+    "net/neoforged/neoforge/shim/extensions/ITextureAtlasSpriteExtension"
   ],
   "net/minecraft/core/Holder": [
     "net/neoforged/neoforge/common/extensions/IHolderExtension<T>"

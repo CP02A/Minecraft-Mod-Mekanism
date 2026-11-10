@@ -110,7 +110,7 @@ sourceSets {
     mainCheck {
         java.srcDirs = [rootProject.file('neoforge/src/main/java'), file('src/main/java')]
         //NeoForge specific implementations of the platform services
-        java.exclude('mekanism/common/platform/neoforge/**')
+        java.exclude('mekanism/common/platform/neoforge/**', 'mekanism/client/platform/neoforge/**')
         resources.srcDirs = []
         compileClasspath += sourceSets.main.compileClasspath + sourceSets.apiCheck.output + sourceSets.apiCheck.compileClasspath
     }

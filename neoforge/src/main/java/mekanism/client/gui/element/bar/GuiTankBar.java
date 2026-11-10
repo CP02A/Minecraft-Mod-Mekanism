@@ -58,7 +58,7 @@ public abstract class GuiTankBar<RESOURCE extends Resource, CONTAINER extends IR
     public void updateTooltip(int mouseX, int mouseY) {
         CONTAINER container = getContainer();
         TooltipFlag tooltipFlag = ClientTooltipFlag.of(minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
-        List<Component> info = getContentsTooltips(container.resource(), container.amountAsLong(), TooltipContext.of(minecraft.level, minecraft.player), minecraft.player, tooltipFlag);
+        List<Component> info = getContentsTooltips(container.resource(), container.amountAsLong(), TooltipContext.of(minecraft.level), minecraft.player, tooltipFlag);
         if (!info.equals(lastInfo)) {
             lastInfo = info;
             lastTooltip = TooltipUtils.create(info);

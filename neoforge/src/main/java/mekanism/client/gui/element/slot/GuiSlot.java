@@ -291,7 +291,7 @@ public class GuiSlot extends GuiElement implements IRecipeViewerGhostTarget, IGh
             list = onHover.apply(this);
         }
         if (list.isEmpty() && !stack.isEmpty() && stack.getItem() instanceof ItemConfigurator && gui() instanceof GuiMekanismTile<?, ?> gui &&
-            gui.getTileEntity() instanceof ISideConfiguration config && gui.getHoveredSlot() instanceof InventoryContainerSlot slot) {
+            gui.getTileEntity() instanceof ISideConfiguration config && gui.getHoveredSlotOrNull() instanceof InventoryContainerSlot slot) {
             ConfigInfo info = config.getConfig().getConfig(TransmissionType.ITEM);
             if (info != null) {
                 IInventorySlot inventorySlot = slot.getInventorySlot();

@@ -1,5 +1,6 @@
 package mekanism.client.render.hud;
 
+import mekanism.client.platform.ClientServices;
 import mekanism.api.MekanismAPITags;
 import mekanism.api.math.MathUtils;
 import mekanism.client.gui.element.bar.GuiBar;
@@ -46,11 +47,11 @@ public class MekaSuitEnergyLevel implements GuiLayer {
         }
         if (capacity > 0) {
             int x = graphics.guiWidth() / 2 - 91;
-            int y = graphics.guiHeight() - minecraft.gui.hud.leftHeight + 2;
+            int y = graphics.guiHeight() - ClientServices.PLATFORM.getHudLeftHeight(minecraft.gui.hud) + 2;
             int length = (int) Math.round(((double) stored / capacity) * 79);
             graphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiBar.BAR, x, y, 81, 6);
             graphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiHorizontalPowerBar.ENERGY_BAR, x + 1, y + 1, length, 4);
-            minecraft.gui.hud.leftHeight += 8;
+            ClientServices.PLATFORM.addHudLeftHeight(minecraft.gui.hud, 8);
         }
     }
 }

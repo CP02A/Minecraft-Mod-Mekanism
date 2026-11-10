@@ -1,5 +1,6 @@
 package mekanism.client;
 
+import mekanism.client.platform.ClientServices;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -35,9 +36,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
-import net.neoforged.neoforge.client.gui.ConfigurationScreen;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-import net.neoforged.neoforge.client.gui.modlist.ModDisplayInfo;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
@@ -51,8 +49,7 @@ public class MekanismClient {
     private static RecipeMap clientRecipeMap = RecipeMap.EMPTY;
 
     public MekanismClient(ModContainer container, IEventBus modEventBus) {
-        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
-        container.<ModDisplayInfo>registerExtensionPoint(ModDisplayInfo.class, () -> new MekanismModDisplayInfo(container, MekanismLang.MEKANISM));
+        ClientServices.PLATFORM.registerClientExtensions(container);
         modEventBus.register(TransmitterContentsManager.class);
         modEventBus.register(RobitSpriteUploader.class);
         modEventBus.register(RobitSkinManager.class);
