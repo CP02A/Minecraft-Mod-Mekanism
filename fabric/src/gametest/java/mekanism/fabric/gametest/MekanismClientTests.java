@@ -21,7 +21,22 @@ import mekanism.common.tile.interfaces.ISideConfiguration;
 import mekanism.common.util.WorldUtils;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import mekanism.common.content.network.transmitter.Transmitter;
+import mekanism.common.registries.MekanismBlocks;
+import mekanism.common.tile.transmitter.TileEntityTransmitter;
+import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.client.model.item.DynamicFluidContainerModel;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -39,7 +54,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContex
 
 /**
  * Client game tests: loads a world with some of Mekanism's blocks and takes screenshots (in the run directory's screenshots folder) to check rendering, then
- * opens a machine's GUI.
+ * opens a machine's GUI. Also renders fluid container items and connected transmitters.
  */
 public class MekanismClientTests implements FabricClientGameTest {
 
@@ -125,7 +140,107 @@ public class MekanismClientTests implements FabricClientGameTest {
             context.takeScreenshot("mekanism-recipe-book");
             context.setScreen(() -> null);
             context.waitTicks(5);
+
+            checkFluidContainerItems(context, singleplayer);
+            checkTransmitterConnections(context, singleplayer);
         }
+    }
+
+    /**
+     * Renders filled fluid tanks (Mekanism's special model renderer) and buckets (NeoForge's {@code neoforge:fluid_container} item model) in the hotbar
+     * and in hand.
+     */
+    private static void checkFluidContainerItems(ClientGameTestContext context, TestSingleplayerContext singleplayer) {
+        singleplayer.getServer().runOnServer(server -> {
+            ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+            fillSlot(player, 0, new ItemStack(MekanismBlocks.BASIC_FLUID_TANK), FluidResource.of(Fluids.WATER));
+            fillSlot(player, 1, new ItemStack(MekanismBlocks.ADVANCED_FLUID_TANK), MekanismFluids.BRINE.asResource());
+            player.getInventory().setItem(2, new ItemStack(MekanismFluids.BRINE.getBucket().asItem()));
+            player.getInventory().setItem(3, new ItemStack(MekanismFluids.HEAVY_WATER.getBucket().asItem()));
+            player.getInventory().setItem(4, new ItemStack(MekanismFluids.HYDROGEN.getBucket().asItem()));
+            player.getInventory().setItem(5, new ItemStack(Items.LAVA_BUCKET));
+        });
+        context.runOnClient(client -> {
+            ItemModel model = client.getModelManager().getItemModel(BuiltInRegistries.ITEM.getKey(MekanismFluids.BRINE.getBucket().asItem()));
+            if (!(model instanceof DynamicFluidContainerModel)) {
+                throw new AssertionError("Expected a dynamic fluid container model for the brine bucket, got " + model);
+            }
+        });
+        context.waitFor(client -> !client.player.getInventory().getItem(5).isEmpty());
+        context.getInput().pressKey(options -> options.keyHotbarSlots[2]);
+        context.waitTicks(10);
+        context.takeScreenshot("mekanism-held-bucket");
+        context.getInput().pressKey(options -> options.keyHotbarSlots[1]);
+        context.waitTicks(10);
+        context.takeScreenshot("mekanism-held-fluid-tank");
+    }
+
+    private static void fillSlot(ServerPlayer player, int slot, ItemStack stack, FluidResource fluid) {
+        player.getInventory().setItem(slot, stack);
+        ResourceHandler<FluidResource> handler = ItemAccess.forPlayerSlot(player, slot).getCapability(Capabilities.Fluid.ITEM);
+        if (handler == null) {
+            throw new AssertionError("No fluid handler for " + stack);
+        }
+        //The tank's insertion rate is limited, so fill it in multiple operations
+        for (int i = 0; i < 100; i++) {
+            try (Transaction transaction = Transaction.openRoot()) {
+                int inserted = handler.insert(fluid, Integer.MAX_VALUE, transaction);
+                transaction.commit();
+                if (inserted == 0) {
+                    break;
+                }
+            }
+        }
+        if (handler.getAmountAsLong(0) == 0) {
+            throw new AssertionError("Could not fill " + stack);
+        }
+    }
+
+    /**
+     * Connects two energy cubes with universal cables and checks that the connections reach the client (rendered through model data).
+     */
+    private static void checkTransmitterConnections(ClientGameTestContext context, TestSingleplayerContext singleplayer) {
+        BlockPos start = singleplayer.getServer().computeOnServer(server -> server.getPlayerList().getPlayers().getFirst().blockPosition()).offset(10, 0, 0);
+        singleplayer.getServer().runCommand("setblock " + pos(start) + " mekanism:basic_energy_cube");
+        singleplayer.getServer().runCommand("setblock " + pos(start.south()) + " mekanism:basic_universal_cable");
+        singleplayer.getServer().runCommand("setblock " + pos(start.south(2)) + " mekanism:basic_universal_cable");
+        singleplayer.getServer().runCommand("setblock " + pos(start.south(3)) + " mekanism:basic_energy_cube");
+        singleplayer.getServer().runCommand("setblock " + pos(start.south().above()) + " mekanism:basic_universal_cable");
+        singleplayer.getServer().runCommand("tp @p " + (start.getX() - 2) + " " + start.getY() + " " + (start.getZ() + 2) + " -90 35");
+        context.waitTicks(40);
+        singleplayer.getConnection().waitForChunksRender();
+        context.takeScreenshot("mekanism-transmitter-connections");
+        assertConnections(context, singleplayer, start.south(), Direction.SOUTH, Direction.UP);
+        assertConnections(context, singleplayer, start.south(2), Direction.NORTH);
+    }
+
+    /**
+     * Checks that the transmitter at the given position is connected to the given sides, and that the client knows about the same connections as the
+     * server (including connections to the energy cubes, which depend on their side configuration).
+     */
+    private static void assertConnections(ClientGameTestContext context, TestSingleplayerContext singleplayer, BlockPos pos, Direction... sides) {
+        byte serverConnections = singleplayer.getServer().computeOnServer(server -> connections(server.overworld(), pos));
+        byte clientConnections = context.computeOnClient(client -> connections(client.player.level(), pos));
+        if (serverConnections != clientConnections) {
+            throw new AssertionError("Transmitter connections at " + pos + " differ between the server (" + Integer.toBinaryString(serverConnections) +
+                                     ") and the client (" + Integer.toBinaryString(clientConnections) + ")");
+        }
+        for (Direction side : sides) {
+            if (!Transmitter.connectionMapContainsSide(clientConnections, side)) {
+                throw new AssertionError("Transmitter at " + pos + " is not connected to the " + side + " (connections: " + Integer.toBinaryString(clientConnections) + ")");
+            }
+        }
+    }
+
+    private static byte connections(Level level, BlockPos pos) {
+        if (!(WorldUtils.getTileEntity(level, pos) instanceof TileEntityTransmitter transmitter)) {
+            throw new AssertionError("No transmitter at " + pos);
+        }
+        return transmitter.getTransmitter().getAllCurrentConnections();
+    }
+
+    private static String pos(BlockPos pos) {
+        return pos.getX() + " " + pos.getY() + " " + pos.getZ();
     }
 
     /**
