@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import java.util.List;
 import mekanism.fabric.shim.AdvancedMenuOpening;
 import mekanism.fabric.shim.RecipeContentSync;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -46,6 +47,13 @@ public final class ClientGameEventBridge {
         ClientTickEvents.START_CLIENT_TICK.register(client -> ClientHooks.fireClientTickPre());
         ClientTickEvents.END_CLIENT_TICK.register(client -> ClientHooks.fireClientTickPost());
         ClientEntityEvents.ENTITY_LOAD.register((entity, level) -> NeoForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, level)));
+        //NeoForge's ModelDataManager drops the model data of unloaded chunks
+        ClientChunkEvents.CHUNK_UNLOAD.register((level, chunk) -> {
+            var modelDataManager = level.getModelDataManager();
+            if (modelDataManager != null) {
+                modelDataManager.onChunkUnload(chunk.getPos());
+            }
+        });
 
         ClientPlayNetworking.registerGlobalReceiver(RecipeContentSync.Payload.TYPE, (payload, context) ->
               NeoForge.EVENT_BUS.post(new RecipesReceivedEvent(payload.recipeTypes(), RecipeContentSync.createClientMap(payload.recipes()))));

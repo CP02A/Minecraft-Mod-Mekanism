@@ -18,7 +18,8 @@ public interface IBlockGetterExtension {
     /**
      * {@return the model data of the block entity at the given position}
      *
-     * @apiNote Mekanism shim: Model data is queried from the block entity each time instead of being cached per chunk section.
+     * @apiNote Mekanism shim: Client levels and chunk meshing regions override this with NeoForge's {@code ModelDataManager} (snapshot), other
+     * getters query the block entity directly.
      */
     default ModelData getModelData(BlockPos pos) {
         BlockEntity blockEntity = ((BlockGetter) this).getBlockEntity(pos);

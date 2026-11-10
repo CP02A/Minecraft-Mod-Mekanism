@@ -219,6 +219,17 @@ public class MekanismClientTests implements FabricClientGameTest {
         context.takeScreenshot("mekanism-transmitter-connections");
         assertConnections(context, singleplayer, start.south(), Direction.NORTH, Direction.SOUTH, Direction.UP);
         assertConnections(context, singleplayer, start.south(2), Direction.NORTH, Direction.SOUTH);
+        //The model data the chunk meshing uses comes from the client level's ModelDataManager (snapshotted per meshing region)
+        context.runOnClient(client -> {
+            if (client.level.getModelDataManager().getAt(start.south()) == net.neoforged.neoforge.model.data.ModelData.EMPTY) {
+                throw new AssertionError("The client's ModelDataManager has no model data for the transmitter at " + start.south());
+            }
+            var region = new net.minecraft.client.renderer.chunk.RenderRegionCache().createRegion(client.level,
+                  net.minecraft.core.SectionPos.asLong(start.south()));
+            if (region.getModelData(start.south()) != client.level.getModelDataManager().getAt(start.south())) {
+                throw new AssertionError("The chunk meshing region's model data snapshot doesn't match the client's ModelDataManager");
+            }
+        });
     }
 
     /**

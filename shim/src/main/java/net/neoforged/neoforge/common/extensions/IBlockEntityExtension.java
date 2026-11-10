@@ -89,10 +89,17 @@ public interface IBlockEntityExtension {
     }
 
     /**
-     * Requests a refresh of this block entity's model data.
-     *
-     * @apiNote Mekanism shim: Model data is handled by the loader specific client code.
+     * Requests a refresh for the model data of your TE
+     * Call this every time your {@link #getModelData()} changes
      */
     default void requestModelDataUpdate() {
+        BlockEntity te = self();
+        Level level = te.getLevel();
+        if (level != null && level.isClientSide()) {
+            var modelDataManager = level.getModelDataManager();
+            if (modelDataManager != null) {
+                modelDataManager.requestRefresh(te);
+            }
+        }
     }
 }

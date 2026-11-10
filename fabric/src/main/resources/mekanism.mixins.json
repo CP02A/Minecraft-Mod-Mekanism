@@ -46,6 +46,8 @@
     "client.ModelManagerReloadStateAccessor",
     "client.MouseHandlerMixin",
     "client.ParticleResourcesMixin",
+    "client.RenderRegionCacheMixin",
+    "client.RenderSectionRegionMixin",
     "client.SessionSearchTreesMixin",
     "client.SimpleModelWrapperMixin",
     "client.SoundEngineMixin",

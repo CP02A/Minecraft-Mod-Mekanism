@@ -58,6 +58,15 @@ public interface ILevelExtension {
     }
 
     /**
+     * Retrieves the model data manager for this level, which is only present for client levels.
+     *
+     * @apiNote Mekanism shim: Overridden for client levels by the loader.
+     */
+    default net.neoforged.neoforge.model.data.@Nullable ModelDataManager getModelDataManager() {
+        return null;
+    }
+
+    /**
      * {@return the translated description of this dimension, with a fallback to the registry name}
      */
     default Component getDescription() {
