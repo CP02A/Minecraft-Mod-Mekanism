@@ -11,6 +11,16 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.minecraft.util.TriState;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
@@ -93,7 +103,38 @@ public final class GameEventBridge {
         EntityTrackingEvents.STOP_TRACKING.register((entity, player) -> NeoForge.EVENT_BUS.post(new PlayerEvent.StopTracking(player, entity)));
 
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> !NeoForge.EVENT_BUS.post(new LivingDeathEvent(entity, source)).isCanceled());
+        UseBlockCallback.EVENT.register(GameEventBridge::onUseBlock);
         PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) ->
               !NeoForge.EVENT_BUS.post(new BreakBlockEvent(level, pos, state, player)).isCanceled());
+    }
+
+    /**
+     * Fires NeoForge's {@link PlayerInteractEvent.RightClickBlock}. As Fabric's callback can only replace the whole interaction, forcing the block to be
+     * used (for example while sneaking) is done by performing the block interaction here.
+     */
+    private static InteractionResult onUseBlock(Player player, Level level, InteractionHand hand, BlockHitResult hit) {
+        if (player.isSpectator()) {
+            return InteractionResult.PASS;
+        }
+        PlayerInteractEvent.RightClickBlock event = NeoForge.EVENT_BUS.post(new PlayerInteractEvent.RightClickBlock(player, hand, hit.getBlockPos(), hit));
+        if (event.isCanceled()) {
+            return event.getCancellationResult();
+        }
+        if (event.getUseBlock() == TriState.TRUE) {
+            BlockState state = level.getBlockState(hit.getBlockPos());
+            ItemStack stack = player.getItemInHand(hand);
+            InteractionResult result = state.useItemOn(stack, level, player, hand, hit);
+            if (result.consumesAction()) {
+                return result;
+            }
+            if (result instanceof InteractionResult.TryEmptyHandInteraction && hand == InteractionHand.MAIN_HAND) {
+                result = state.useWithoutItem(level, player, hit);
+                if (result.consumesAction()) {
+                    return result;
+                }
+            }
+        }
+        //Note: Preventing only the item use (TriState.FALSE) isn't supported, as the block has been used at this point already
+        return InteractionResult.PASS;
     }
 }
