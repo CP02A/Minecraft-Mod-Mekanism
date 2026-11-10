@@ -183,6 +183,7 @@ public class MekanismClientTests implements FabricClientGameTest {
         }
         //The tank's insertion rate is limited, so fill it in multiple operations
         for (int i = 0; i < 100; i++) {
+            handler = ItemAccess.forPlayerSlot(player, slot).getCapability(Capabilities.Fluid.ITEM);
             try (Transaction transaction = Transaction.openRoot()) {
                 int inserted = handler.insert(fluid, Integer.MAX_VALUE, transaction);
                 transaction.commit();
@@ -191,8 +192,8 @@ public class MekanismClientTests implements FabricClientGameTest {
                 }
             }
         }
-        if (handler.getAmountAsLong(0) == 0) {
-            throw new AssertionError("Could not fill " + stack);
+        if (handler.getAmountAsLong(0) < handler.getCapacityAsLong(0, fluid)) {
+            throw new AssertionError("Could not fill " + stack + ": " + handler.getAmountAsLong(0) + " of " + handler.getCapacityAsLong(0, fluid));
         }
     }
 
