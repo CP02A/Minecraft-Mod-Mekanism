@@ -37,7 +37,11 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.neoforged.neoforge.client.IItemDecorator;
 import net.neoforged.neoforge.client.RecipeBookManager;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
+import net.neoforged.neoforge.client.NeoForgeRenderPipelines;
+import net.neoforged.neoforge.client.color.item.FluidContentsTint;
 import net.neoforged.neoforge.client.model.UnbakedModelParser;
+import net.neoforged.neoforge.client.model.item.DynamicFluidContainerModel;
+import net.neoforged.neoforge.client.model.item.TrimmedArmorModel;
 import net.neoforged.neoforge.client.model.obj.ObjLoader;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -93,7 +97,10 @@ public final class ClientShimLoader {
         ModLoader.postEvent(new EntityRenderersEvent.RegisterRenderers());
         ModLoader.postEvent(new RegisterGuiLayersEvent());
 
-        FluidContainerItemModel.register();
+        //NeoForge's own item models and tint sources (registered by ClientNeoForgeMod on NeoForge)
+        ItemModels.ID_MAPPER.put(Identifier.fromNamespaceAndPath("neoforge", "fluid_container"), DynamicFluidContainerModel.Unbaked.MAP_CODEC);
+        ItemModels.ID_MAPPER.put(Identifier.fromNamespaceAndPath("neoforge", "trimmed_armor"), TrimmedArmorModel.Unbaked.MAP_CODEC);
+        ItemTintSources.ID_MAPPER.put(Identifier.fromNamespaceAndPath("neoforge", "fluid_contents_tint"), FluidContentsTint.MAP_CODEC);
         BlockStateModelBridge.register();
         ModLoader.postEvent(new RegisterItemModelsEvent(ItemModels.ID_MAPPER));
         ModLoader.postEvent(new RegisterSpecialModelRendererEvent(SpecialModelRenderers.ID_MAPPER));
@@ -140,12 +147,15 @@ public final class ClientShimLoader {
         ModLoader.postEvent(new RegisterRenderStateModifiersEvent());
 
         RecipeBookManager.init();
-        ModLoader.postEvent(new RegisterRenderPipelinesEvent((pipeline, optional) -> {
+        RegisterRenderPipelinesEvent renderPipelinesEvent = new RegisterRenderPipelinesEvent((pipeline, optional) -> {
             var registry = optional ? RenderPipelines.OPTIONAL_PIPELINES_BY_LOCATION : RenderPipelines.PIPELINES_BY_LOCATION;
             if (registry.putIfAbsent(pipeline.getLocation(), pipeline) != null) {
                 throw new IllegalStateException("Duplicate RenderPipeline registration for location: " + pipeline.getLocation());
             }
-        }));
+        });
+        //NeoForge's own pipelines (unlit item/entity render types)
+        NeoForgeRenderPipelines.registerPipelines(renderPipelinesEvent);
+        ModLoader.postEvent(renderPipelinesEvent);
         UnbakedModelParser.init();
 
         AddClientReloadListenersEvent reloadListenersEvent = new AddClientReloadListenersEvent();
