@@ -287,7 +287,7 @@ public interface IItemExtension {
      * @param slotChanged If the current equipped slot was changed, Vanilla does not play the animation if you switch between two slots that hold the exact
      *                    same item.
      * @return True to play the item change animation
-     * @implNote Mekanism shim: the item in hand renderer doesn't call this
+     * @implNote Mekanism shim: only called (through Fabric's FabricItem#allowComponentsUpdateAnimation) when the item in the hand stayed the same
      */
     default boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return oldStack != newStack;
@@ -298,7 +298,7 @@ public interface IItemExtension {
      *
      * @param stack The stack to check
      * @return true if the item can be damaged
-     * @implNote Mekanism shim: vanilla's {@link ItemStack#isDamageableItem()} doesn't delegate to this
+     * @implNote Mekanism shim: only checked by the repair crafting recipe (like NeoForge), not the grindstone
      */
     default boolean isDamageable(ItemStack stack) {
         return stack.has(net.minecraft.core.component.DataComponents.MAX_DAMAGE);

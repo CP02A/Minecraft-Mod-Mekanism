@@ -367,7 +367,7 @@ public interface IBlockExtension {
     /**
      * Gets the slipperiness at the given location at the given state. Normally between 0 and 1.
      *
-     * @implNote Mekanism shim: vanilla doesn't call this, it uses {@link Block#getFriction()} directly
+     * @implNote Mekanism shim: called by the loader for living entities, items, experience orbs and boats (not leashed entities)
      */
     default float getFriction(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
         return ((Block) this).getFriction();
@@ -375,7 +375,7 @@ public interface IBlockExtension {
 
     /**
      * @return An Integer ARGB value to be averaged with a beacon's existing beam color, or null to do nothing to the beam
-     * @implNote Mekanism shim: beacons don't call this
+     * @implNote Mekanism shim: called by the loader from the beacon beam calculation
      */
     @Nullable
     default Integer getBeaconColorMultiplier(BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos) {
