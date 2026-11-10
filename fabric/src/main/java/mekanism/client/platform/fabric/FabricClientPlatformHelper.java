@@ -4,6 +4,7 @@ import mekanism.client.platform.IClientPlatformHelper;
 import java.util.List;
 import mekanism.fabric.shim.client.BlockOutlineBridge;
 import mekanism.fabric.shim.client.ModelPropertiesBridge;
+import net.neoforged.neoforge.client.fluid.FluidTintSource;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.block.dispatch.ModelState;
@@ -75,6 +76,9 @@ public class FabricClientPlatformHelper implements IClientPlatformHelper {
     @Override
     public int getFluidTint(FluidModel fluidModel, Fluid fluid) {
         BlockTintSource tintSource = fluidModel.tintSource();
+        if (tintSource instanceof FluidTintSource fluidTintSource) {
+            return fluidTintSource.color(fluid.defaultFluidState());
+        }
         return tintSource == null ? CommonColors.WHITE : tintSource.color(fluid.defaultFluidState().createLegacyBlock());
     }
 
