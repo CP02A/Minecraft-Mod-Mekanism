@@ -5,7 +5,81 @@
 
 package net.neoforged.neoforge.common;
 
+import com.mojang.datafixers.util.Either;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+import net.minecraft.SharedConstants;
+import net.minecraft.advancements.predicates.entity.EntitySubPredicate;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.predicates.DataComponentPredicate;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.codec.RegistryCodecs;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.random.Weighted;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.attribute.AttributeType;
+import net.minecraft.world.attribute.EnvironmentAttribute;
+import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.equipment.Equippable;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.PointedDripstoneBlock;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.levelgen.GenerationStep.Decoration;
+import net.minecraft.world.level.levelgen.carver.WorldCarver;
+import net.minecraft.world.level.material.FluidState;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
+import org.jspecify.annotations.Nullable;
 import java.util.function.Supplier;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.common.conditions.*;
+import net.neoforged.neoforge.common.util.NeoForgeExtraCodecs;
+import net.neoforged.neoforge.common.world.BiomeModifier;
+import net.neoforged.neoforge.common.world.BiomeModifiers.*;
+import net.neoforged.neoforge.common.world.StructureModifier;
+import net.neoforged.neoforge.common.world.StructureModifiers;
+import net.neoforged.neoforge.registries.holdersets.AnyHolderSet;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -77,6 +151,98 @@ public class NeoForgeMod {
 
     public static final Holder<HolderSetType> OR_HOLDER_SET = Registry.registerForHolder(NeoForgeRegistries.HOLDER_SET_TYPES,
           Identifier.fromNamespaceAndPath(MOD_ID, "or"), new OrHolderSet.Type());
+
+    public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<AddFeaturesBiomeModifier>> ADD_FEATURES_BIOME_MODIFIER_TYPE = register(NeoForgeRegistries.BIOME_MODIFIER_SERIALIZERS, "add_features", () -> RecordCodecBuilder.mapCodec(
+            builder -> builder
+                    .group(
+                            Biome.LIST_CODEC.fieldOf("biomes").forGetter(AddFeaturesBiomeModifier::biomes),
+                            PlacedFeature.LIST_CODEC.fieldOf("features").forGetter(AddFeaturesBiomeModifier::features),
+                            Decoration.CODEC.fieldOf("step").forGetter(AddFeaturesBiomeModifier::step))
+                    .apply(builder, AddFeaturesBiomeModifier::new)));
+
+    /**
+     * Stock biome modifier for removing features from biomes.
+     */
+    public static final DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<RemoveFeaturesBiomeModifier>> REMOVE_FEATURES_BIOME_MODIFIER_TYPE = register(NeoForgeRegistries.BIOME_MODIFIER_SERIALIZERS, "remove_features", () -> RecordCodecBuilder.mapCodec(
+            builder -> builder
+                    .group(
+                            Biome.LIST_CODEC.fieldOf("biomes").forGetter(RemoveFeaturesBiomeModifier::biomes),
+                            PlacedFeature.LIST_CODEC.fieldOf("features").forGetter(RemoveFeaturesBiomeModifier::features),
+                            Codec.<List<Decoration>, Decoration>either(Decoration.CODEC.listOf(), Decoration.CODEC).<Set<Decoration>>xmap(
+                                    either -> either.map(Set::copyOf, Set::of), // convert list/singleton to set when decoding
+                                    set -> set.size() == 1 ? Either.right(set.toArray(Decoration[]::new)[0]) : Either.left(List.copyOf(set))).optionalFieldOf("steps", EnumSet.allOf(Decoration.class)).forGetter(RemoveFeaturesBiomeModifier::steps))
+                    .apply(builder, RemoveFeaturesBiomeModifier::new)));
+
+    /**
+     * Stock biome modifier for adding mob spawns to biomes.
+     */
+
+    /**
+     * Stock biome modifier for removing mob spawns from biomes.
+     */
+
+    /**
+     * Stock biome modifier for adding carvers to biomes.
+     */
+
+    /**
+     * Stock biome modifier for removing carvers from biomes.
+     */
+
+    /**
+     * Stock biome modifier for adding mob spawn costs to biomes.
+     */
+
+    /**
+     * Stock biome modifier for removing mob spawn costs from biomes.
+     */
+
+    /**
+     * Stock structure modifier for adding mob spawns to structures.
+     */
+
+    /**
+     * Stock structure modifier for removing mob spawns from structures.
+     */
+
+    /**
+     * Stock structure modifier for removing spawn override lists from structures.
+     */
+
+    /**
+     * Stock holder set type that represents any/all values in a registry. Can be used in a holderset object with {@code { "type": "neoforge:any" }}
+     */
+
+    public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<AndCondition>> AND_CONDITION = register(NeoForgeRegistries.CONDITION_SERIALIZERS, "and", () -> AndCondition.CODEC);
+    public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<NeverCondition>> NEVER_CONDITION = register(NeoForgeRegistries.CONDITION_SERIALIZERS, "never", () -> NeverCondition.CODEC);
+    public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<RegisteredCondition<?>>> REGISTERED_CONDITION = register(NeoForgeRegistries.CONDITION_SERIALIZERS, "registered", () -> RegisteredCondition.CODEC);
+    public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<ModLoadedCondition>> MOD_LOADED_CONDITION = register(NeoForgeRegistries.CONDITION_SERIALIZERS, "mod_loaded", () -> ModLoadedCondition.CODEC);
+    public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<NotCondition>> NOT_CONDITION = register(NeoForgeRegistries.CONDITION_SERIALIZERS, "not", () -> NotCondition.CODEC);
+    public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<OrCondition>> OR_CONDITION = register(NeoForgeRegistries.CONDITION_SERIALIZERS, "or", () -> OrCondition.CODEC);
+    public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<TagEmptyCondition<?>>> TAG_EMPTY_CONDITION = register(NeoForgeRegistries.CONDITION_SERIALIZERS, "tag_empty", () -> TagEmptyCondition.CODEC);
+    public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<AlwaysCondition>> ALWAYS_CONDITION = register(NeoForgeRegistries.CONDITION_SERIALIZERS, "always", () -> AlwaysCondition.CODEC);
+    public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<FeatureFlagsEnabledCondition>> FEATURE_FLAGS_ENABLED_CONDITION = register(NeoForgeRegistries.CONDITION_SERIALIZERS, "feature_flags_enabled", () -> FeatureFlagsEnabledCondition.CODEC);
+
+    public static final Holder<HolderSetType> ANY_HOLDER_SET = Registry.registerForHolder(NeoForgeRegistries.HOLDER_SET_TYPES,
+          Identifier.fromNamespaceAndPath(MOD_ID, "any"), new AnyHolderSet.Type());
+
+    public static final Holder<TicketType> GENERATE_FORCED_TICKET = registerTicket("generate_forced", new TicketType(0L, TicketType.FLAG_LOADING));
+    public static final Holder<TicketType> BLOCK_TICKET = registerTicket("block", new TicketType(0L, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION));
+    public static final Holder<TicketType> BLOCK_WITH_NATURAL_SPAWNING_TICKET = registerTicket("block_with_natural_spawning",
+          new TicketType(0L, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION));
+    public static final Holder<TicketType> ENTITY_TICKET = registerTicket("entity", new TicketType(0L, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION));
+    public static final Holder<TicketType> ENTITY_WITH_NATURAL_SPAWNING_TICKET = registerTicket("entity_with_natural_spawning",
+          new TicketType(0L, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION));
+
+    /**
+     * NeoForge's optional milk fluid; on other loaders this is only bound if another mod registers {@code minecraft:milk}.
+     */
+    public static final DeferredHolder<Fluid, Fluid> MILK = DeferredHolder.create(Registries.FLUID, Identifier.withDefaultNamespace("milk"));
+    public static final DeferredHolder<Fluid, Fluid> FLOWING_MILK = DeferredHolder.create(Registries.FLUID, Identifier.withDefaultNamespace("flowing_milk"));
+
+    private static Holder<TicketType> registerTicket(String name, TicketType type) {
+        return Registry.registerForHolder(BuiltInRegistries.TICKET_TYPE, Identifier.fromNamespaceAndPath(MOD_ID, name), type);
+    }
 
     public static final Holder<FluidType> EMPTY_TYPE = registerVanillaFluidType("empty", () -> new FluidType(FluidType.Properties.create()
           .descriptionId("block.minecraft.air")

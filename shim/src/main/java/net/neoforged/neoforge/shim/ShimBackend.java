@@ -5,9 +5,16 @@
 
 package net.neoforged.neoforge.shim;
 
+import com.mojang.serialization.Codec;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.core.Registry;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.config.IConfigSpec;
+import net.neoforged.fml.config.ModConfig;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -75,4 +82,37 @@ public interface ShimBackend {
      * {@return {@code true} if the game is running in production}
      */
     boolean isProduction();
+
+    /**
+     * {@return {@code true} if the current thread is the logical server thread}
+     */
+    boolean isOnServerThread();
+
+    Path getGameDirectory();
+
+    Path getConfigDirectory();
+
+    /**
+     * {@return the mod list, containing the mods that use the shim}
+     */
+    ModList getModList();
+
+    /**
+     * Registers a NeoForge style config for the given mod with the loader's config system.
+     */
+    void registerConfig(ModContainer container, ModConfig.Type type, IConfigSpec spec, @Nullable String fileName);
+
+    /**
+     * {@return the last known username of the player with the given UUID, or {@code null} if it is not known}
+     */
+    @Nullable
+    String getLastKnownUsername(UUID uuid);
+
+    /**
+     * Registers a datapack (dynamic) registry with the loader.
+     *
+     * @param networkCodec Codec to sync the registry to clients with, or {@code null} to not sync it.
+     * @param reloadable   {@code true} for registries that are reloaded with datapacks (like loot tables), {@code false} for world registries.
+     */
+    <T> void addDatapackRegistry(ResourceKey<Registry<T>> key, Codec<T> codec, @Nullable Codec<T> networkCodec, boolean reloadable);
 }

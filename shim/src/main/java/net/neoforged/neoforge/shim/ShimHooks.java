@@ -7,6 +7,7 @@ package net.neoforged.neoforge.shim;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -15,6 +16,8 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.TicketStorage;
+import net.neoforged.neoforge.common.world.chunk.ForcedChunkManager.TicketTracker;
 import net.neoforged.neoforge.capabilities.CapabilityListenerHolder;
 import net.neoforged.neoforge.capabilities.ICapabilityInvalidationListener;
 import net.minecraft.core.component.DataComponentMap;
@@ -45,6 +48,24 @@ public final class ShimHooks {
     private static final Map<Fluid, FluidResource> DEFAULT_FLUID_RESOURCES = new ConcurrentHashMap<>();
     private static final Map<Fluid, FluidType> FLUID_TYPES = new ConcurrentHashMap<>();
     private static final Map<ServerLevel, CapabilityListenerHolder> CAPABILITY_LISTENERS = Collections.synchronizedMap(new WeakHashMap<>());
+
+    private static final Map<TicketStorage, ForcedChunks> FORCED_CHUNKS = Collections.synchronizedMap(new WeakHashMap<>());
+
+    /**
+     * The owner tracked forced chunks of a ticket storage.
+     */
+    public record ForcedChunks(TicketTracker<BlockPos> blocks, TicketTracker<UUID> entities) {
+    }
+
+    /**
+     * {@return the owner tracked forced chunks of the given ticket storage, which NeoForge stores in the ticket storage itself}
+     */
+    public static ForcedChunks getForcedChunks(TicketStorage storage) {
+        return FORCED_CHUNKS.computeIfAbsent(storage, s -> new ForcedChunks(
+              new TicketTracker<>(s, NeoForgeMod.BLOCK_TICKET, NeoForgeMod.BLOCK_WITH_NATURAL_SPAWNING_TICKET),
+              new TicketTracker<>(s, NeoForgeMod.ENTITY_TICKET, NeoForgeMod.ENTITY_WITH_NATURAL_SPAWNING_TICKET)
+        ));
+    }
 
     /**
      * Set by the loader once capabilities have been registered.

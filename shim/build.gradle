@@ -18,6 +18,17 @@ java {
 }
 
 repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Fuzs Mod Resources'
+                url = 'https://raw.githubusercontent.com/Fuzss/modresources/main/maven/'
+            }
+        }
+        filter {
+            includeGroup('fuzs.forgeconfigapiport')
+        }
+    }
     maven {
         name = 'NeoForged'
         url = 'https://maven.neoforged.net/releases'
@@ -29,7 +40,12 @@ repositories {
 
 neoForge {
     neoFormVersion = neo_form_version
-    accessTransformers.from('src/main/resources/META-INF/shim-accesstransformer.cfg')
+    //The copied NeoForge code relies on NeoForge's access transformers
+    accessTransformers.from(
+            'src/main/resources/META-INF/shim-accesstransformer.cfg',
+            'src/main/resources/META-INF/neoforge-accesstransformer.cfg',
+            'src/main/resources/META-INF/neoforge-accesstransformergenerated.cfg'
+    )
     interfaceInjectionData.from('src/main/resources/META-INF/shim-injected-interfaces.json')
 }
 
@@ -39,6 +55,15 @@ dependencies {
         exclude(group: 'org.ow2.asm')
         exclude(group: 'org.apache.logging.log4j')
     }
+    //NeoForge's config API is provided on Fabric by Forge Config API Port (https://github.com/Fuzss/forgeconfigapiport)
+    compileOnlyApi("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${forge_config_api_port_version}") {
+        transitive = false
+    }
+    compileOnlyApi('com.electronwill.night-config:core:3.8.4')
+    compileOnlyApi('com.electronwill.night-config:toml:3.8.4')
+    //Used by FML's APIs; ASM is provided by the loader at runtime
+    compileOnlyApi('org.ow2.asm:asm:9.8')
+    api('org.apache.maven:maven-artifact:3.9.11')
     compileOnly('org.jspecify:jspecify:1.0.0')
     compileOnly('org.jetbrains:annotations:26.0.2')
 }

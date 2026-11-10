@@ -17,6 +17,16 @@ public final class ShimServices {
 
     public static final TransactionBackend TRANSACTIONS = load(TransactionBackend.class);
     public static final ShimBackend BACKEND = load(ShimBackend.class);
+    public static final NetworkBackend NETWORK = load(NetworkBackend.class);
+    /**
+     * Only available on the client.
+     */
+    public static final ClientBackend CLIENT = loadOptional(ClientBackend.class);
+
+    @SuppressWarnings("DataFlowIssue")
+    private static <T> T loadOptional(Class<T> serviceClass) {
+        return ServiceLoader.load(serviceClass, ShimServices.class.getClassLoader()).findFirst().orElse(null);
+    }
 
     public static <T> T load(Class<T> serviceClass) {
         return ServiceLoader.load(serviceClass, ShimServices.class.getClassLoader())
