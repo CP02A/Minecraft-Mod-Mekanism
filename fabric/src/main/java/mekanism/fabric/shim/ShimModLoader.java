@@ -202,6 +202,7 @@ public final class ShimModLoader {
         });
 
         GameEventBridge.register();
+        CreativeTabBridge.register();
 
         for (FabricModContainer container : containers) {
             postLifecycle(container, new FMLCommonSetupEvent(container));

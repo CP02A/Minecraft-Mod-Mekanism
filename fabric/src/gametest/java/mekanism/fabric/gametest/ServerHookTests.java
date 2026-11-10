@@ -11,7 +11,11 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ChunkLevel;
 import net.minecraft.server.level.ServerLevel;
+import mekanism.common.registries.MekanismBlocks;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
@@ -28,7 +32,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /**
  * Tests the server side NeoForge hooks: forced chunks of ticket controllers (and their persistence), ticket level events, spawn placements and entity
- * tick events, FinalizeSpawnEvent spawn cancellation and spawn placement checks.
+ * tick events, FinalizeSpawnEvent spawn cancellation, spawn placement checks and adding to existing creative tabs.
  */
 public class ServerHookTests {
 
@@ -138,6 +142,20 @@ public class ServerHookTests {
               Component.literal("The SpawnPlacementCheck listener should allow husks to spawn anywhere"));
         helper.assertFalse(SpawnPlacements.checkSpawnRules(EntityTypes.STRAY, level, EntitySpawnReason.SPAWNER, air, level.getRandom()),
               Component.literal("The SpawnPlacementCheck listener should prevent strays from spawning"));
+        helper.succeed();
+    }
+
+    @GameTest
+    public void addsToExistingCreativeTabs(GameTestHelper helper) {
+        //Mekanism adds its ores to the vanilla natural blocks tab in BuildCreativeModeTabContentsEvent
+        CreativeModeTab tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValueOrThrow(CreativeModeTabs.NATURAL_BLOCKS);
+        ServerLevel level = helper.getLevel();
+        tab.buildContents(new CreativeModeTab.ItemDisplayParameters(level.enabledFeatures(), true, level.registryAccess()));
+        helper.assertTrue(tab.getDisplayItems().stream().anyMatch(stack -> stack.is(MekanismBlocks.SALT_BLOCK.asItem())),
+              Component.literal("The salt block should be in the natural blocks tab"));
+        //Note: Mekanism adds to existing tabs with PARENT_TAB_ONLY (it is in the search tab through its own tab), so check vanilla's entries are kept
+        helper.assertTrue(tab.getSearchTabDisplayItems().stream().anyMatch(stack -> stack.is(net.minecraft.world.item.Items.STONE)),
+              Component.literal("Vanilla's search entries of the natural blocks tab should be kept"));
         helper.succeed();
     }
 }
