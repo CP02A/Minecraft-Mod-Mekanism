@@ -1,8 +1,7 @@
 package mekanism.tools.common;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -26,11 +25,11 @@ public class ToolsTags {
         public static final TagKey<Block> INCORRECT_FOR_STEEL_TOOL = tag("incorrect_for_steel_tool");
 
         private static TagKey<Block> commonTag(String name) {
-            return BlockTags.create(Identifier.fromNamespaceAndPath("c", name));
+            return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("c", name));
         }
 
         private static TagKey<Block> tag(String name) {
-            return BlockTags.create(MekanismTools.rl(name));
+            return TagKey.create(Registries.BLOCK, MekanismTools.rl(name));
         }
     }
 
@@ -42,7 +41,7 @@ public class ToolsTags {
         public static final TagKey<Item> TOOLS_PAXEL = commonTag("tools/paxel");
 
         private static TagKey<Item> commonTag(String name) {
-            return ItemTags.create(Identifier.fromNamespaceAndPath("c", name));
+            return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", name));
         }
     }
 }

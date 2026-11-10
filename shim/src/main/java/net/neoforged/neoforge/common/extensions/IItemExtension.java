@@ -278,4 +278,29 @@ public interface IItemExtension {
     default String getCreatorModId(HolderLookup.Provider registries, ItemStack itemStack) {
         return CommonHooks.getDefaultCreatorModId(registries, itemStack);
     }
+
+    /**
+     * Determine if the player switching between these two item stacks
+     *
+     * @param oldStack    The old stack that was equipped
+     * @param newStack    The new stack
+     * @param slotChanged If the current equipped slot was changed, Vanilla does not play the animation if you switch between two slots that hold the exact
+     *                    same item.
+     * @return True to play the item change animation
+     * @implNote Mekanism shim: the item in hand renderer doesn't call this
+     */
+    default boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return oldStack != newStack;
+    }
+
+    /**
+     * Determines if the item can be damaged.
+     *
+     * @param stack The stack to check
+     * @return true if the item can be damaged
+     * @implNote Mekanism shim: vanilla's {@link ItemStack#isDamageableItem()} doesn't delegate to this
+     */
+    default boolean isDamageable(ItemStack stack) {
+        return stack.has(net.minecraft.core.component.DataComponents.MAX_DAMAGE);
+    }
 }

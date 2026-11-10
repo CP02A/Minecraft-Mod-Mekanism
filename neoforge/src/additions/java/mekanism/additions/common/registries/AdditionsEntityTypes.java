@@ -67,7 +67,9 @@ public class AdditionsEntityTypes {
         registerBaby(BabyType.ENDERMAN, map, () -> baby(EntityBabyEnderman::new, EntityTypes.ENDERMAN, 0.625F, 0.88F), Enderman::createAttributes);
         registerBaby(BabyType.PARCHED, map, () -> baby(EntityBabyParched::new, EntityTypes.PARCHED), Parched::createAttributes);
         registerBaby(BabyType.SKELETON, map, () -> baby(EntityBabySkeleton::new, EntityTypes.SKELETON), AbstractSkeleton::createAttributes);
-        registerBaby(BabyType.STRAY, map, () -> baby(EntityBabyStray::new, EntityTypes.STRAY), AbstractSkeleton::createAttributes, Stray::checkStraySpawnRules);
+        registerBaby(BabyType.STRAY, map, () -> baby(EntityBabyStray::new, EntityTypes.STRAY), AbstractSkeleton::createAttributes,
+              //Note: Vanilla's signature takes an EntityType<Stray>, NeoForge's is relaxed to EntityType<? extends Stray>
+              (type, level, spawnReason, pos, random) -> Stray.checkStraySpawnRules(EntityTypes.STRAY, level, spawnReason, pos, random));
         registerBaby(BabyType.WITHER_SKELETON, map, () -> baby(EntityBabyWitherSkeleton::new, EntityTypes.WITHER_SKELETON), AbstractSkeleton::createAttributes);
     }));
 

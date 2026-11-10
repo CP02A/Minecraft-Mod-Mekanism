@@ -36,7 +36,9 @@ import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -59,7 +61,13 @@ public final class GameEventBridge {
             ServerLifecycleHooks.setCurrentServer(server);
             PermissionAPI.initializePermissionAPI();
         });
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> NeoForge.EVENT_BUS.post(new ServerStartedEvent(server)));
+        //Note: Fabric's SERVER_STARTING is fired before the levels are loaded (like NeoForge's ServerAboutToStartEvent), and SERVER_STARTED after (where
+        // NeoForge fires both ServerStartingEvent and, a bit later, ServerStartedEvent)
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            NeoForge.EVENT_BUS.post(new ServerStartingEvent(server));
+            NeoForge.EVENT_BUS.post(new ServerStartedEvent(server));
+        });
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> NeoForge.EVENT_BUS.post(new ServerStoppingEvent(server)));
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             NeoForge.EVENT_BUS.post(new ServerStoppedEvent(server));
             ServerLifecycleHooks.setCurrentServer(null);

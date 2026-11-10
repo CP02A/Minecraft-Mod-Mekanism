@@ -363,4 +363,25 @@ public interface IBlockExtension {
     default SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
         return state.getSoundType();
     }
+
+    /**
+     * Gets the slipperiness at the given location at the given state. Normally between 0 and 1.
+     *
+     * @implNote Mekanism shim: vanilla doesn't call this, it uses {@link Block#getFriction()} directly
+     */
+    default float getFriction(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        return ((Block) this).getFriction();
+    }
+
+    /**
+     * @return An Integer ARGB value to be averaged with a beacon's existing beam color, or null to do nothing to the beam
+     * @implNote Mekanism shim: beacons don't call this
+     */
+    @Nullable
+    default Integer getBeaconColorMultiplier(BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos) {
+        if (this instanceof BeaconBeamBlock beaconBeamBlock) {
+            return beaconBeamBlock.getColor().getTextureDiffuseColor();
+        }
+        return null;
+    }
 }

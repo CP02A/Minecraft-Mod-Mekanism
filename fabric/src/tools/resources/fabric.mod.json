@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "mekanismtools",
+  "version": "${version}",
+  "name": "Mekanism: Tools",
+  "description": "Tools module for Mekanism.",
+  "authors": [
+    "Aidancbrady",
+    "Thommy101",
+    "Thiakil",
+    "pupnewfster",
+    "dizzyd"
+  ],
+  "contributors": [
+    "unpairedbracket",
+    "CyanideX",
+    "Ridanisaurus"
+  ],
+  "contact": {
+    "homepage": "https://aidancbrady.com/mekanism/",
+    "sources": "https://github.com/mekanism/Mekanism",
+    "issues": "https://github.com/mekanism/Mekanism/issues"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "neoforge-shim": [
+      "mekanism.tools.fabric.ToolsShimMod"
+    ],
+    "neoforge-shim-client": [
+      "mekanism.tools.fabric.ToolsShimClientMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": "${fabric_loader_version_range}",
+    "minecraft": "~26.3",
+    "java": ">=${java_version}",
+    "fabric-api": "*",
+    "mekanism": "*"
+  }
+}

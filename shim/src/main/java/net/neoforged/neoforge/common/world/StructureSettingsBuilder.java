@@ -120,7 +120,8 @@ public class StructureSettingsBuilder {
 
     public static class StructureSpawnOverrideBuilder {
         private StructureSpawnOverride.BoundingBoxType boundingBox;
-        private final WeightedList<MobSpawnSettings.SpawnerData> spawns;
+        //Mekanism shim: a plain list, as vanilla's WeightedList.Builder doesn't support removal
+        private final List<Weighted<MobSpawnSettings.SpawnerData>> spawns;
         private final List<Weighted<MobSpawnSettings.SpawnerData>> spawnsView;
 
         /**
@@ -133,9 +134,8 @@ public class StructureSettingsBuilder {
 
         private StructureSpawnOverrideBuilder(StructureSpawnOverride.BoundingBoxType boundingBox, WeightedList<MobSpawnSettings.SpawnerData> spawns) {
             this.boundingBox = boundingBox;
-            // Mekanism shim: spawn modification is not supported, keep the original spawns
-            this.spawns = spawns;
-            this.spawnsView = spawns.unwrap();
+            this.spawns = new java.util.ArrayList<>(spawns.unwrap());
+            this.spawnsView = java.util.Collections.unmodifiableList(this.spawns);
         }
 
         /**
@@ -159,16 +159,43 @@ public class StructureSettingsBuilder {
             return spawnsView;
         }
 
+        /**
+         * Adds a spawn to the overrides.
+         */
+        public void addSpawn(Weighted<MobSpawnSettings.SpawnerData> spawn) {
+            this.spawns.add(spawn);
+        }
 
+        /**
+         * Adds a spawn to the overrides.
+         */
+        public void addSpawn(MobSpawnSettings.SpawnerData spawn, int weight) {
+            this.spawns.add(new Weighted<>(spawn, weight));
+        }
 
+        /**
+         * Removes a given spawn from the list of overrides. Use {@link #getSpawns()} to get instances of spawn data to remove.
+         */
+        public void removeSpawn(Weighted<MobSpawnSettings.SpawnerData> spawn) {
+            this.spawns.remove(spawn);
+        }
 
+        /**
+         * Removes a given spawn from the list of overrides. Use {@link #getSpawns()} to get instances of spawn data to remove.
+         */
+        public void removeSpawn(MobSpawnSettings.SpawnerData spawn) {
+            this.spawns.removeIf(weighted -> weighted.value().equals(spawn));
+        }
 
+        public void removeSpawns(java.util.function.Predicate<Weighted<MobSpawnSettings.SpawnerData>> spawnPredicate) {
+            this.spawns.removeIf(spawnPredicate);
+        }
 
         /**
          * @return A new StructureSpawnOverride with the finalized values.
          */
         public StructureSpawnOverride build() {
-            return new StructureSpawnOverride(boundingBox, spawns);
+            return new StructureSpawnOverride(boundingBox, WeightedList.of(spawns));
         }
     }
 }

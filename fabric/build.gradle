@@ -38,12 +38,17 @@ sourceSets {
 
 //Secondary modules, separate mods like on NeoForge. Each gets its own source set compiled from neoforge/src/<module> (plus Fabric specific
 // sources and resources in src/<module>) and its own jar
-def secondaryModules = ['generators']
+def secondaryModules = ['additions', 'generators', 'tools']
+//Module classes that have Fabric specific implementations (with the same name) in src/<module>/java
+def moduleFabricOverrides = [
+        'additions': ['mekanism/additions/common/block/plastic/BlockPlasticFenceGate.java'],
+]
 for (String name : secondaryModules) {
     def module = name
     def syncModuleSources = tasks.register("sync${module.capitalize()}Sources", Sync) {
         from(new File(neoSources, "${module}/java"))
         into(layout.buildDirectory.dir("generated/${module}Sources"))
+        exclude(moduleFabricOverrides.getOrDefault(module, []))
     }
     def moduleSourceSet = sourceSets.create(module) {
         java {

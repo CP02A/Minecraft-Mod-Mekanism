@@ -83,6 +83,9 @@
   "net/minecraft/core/TypedInstance": [
     "net/neoforged/neoforge/common/extensions/TypedInstanceExtension<T>"
   ],
+  "net/minecraft/core/component/BlockTransformer": [
+    "net/neoforged/neoforge/shim/extensions/IBlockTransformerExtension"
+  ],
   "net/minecraft/core/component/DataComponentGetter": [
     "net/neoforged/neoforge/shim/extensions/IDataComponentGetterExtension"
   ],
@@ -98,6 +101,9 @@
   "net/minecraft/network/protocol/configuration/ServerConfigurationPacketListener": [
     "net/neoforged/neoforge/shim/extensions/IServerConfigurationPacketListenerExtension"
   ],
+  "net/minecraft/util/random/WeightedList$Builder": [
+    "net/neoforged/neoforge/shim/extensions/IWeightedListBuilderExtension<E>"
+  ],
   "net/minecraft/world/MenuProvider": [
     "net/neoforged/neoforge/common/extensions/IMenuProviderExtension"
   ],
@@ -107,6 +113,9 @@
   ],
   "net/minecraft/world/entity/EntityType": [
     "net/neoforged/neoforge/shim/extensions/IEntityTypeExtension"
+  ],
+  "net/minecraft/world/entity/EntityType$Builder": [
+    "net/neoforged/neoforge/shim/extensions/IEntityTypeBuilderExtension<T>"
   ],
   "net/minecraft/world/entity/LightningBolt": [
     "net/neoforged/neoforge/shim/extensions/ILightningBoltExtension"

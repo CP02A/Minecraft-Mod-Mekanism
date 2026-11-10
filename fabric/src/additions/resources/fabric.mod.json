@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "mekanismadditions",
+  "version": "${version}",
+  "name": "Mekanism: Additions",
+  "description": "Additions module for Mekanism, contains miscellaneous things that do not thematically fit in the other modules.",
+  "authors": [
+    "Aidancbrady",
+    "Thommy101",
+    "Thiakil",
+    "pupnewfster",
+    "dizzyd"
+  ],
+  "contributors": [
+    "unpairedbracket",
+    "CyanideX",
+    "Ridanisaurus"
+  ],
+  "contact": {
+    "homepage": "https://aidancbrady.com/mekanism/",
+    "sources": "https://github.com/mekanism/Mekanism",
+    "issues": "https://github.com/mekanism/Mekanism/issues"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "neoforge-shim": [
+      "mekanism.additions.fabric.AdditionsShimMod"
+    ],
+    "neoforge-shim-client": [
+      "mekanism.additions.fabric.AdditionsShimClientMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": "${fabric_loader_version_range}",
+    "minecraft": "~26.3",
+    "java": ">=${java_version}",
+    "fabric-api": "*",
+    "mekanism": "*"
+  }
+}

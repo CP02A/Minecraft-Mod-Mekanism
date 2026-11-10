@@ -15,6 +15,7 @@
     "hooks.LivingEntityMixin",
     "hooks.MenuTypeAccessor",
     "hooks.MinecraftServerMixin",
+    "hooks.MobMixin",
     "hooks.PlayerMixin",
     "hooks.RecipeBookSettingsMixin",
     "hooks.RecipeMapAccessor",

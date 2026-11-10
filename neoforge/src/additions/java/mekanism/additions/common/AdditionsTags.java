@@ -3,7 +3,6 @@ package mekanism.additions.common;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockItemTagId;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
@@ -69,7 +68,7 @@ public class AdditionsTags {
         public static final TagKey<Item> SLABS_PLASTIC_TRANSPARENT = tag("plastic_slabs/transparent");
 
         private static TagKey<Item> tag(String name) {
-            return ItemTags.create(MekanismAdditions.rl(name));
+            return TagKey.create(Registries.ITEM, MekanismAdditions.rl(name));
         }
     }
 

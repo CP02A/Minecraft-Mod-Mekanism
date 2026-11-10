@@ -14,7 +14,8 @@
       "mekanism.fabric.gametest.TransferBridgeTests",
       "mekanism.fabric.gametest.InteropTests",
       "mekanism.fabric.gametest.ServerHookTests",
-      "mekanism.fabric.gametest.GeneratorsTests"
+      "mekanism.fabric.gametest.GeneratorsTests",
+      "mekanism.fabric.gametest.AdditionsToolsTests"
     ],
     "fabric-client-gametest": [
       "mekanism.fabric.gametest.MekanismClientTests",
@@ -24,6 +25,8 @@
   "depends": {
     "mekanism": "*",
     "mekanismgenerators": "*",
+    "mekanismadditions": "*",
+    "mekanismtools": "*",
     "team_reborn_energy": "*",
     "fabric-gametest-api-v1": "*"
   }
