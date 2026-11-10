@@ -7,8 +7,12 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "mekanism.fabric.gametest.InteropTests"
+    ],
     "fabric-gametest": [
-      "mekanism.fabric.gametest.TransferBridgeTests"
+      "mekanism.fabric.gametest.TransferBridgeTests",
+      "mekanism.fabric.gametest.InteropTests"
     ],
     "fabric-client-gametest": [
       "mekanism.fabric.gametest.MekanismClientTests"
@@ -16,6 +20,7 @@
   },
   "depends": {
     "mekanism": "*",
+    "team_reborn_energy": "*",
     "fabric-gametest-api-v1": "*"
   }
 }

@@ -123,6 +123,11 @@ dependencies {
     //NeoForge's config API on Fabric
     implementation("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${forge_config_api_port_version}")
     include("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${forge_config_api_port_version}")
+    //Energy interop with other Fabric mods
+    implementation("teamreborn:energy:${team_reborn_energy_version}") {
+        transitive = false
+    }
+    include("teamreborn:energy:${team_reborn_energy_version}")
     commonJava(project(path: ':common', configuration: 'commonJava'))
     commonResources(project(path: ':common', configuration: 'commonResources'))
 }

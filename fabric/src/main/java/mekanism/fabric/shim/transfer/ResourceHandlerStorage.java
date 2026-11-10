@@ -25,6 +25,10 @@ public class ResourceHandlerStorage<R extends Resource, V extends TransferVarian
         this.conversion = conversion;
     }
 
+    public ResourceHandler<R> getHandler() {
+        return handler;
+    }
+
     private int toNeo(long amount) {
         return (int) Math.min(Integer.MAX_VALUE, amount / conversion.scale());
     }

@@ -96,11 +96,36 @@ public final class ItemCapability<T, C extends @Nullable Object> extends BaseCap
             return null;
         }
 
-        for (var provider : providers.getOrDefault(stack.getItem(), List.of())) {
+        var itemProviders = providers.getOrDefault(stack.getItem(), List.of());
+        for (var provider : itemProviders) {
             var ret = provider.getCapability(stack, context);
             if (ret != null)
                 return ret;
         }
+        // Mekanism shim: Query the loader's equivalent of the capability for items that don't provide it themselves
+        if (itemProviders.isEmpty() && loaderFallback != null) {
+            return loaderFallback.getCapability(stack, context);
+        }
         return null;
+    }
+
+    @Nullable
+    private ICapabilityProvider<ItemStack, C, T> loaderFallback;
+
+    /**
+     * Mekanism shim: Sets the provider that is queried for items that have no providers of this capability, used by the loader to expose its own
+     * equivalent of the capability.
+     */
+    @ApiStatus.Internal
+    public void setLoaderFallback(@Nullable ICapabilityProvider<ItemStack, C, T> loaderFallback) {
+        this.loaderFallback = loaderFallback;
+    }
+
+    /**
+     * Mekanism shim: {@return the items that have providers for this capability}
+     */
+    @ApiStatus.Internal
+    public synchronized java.util.Set<Item> getProvidingItems() {
+        return java.util.Set.copyOf(providers.keySet());
     }
 }

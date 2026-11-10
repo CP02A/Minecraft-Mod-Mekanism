@@ -43,7 +43,8 @@
     "minecraft": "~26.3",
     "java": ">=${java_version}",
     "fabric-api": "*",
-    "forgeconfigapiport": "*"
+    "forgeconfigapiport": "*",
+    "team_reborn_energy": "*"
   },
   "custom": {
     "loom:injected_interfaces": {
