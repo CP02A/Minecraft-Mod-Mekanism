@@ -6,7 +6,9 @@
     "data.ExtraCodecsMixin",
     "data.HolderSetCodecMixin",
     "data.IngredientMixin",
-    "data.ResourceConditionsImplMixin"
+    "data.ResourceConditionsImplMixin",
+    "hooks.LevelChunkMixin",
+    "hooks.LevelMixin"
   ],
   "client": [
   ],

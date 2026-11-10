@@ -29,6 +29,11 @@ sourceSets {
             srcDir(syncSharedSources)
         }
     }
+    //Fabric specific game tests (run by runGameTestServer)
+    gametest {
+        compileClasspath += main.compileClasspath + main.output
+        runtimeClasspath += main.runtimeClasspath + main.output
+    }
 }
 
 group = 'mekanism'
@@ -125,6 +130,14 @@ dependencies {
 loom {
     //Generated from the access transformers by gen_fabric_glue.py
     accessWidenerPath = file('src/main/resources/mekanism.accesswidener')
+    mods {
+        register('mekanism') {
+            sourceSet(sourceSets.main)
+        }
+        register('mekanism_fabric_tests') {
+            sourceSet(sourceSets.gametest)
+        }
+    }
     runs {
         client {
             client()
@@ -144,6 +157,7 @@ loom {
             setConfigName('Fabric Game Test Server')
             ideConfigGenerated(false)
             runDir('runs/gametest')
+            source(sourceSets.gametest)
             vmArg('-Dfabric-api.gametest')
             vmArg("-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest/report.xml').get().asFile}")
         }
@@ -154,6 +168,10 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.compilerArgs.addAll(['-parameters', '-AmekanismModule=mekanism', '-Xmaxerrs', '20000'])
 }
+
+tasks.named('compileGametestJava', JavaCompile, {
+    options.compilerArgs.remove('-AmekanismModule=mekanism')
+})
 
 tasks.named('compileJava', JavaCompile, {
     dependsOn(configurations.commonJava)

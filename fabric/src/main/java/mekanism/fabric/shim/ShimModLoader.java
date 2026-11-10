@@ -50,6 +50,8 @@ import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
 import net.neoforged.fml.event.lifecycle.ModLifecycleEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.modscan.ModAnnotation;
+import mekanism.fabric.shim.transfer.CapabilityBridge;
+import net.neoforged.neoforge.capabilities.CapabilityHooks;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.NeoForgeMod;
@@ -140,11 +142,17 @@ public final class ShimModLoader {
         Map<ResourceKey<Registry<?>>, Map<Identifier, DataMapType<?, ?>>> dataMaps = new HashMap<>();
         ModLoader.postEvent(new RegisterDataMapTypesEvent(dataMaps));
         dataMapTypes = dataMaps;
+        DataMapLoader.register();
 
         ModLoader.postEvent(new RegisterPayloadHandlersEvent());
         FabricNetworkBackend.registerConfigurationTasks();
-        ModLoader.postEvent(new RegisterCapabilitiesEvent());
+        RegisterCapabilitiesEvent capabilitiesEvent = new RegisterCapabilitiesEvent();
+        CapabilityHooks.markProxyableCapabilities(capabilitiesEvent);
+        CapabilityHooks.registerVanillaProviders(capabilitiesEvent);
+        ModLoader.postEvent(capabilitiesEvent);
+        CapabilityHooks.registerFallbackVanillaProviders(capabilitiesEvent);
         ShimHooks.capabilitiesInitialized = true;
+        CapabilityBridge.register();
         ForcedChunkManager.init();
 
         Map<String, CauldronInteraction.Dispatcher> dispatchers = new LinkedHashMap<>();

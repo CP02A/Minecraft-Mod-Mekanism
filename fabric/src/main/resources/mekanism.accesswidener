@@ -264,6 +264,7 @@ accessible class net/minecraft/world/entity/ExperienceOrb
 accessible class net/minecraft/world/entity/LivingEntity
 accessible class net/minecraft/world/entity/Mob
 accessible class net/minecraft/world/entity/ai/sensing/SensorType
+accessible class net/minecraft/world/entity/animal/equine/AbstractHorse
 accessible class net/minecraft/world/entity/item/ItemEntity
 accessible class net/minecraft/world/entity/item/PrimedTnt
 accessible class net/minecraft/world/entity/monster/Creeper
@@ -686,6 +687,7 @@ accessible field net/minecraft/world/entity/EquipmentSlot countLimit I
 accessible field net/minecraft/world/entity/LivingEntity effectsDirty Z
 accessible field net/minecraft/world/entity/Mob goalSelector Lnet/minecraft/world/entity/ai/goal/GoalSelector;
 accessible field net/minecraft/world/entity/Mob targetSelector Lnet/minecraft/world/entity/ai/goal/GoalSelector;
+accessible field net/minecraft/world/entity/animal/equine/AbstractHorse inventory Lnet/minecraft/world/SimpleContainer;
 accessible field net/minecraft/world/entity/item/ItemEntity age I
 accessible field net/minecraft/world/entity/item/PrimedTnt explosionPower F
 accessible field net/minecraft/world/entity/monster/Creeper explosionRadius I

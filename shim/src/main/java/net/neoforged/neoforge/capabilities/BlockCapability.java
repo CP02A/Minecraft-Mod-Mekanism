@@ -211,11 +211,36 @@ public final class BlockCapability<T, C extends @Nullable Object> extends BaseCa
                 state = blockEntity.getBlockState();
         }
 
-        for (var provider : providers.getOrDefault(state.getBlock(), List.of())) {
+        List<IBlockCapabilityProvider<T, C>> blockProviders = providers.getOrDefault(state.getBlock(), List.of());
+        for (var provider : blockProviders) {
             var ret = provider.getCapability(level, pos, state, blockEntity, context);
             if (ret != null)
                 return ret;
         }
+        // Mekanism shim: Query the loader's equivalent of the capability for blocks that don't provide it themselves
+        if (blockProviders.isEmpty() && loaderFallback != null) {
+            return loaderFallback.getCapability(level, pos, state, blockEntity, context);
+        }
         return null;
+    }
+
+    @Nullable
+    private IBlockCapabilityProvider<T, C> loaderFallback;
+
+    /**
+     * Mekanism shim: Sets the provider that is queried for blocks that have no providers of this capability, used by the loader to expose its own
+     * equivalent of the capability.
+     */
+    @ApiStatus.Internal
+    public void setLoaderFallback(@Nullable IBlockCapabilityProvider<T, C> loaderFallback) {
+        this.loaderFallback = loaderFallback;
+    }
+
+    /**
+     * Mekanism shim: {@return the blocks that have providers for this capability}
+     */
+    @ApiStatus.Internal
+    public synchronized java.util.Set<Block> getProvidingBlocks() {
+        return java.util.Set.copyOf(providers.keySet());
     }
 }

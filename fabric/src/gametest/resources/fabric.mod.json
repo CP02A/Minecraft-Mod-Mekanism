@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "mekanism_fabric_tests",
+  "version": "1.0.0",
+  "name": "Mekanism Fabric Tests",
+  "description": "Game tests for the Fabric version of Mekanism",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "mekanism.fabric.gametest.TransferBridgeTests"
+    ]
+  },
+  "depends": {
+    "mekanism": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}
