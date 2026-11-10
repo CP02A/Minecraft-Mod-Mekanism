@@ -87,6 +87,8 @@ public final class ClientShimLoader {
         ModLoader.postEvent(new EntityRenderersEvent.RegisterRenderers());
         ModLoader.postEvent(new RegisterGuiLayersEvent());
 
+        FluidContainerItemModel.register();
+        BlockStateModelBridge.register();
         ModLoader.postEvent(new RegisterItemModelsEvent(ItemModels.ID_MAPPER));
         ModLoader.postEvent(new RegisterSpecialModelRendererEvent(SpecialModelRenderers.ID_MAPPER));
         ModLoader.postEvent(new RegisterConditionalItemModelPropertyEvent(ConditionalItemModelProperties.ID_MAPPER));

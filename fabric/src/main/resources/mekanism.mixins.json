@@ -16,7 +16,9 @@
     "hooks.ResultSlotMixin",
     "hooks.ServerLevelMixin"
   ],
-  "client": [],
+  "client": [
+    "client.BlockStateModelLoaderMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
