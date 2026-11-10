@@ -22,7 +22,7 @@ public final class ShimServices {
     /**
      * Only available on the client.
      */
-    public static final ClientBackend CLIENT = loadOptional(ClientBackend.class);
+    public static final ClientBackend CLIENT = BACKEND.getDist() == net.neoforged.api.distmarker.Dist.CLIENT ? loadOptional(ClientBackend.class) : null;
 
     @SuppressWarnings("DataFlowIssue")
     private static <T> T loadOptional(Class<T> serviceClass) {

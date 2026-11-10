@@ -20,7 +20,8 @@ public class LaserParticleGroup extends ParticleGroup<LaserParticle> {
 
     private static final float RADIAN_45 = 45 * Mth.DEG_TO_RAD;
 
-    public static final ParticleRenderType TYPE = new ParticleRenderType("MEKANISM_LASER", "MEK_L");
+    //Note: The name is a valid identifier, as Fabric requires that for registering particle groups
+    public static final ParticleRenderType TYPE = new ParticleRenderType("mekanism:laser", "MEK_L");
 
     public LaserParticleGroup(ParticleEngine engine) {
         super(engine);

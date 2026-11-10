@@ -83,9 +83,18 @@ public final class ShimModLoader {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final String ENTRYPOINT = "neoforge-shim";
+    public static final String CLIENT_ENTRYPOINT = "neoforge-shim-client";
     private static final Type EVENT_BUS_SUBSCRIBER = Type.getType(EventBusSubscriber.class);
 
     private static boolean loaded;
+    private static List<FabricModContainer> containers = List.of();
+
+    /**
+     * {@return the containers of the loaded shim mods}
+     */
+    public static List<FabricModContainer> getContainers() {
+        return containers;
+    }
     private static Map<ResourceKey<Registry<?>>, Map<Identifier, DataMapType<?, ?>>> dataMapTypes = Map.of();
 
     private ShimModLoader() {
@@ -119,8 +128,19 @@ public final class ShimModLoader {
             containers.add(container);
             LOGGER.info("Constructing NeoForge shim mod {}", container.getModId());
             entrypoint.getEntrypoint().construct(container, container.getEventBus());
-            registerAutomaticSubscribers(container, scanData);
         }
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
+            //Equivalent of NeoForge's client only @Mod classes, constructed after all common ones
+            for (EntrypointContainer<ShimModInitializer> entrypoint : FabricLoader.getInstance().getEntrypointContainers(CLIENT_ENTRYPOINT, ShimModInitializer.class)) {
+                FabricModContainer container = FabricModList.INSTANCE.getModContainerById(entrypoint.getProvider().getMetadata().getId())
+                      .orElseThrow(() -> new IllegalStateException("Client entrypoint of " + entrypoint.getProvider().getMetadata().getId() + " without a common entrypoint"));
+                entrypoint.getEntrypoint().construct(container, container.getEventBus());
+            }
+        }
+        for (FabricModContainer container : containers) {
+            registerAutomaticSubscribers(container, FabricModList.INSTANCE.getAllScanData().get(containers.indexOf(container)));
+        }
+        ShimModLoader.containers = List.copyOf(containers);
 
         //Registries
         NewRegistryEvent newRegistryEvent = new NewRegistryEvent();

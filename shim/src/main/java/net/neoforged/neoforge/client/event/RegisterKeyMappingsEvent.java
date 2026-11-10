@@ -27,19 +27,27 @@ import org.jetbrains.annotations.ApiStatus;
  * <p>This event is fired on the mod-specific event bus, only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
  */
 public class RegisterKeyMappingsEvent extends Event implements IModBusEvent {
-    private final Options options;
+    private final java.util.function.Consumer<KeyMapping> registrar;
     private final Map<Identifier, KeyMapping.Category> moddedCategories = new HashMap<>();
 
     @ApiStatus.Internal
     public RegisterKeyMappingsEvent(Options options) {
-        this.options = options;
+        this.registrar = key -> options.keyMappings = ArrayUtils.add(options.keyMappings, key);
+    }
+
+    /**
+     * Mekanism shim: Allows the loader to register the key mappings with its own key mapping API.
+     */
+    @ApiStatus.Internal
+    public RegisterKeyMappingsEvent(java.util.function.Consumer<KeyMapping> registrar) {
+        this.registrar = registrar;
     }
 
     /**
      * Register a new key mapping.
      */
     public void register(KeyMapping key) {
-        options.keyMappings = ArrayUtils.add(options.keyMappings, key);
+        registrar.accept(key);
     }
 
     /**

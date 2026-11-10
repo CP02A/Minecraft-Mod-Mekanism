@@ -10,6 +10,7 @@ accessible class net/minecraft/client/OptionInstance$ValueSet
 accessible class net/minecraft/client/Options
 accessible class net/minecraft/client/Options$FieldAccess
 accessible class net/minecraft/client/color/block/BlockColors
+accessible class net/minecraft/client/color/item/ItemTintSources
 accessible class net/minecraft/client/data/models/BlockModelGenerators
 accessible class net/minecraft/client/data/models/BlockModelGenerators$BlockFamilyProvider
 accessible class net/minecraft/client/data/models/BlockModelGenerators$BlockStateGeneratorSupplier
@@ -47,6 +48,7 @@ accessible class net/minecraft/client/gui/components/debug/DebugEntryMemory
 accessible class net/minecraft/client/gui/components/debug/DebugEntrySystemSpecs
 accessible class net/minecraft/client/gui/components/events/ContainerEventHandler
 accessible class net/minecraft/client/gui/screens/LoadingOverlay
+accessible class net/minecraft/client/gui/screens/MenuScreens
 accessible class net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
 accessible class net/minecraft/client/gui/screens/Screen
 accessible class net/minecraft/client/gui/screens/inventory/AbstractContainerScreen
@@ -179,7 +181,11 @@ accessible class net/minecraft/client/renderer/entity/LivingEntityRenderer
 accessible class net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer
 accessible class net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer
 accessible class net/minecraft/client/renderer/item/CuboidItemModelWrapper
+accessible class net/minecraft/client/renderer/item/ItemModels
+accessible class net/minecraft/client/renderer/item/properties/conditional/ConditionalItemModelProperties
+accessible class net/minecraft/client/renderer/item/properties/select/SelectItemModelProperties
 accessible class net/minecraft/client/renderer/rendertype/RenderType
+accessible class net/minecraft/client/renderer/special/SpecialModelRenderers
 accessible class net/minecraft/client/renderer/texture/SpriteContents
 accessible class net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture
 accessible class net/minecraft/client/renderer/texture/atlas/sources/PalettedPermutations
@@ -480,6 +486,7 @@ accessible field net/minecraft/client/OptionInstance caption Lnet/minecraft/netw
 accessible field net/minecraft/client/OptionInstance toString Ljava/util/function/Function;
 accessible field net/minecraft/client/Options keyMappings [Lnet/minecraft/client/KeyMapping;
 accessible field net/minecraft/client/color/block/BlockColors BLANK_LAYER Lnet/minecraft/client/color/block/BlockTintSource;
+accessible field net/minecraft/client/color/item/ItemTintSources ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;
 accessible field net/minecraft/client/gui/GuiGraphicsExtractor guiRenderState Lnet/minecraft/client/renderer/state/gui/GuiRenderState;
 accessible field net/minecraft/client/gui/GuiGraphicsExtractor guiSprites Lnet/minecraft/client/renderer/texture/TextureAtlas;
 accessible field net/minecraft/client/gui/GuiGraphicsExtractor scissorStack Lnet/minecraft/client/gui/GuiGraphicsExtractor$ScissorStack;
@@ -505,6 +512,7 @@ accessible field net/minecraft/client/gui/components/debug/DebugEntryLookingAt F
 accessible field net/minecraft/client/gui/components/debug/DebugEntryMemory GROUP Lnet/minecraft/resources/Identifier;
 accessible field net/minecraft/client/gui/components/debug/DebugEntrySystemSpecs GROUP Lnet/minecraft/resources/Identifier;
 accessible field net/minecraft/client/gui/screens/LoadingOverlay fadeOutStart J
+accessible field net/minecraft/client/gui/screens/MenuScreens SCREENS Ljava/util/Map;
 accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;
 accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen SLOT_HIGHLIGHT_BACK_SPRITE Lnet/minecraft/resources/Identifier;
 accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen SLOT_HIGHLIGHT_FRONT_SPRITE Lnet/minecraft/resources/Identifier;
@@ -626,6 +634,10 @@ accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher ite
 accessible field net/minecraft/client/renderer/entity/LivingEntityRenderer layers Ljava/util/List;
 accessible field net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer babyModelSet Lnet/minecraft/client/renderer/entity/ArmorModelSet;
 accessible field net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer modelSet Lnet/minecraft/client/renderer/entity/ArmorModelSet;
+accessible field net/minecraft/client/renderer/item/ItemModels ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;
+accessible field net/minecraft/client/renderer/item/properties/conditional/ConditionalItemModelProperties ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;
+accessible field net/minecraft/client/renderer/item/properties/select/SelectItemModelProperties ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;
+accessible field net/minecraft/client/renderer/special/SpecialModelRenderers ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;
 accessible field net/minecraft/client/renderer/texture/SpriteContents animatedTexture Lnet/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture;
 accessible field net/minecraft/client/renderer/texture/SpriteContents byMipLevel [Lcom/mojang/blaze3d/platform/NativeImage;
 accessible field net/minecraft/client/renderer/texture/SpriteContents originalImage Lcom/mojang/blaze3d/platform/NativeImage;

@@ -25,7 +25,9 @@ import net.neoforged.neoforge.fluids.FluidType;
  * This event is fired on the mod-specific event bus, only on the {@linkplain LogicalSide#CLIENT logical client}.
  */
 public final class RegisterClientExtensionsEvent extends Event implements IModBusEvent {
-    RegisterClientExtensionsEvent() {}
+    // Mekanism shim: public so that the loader can fire it
+    @org.jetbrains.annotations.ApiStatus.Internal
+    public RegisterClientExtensionsEvent() {}
 
     /**
      * Register the given {@link IClientBlockExtensions} for the given {@link Block}s

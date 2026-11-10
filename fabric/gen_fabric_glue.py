@@ -25,6 +25,7 @@ AT_FILES = [
     os.path.join(REPO, 'neoforge', 'src', 'main', 'resources', 'META-INF', 'accesstransformer.cfg'),
     os.path.join(REPO, 'neoforge', 'src', 'additions', 'resources', 'META-INF', 'accesstransformer.cfg'),
     os.path.join(REPO, 'neoforge', 'src', 'tools', 'resources', 'META-INF', 'accesstransformer.cfg'),
+    os.path.join(REPO, 'fabric', 'fabric-accesstransformer.cfg'),
 ]
 MIXIN_PACKAGE = 'mekanism.fabric.mixin.shim'
 

@@ -161,6 +161,15 @@ loom {
             vmArg('-Dfabric-api.gametest')
             vmArg("-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest/report.xml').get().asFile}")
         }
+        //Starts a client, runs the client game tests (which load a world and take screenshots) and exits
+        gameTestClient {
+            client()
+            setConfigName('Fabric Game Test Client')
+            ideConfigGenerated(false)
+            runDir('runs/gametestclient')
+            source(sourceSets.gametest)
+            vmArg('-Dfabric.client.gametest')
+        }
     }
 }
 

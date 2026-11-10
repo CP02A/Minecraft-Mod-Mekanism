@@ -33,6 +33,9 @@
     ],
     "neoforge-shim": [
       "mekanism.fabric.MekanismShimMod"
+    ],
+    "neoforge-shim-client": [
+      "mekanism.fabric.MekanismShimClientMod"
     ]
   },
   "depends": {

@@ -9,6 +9,9 @@
   "entrypoints": {
     "fabric-gametest": [
       "mekanism.fabric.gametest.TransferBridgeTests"
+    ],
+    "fabric-client-gametest": [
+      "mekanism.fabric.gametest.MekanismClientTests"
     ]
   },
   "depends": {
