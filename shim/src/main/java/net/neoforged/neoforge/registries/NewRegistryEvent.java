@@ -1,0 +1,68 @@
+/*
+ * Copyright (c) Forge Development LLC and contributors
+ * SPDX-License-Identifier: LGPL-2.1-only
+ */
+
+package net.neoforged.neoforge.registries;
+
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
+import net.neoforged.neoforge.shim.ShimServices;
+
+/**
+ * Fired when new registries can be constructed and registered.
+ * This event is fired to register builtin registries, like the registries in {@link BuiltInRegistries}.
+ * Builtin registries are registries which can only load entries registered in code.
+ *
+ * <p>
+ * For registering datapack registries that only load entries through JSON, see {@link NewDatapackRegistryEvent}.
+ * </p>
+ *
+ * <p>This event is fired on the mod-specific event bus, on both {@linkplain net.neoforged.fml.LogicalSide logical sides}.</p>
+ *
+ * @see ModifyRegistriesEvent
+ */
+public class NewRegistryEvent extends Event implements IModBusEvent {
+    private final List<Registry<?>> registries = new ArrayList<>();
+
+    public NewRegistryEvent() {}
+
+    /**
+     * Creates a registry using the {@code builder} and registers it.
+     *
+     * @param builder the builder to turn into a {@link Registry}
+     * @return the built {@link Registry}
+     */
+    public <T> Registry<T> create(RegistryBuilder<T> builder) {
+        final Registry<T> registry = builder.create();
+        register(registry);
+        return registry;
+    }
+
+    /**
+     * Registers an already-created registry.
+     * This allows storing registries in static final fields and registering them later.
+     *
+     * @param registry the registry to register
+     */
+    public <T> void register(Registry<T> registry) {
+        this.registries.add(registry);
+    }
+
+    /**
+     * Registers all the registries added during this event to the root registry.
+     *
+     * @apiNote Mekanism shim: Called by the loader after posting this event.
+     */
+    public void fill() {
+        for (final var registry : this.registries) {
+            if (BuiltInRegistries.REGISTRY.containsKey(registry.key().identifier()))
+                throw new IllegalStateException("Attempted duplicate registration of registry " + registry.key().identifier());
+            ShimServices.BACKEND.registerRootRegistry(registry);
+        }
+    }
+}

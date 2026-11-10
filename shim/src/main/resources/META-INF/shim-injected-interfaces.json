@@ -1,0 +1,32 @@
+{
+  "net/minecraft/core/Holder": [
+    "net/neoforged/neoforge/common/extensions/IHolderExtension<T>"
+  ],
+  "net/minecraft/core/HolderSet": [
+    "net/neoforged/neoforge/common/extensions/IHolderSetExtension<T>"
+  ],
+  "net/minecraft/core/Registry": [
+    "net/neoforged/neoforge/registries/IRegistryExtension<T>"
+  ],
+  "net/minecraft/core/TypedInstance": [
+    "net/neoforged/neoforge/common/extensions/TypedInstanceExtension<T>"
+  ],
+  "net/minecraft/core/component/DataComponentPatch": [
+    "net/neoforged/neoforge/shim/extensions/IDataComponentPatchExtension"
+  ],
+  "net/minecraft/world/entity/Entity": [
+    "net/neoforged/neoforge/common/extensions/IEntityExtension"
+  ],
+  "net/minecraft/world/item/ItemStack": [
+    "net/neoforged/neoforge/common/extensions/IItemStackExtension"
+  ],
+  "net/minecraft/world/item/crafting/Ingredient": [
+    "net/neoforged/neoforge/shim/extensions/IIngredientExtension"
+  ],
+  "net/minecraft/world/level/Level": [
+    "net/neoforged/neoforge/common/extensions/ILevelExtension"
+  ],
+  "net/minecraft/world/level/material/Fluid": [
+    "net/neoforged/neoforge/common/extensions/IFluidExtension"
+  ]
+}

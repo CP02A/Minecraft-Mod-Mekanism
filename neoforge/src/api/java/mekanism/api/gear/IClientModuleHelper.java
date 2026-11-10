@@ -9,7 +9,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 
 /// Helper class for interacting with and creating custom modules on the client side. Do not try to interact with this class on the server side.
 ///
@@ -51,7 +50,7 @@ public interface IClientModuleHelper {
     /// @param location Asset location assumed to be for a model file that loads an obj file. The [Identifier] for the modules Mekanism adds is
     /// `mekanism:entity/mekasuit_modules`
     ///
-    /// @apiNote Must only be called on the client side and from [FMLClientSetupEvent].
+    /// @apiNote Must only be called on the client side and from [net.neoforged.fml.event.lifecycle.FMLClientSetupEvent].
     void addMekaSuitModuleModels(Identifier location);
 
     /// Adds a model spec for a specific MekaSuit Module to allow it to render as part of the MekaSuit when installed and enabled. This method causes the "active" model
@@ -61,7 +60,7 @@ public interface IClientModuleHelper {
     /// @param moduleData [ModuleData] to associate this spec with.
     /// @param slotType   Equipment position the spec will be used for.
     ///
-    /// @apiNote Must only be called on the client side and from [FMLClientSetupEvent].
+    /// @apiNote Must only be called on the client side and from [net.neoforged.fml.event.lifecycle.FMLClientSetupEvent].
     /// @see #addMekaSuitModuleModelSpec(String, Holder, EquipmentSlot, Predicate)
     default void addMekaSuitModuleModelSpec(String name, Holder<ModuleData<?>> moduleData, EquipmentSlot slotType) {
         addMekaSuitModuleModelSpec(name, moduleData, slotType, ConstantPredicates.alwaysTrue());
@@ -74,6 +73,6 @@ public interface IClientModuleHelper {
     /// @param slotType   Equipment position the spec will be used for.
     /// @param isActive   Predicate to check if an entity should use the active or inactive model.
     ///
-    /// @apiNote Must only be called on the client side and from [FMLClientSetupEvent].
+    /// @apiNote Must only be called on the client side and from [net.neoforged.fml.event.lifecycle.FMLClientSetupEvent].
     void addMekaSuitModuleModelSpec(String name, Holder<ModuleData<?>> moduleData, EquipmentSlot slotType, Predicate<HumanoidRenderState> isActive);
 }

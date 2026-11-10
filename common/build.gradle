@@ -16,7 +16,19 @@ java {
 }
 
 neoForge {
-    neoFormVersion = neo_form_version
+    enable {
+        neoFormVersion = neo_form_version
+        enabledSourceSets = sourceSets
+    }
+    //Shared code is written against NeoForge, so apply the same access transformers NeoForge and Mekanism use,
+    // and inject the shim's subset of NeoForge's extension interfaces into vanilla classes
+    accessTransformers.from(
+            rootProject.file('shim/src/main/resources/META-INF/shim-accesstransformer.cfg'),
+            rootProject.file('shim/src/main/resources/META-INF/neoforge-accesstransformer.cfg'),
+            rootProject.file('shim/src/main/resources/META-INF/neoforge-accesstransformergenerated.cfg'),
+            rootProject.file('neoforge/src/main/resources/META-INF/accesstransformer.cfg')
+    )
+    interfaceInjectionData.from(rootProject.file('shim/src/main/resources/META-INF/shim-injected-interfaces.json'))
 }
 
 dependencies {
@@ -63,4 +75,43 @@ sourceSets.configureEach {
             }
         }
     }
+}
+
+repositories {
+    exclusiveContent {
+        forRepository { maven { url = 'https://maven.blamejared.com' } }
+        filter { includeGroup('mezz.jei') }
+    }
+    exclusiveContent {
+        forRepository { maven { url = 'https://repo.sleeping.town/' } }
+        filter { includeGroup('dev.emi') }
+    }
+}
+
+//TEMP (porting): compile the NeoForge API sources against vanilla + the shim to find what is still missing
+sourceSets {
+    apiCheck {
+        java.srcDirs = [rootProject.file('neoforge/src/api/java')]
+        //Datagen only runs on NeoForge, and recipe viewer integrations are handled separately
+        java.exclude('mekanism/api/datagen/**')
+        resources.srcDirs = []
+        compileClasspath += sourceSets.main.compileClasspath
+    }
+}
+dependencies {
+    apiCheckCompileOnly(project(':shim')) {
+        attributes {
+            attribute(Attribute.of('io.github.mcgradleconventions.loader', String), 'common')
+        }
+    }
+    apiCheckCompileOnly('org.jspecify:jspecify:1.0.0')
+    //The API exposes helpers for recipe viewer integrations
+    apiCheckCompileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    apiCheckCompileOnly("dev.emi:emi-neoforge:${emi_version}:api") {
+        transitive = false
+    }
+    apiCheckCompileOnly('org.jetbrains:annotations:26.0.2')
+}
+tasks.named('compileApiCheckJava', JavaCompile) {
+    options.compilerArgs.addAll(['-Xmaxerrs', '5000'])
 }

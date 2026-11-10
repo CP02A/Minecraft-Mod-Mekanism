@@ -23,5 +23,7 @@ plugins {
 include('annotation-processor')
 //Multiloader layout: loader agnostic code lives in common and is compiled into each of the loader specific projects
 include('common')
+//Fabric implementation of the subset of NeoForge APIs used by the shared code
+include('shim')
 include('neoforge')
 include('fabric')
