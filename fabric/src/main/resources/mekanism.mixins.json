@@ -32,6 +32,9 @@
     "client.ClientLevelMixin",
     "client.ClientPacketListenerMixin",
     "client.ClientRecipeBookMixin",
+    "client.CuboidItemModelWrapperMixin",
+    "client.CuboidModelDeserializerMixin",
+    "client.CuboidModelMixin",
     "client.FirstPersonHandsAndItemsRendererMixin",
     "client.FluidStateModelSetMixin",
     "client.FogRendererMixin",
@@ -43,8 +46,10 @@
     "client.MouseHandlerMixin",
     "client.ParticleResourcesMixin",
     "client.SessionSearchTreesMixin",
+    "client.SimpleModelWrapperMixin",
     "client.SoundEngineMixin",
     "client.TextureAtlasMixin",
+    "client.UnbakedCuboidGeometryMixin",
     "client.UnbakedModelJsonDeserializerMixin"
   ],
   "injectors": {

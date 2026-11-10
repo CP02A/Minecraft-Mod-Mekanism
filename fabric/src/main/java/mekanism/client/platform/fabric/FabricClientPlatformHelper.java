@@ -3,6 +3,7 @@ package mekanism.client.platform.fabric;
 import mekanism.client.platform.IClientPlatformHelper;
 import java.util.List;
 import mekanism.fabric.shim.client.BlockOutlineBridge;
+import mekanism.fabric.shim.client.ModelPropertiesBridge;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.block.dispatch.ModelState;
@@ -64,10 +65,10 @@ public class FabricClientPlatformHelper implements IClientPlatformHelper {
 
     @Override
     public BlockStateModelPart bakeSimpleModel(ModelBaker baker, ResolvedModel model, ModelState state) {
-        //Same as vanilla's SimpleModelWrapper#bake, but for a model that has already been resolved
+        //Same as NeoForge's SimpleModelWrapper#bake (which passes the additional model properties to the geometry), but for a model that has already been resolved
         TextureSlots textureSlots = model.getTopTextureSlots();
         Material.Baked particleMaterial = model.resolveParticleMaterial(textureSlots, baker);
-        QuadCollection geometry = model.bakeTopGeometry(textureSlots, baker, state);
+        QuadCollection geometry = ModelPropertiesBridge.bakeTopGeometry(model, textureSlots, baker, state);
         return new SimpleModelWrapper(geometry, model.getTopAmbientOcclusion(), particleMaterial);
     }
 
