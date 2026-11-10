@@ -36,6 +36,26 @@ sourceSets {
     }
 }
 
+//Secondary modules, separate mods like on NeoForge. Each gets its own source set compiled from neoforge/src/<module> (plus Fabric specific
+// sources and resources in src/<module>) and its own jar
+def secondaryModules = ['generators']
+for (String name : secondaryModules) {
+    def module = name
+    def syncModuleSources = tasks.register("sync${module.capitalize()}Sources", Sync) {
+        from(new File(neoSources, "${module}/java"))
+        into(layout.buildDirectory.dir("generated/${module}Sources"))
+    }
+    def moduleSourceSet = sourceSets.create(module) {
+        java {
+            srcDir(syncModuleSources)
+        }
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+    sourceSets.gametest.compileClasspath += moduleSourceSet.output
+    sourceSets.gametest.runtimeClasspath += moduleSourceSet.output
+}
+
 group = 'mekanism'
 def basicVersion = "${mod_version}." + (System.getenv('BUILD_NUMBER') ?: 'homebaked')
 version = "${minecraft_version}-${basicVersion}"
@@ -139,6 +159,11 @@ loom {
         register('mekanism') {
             sourceSet(sourceSets.main)
         }
+        for (String name : secondaryModules) {
+            register("mekanism${name}") {
+                sourceSet(sourceSets.named(name).get())
+            }
+        }
         register('mekanism_fabric_tests') {
             sourceSet(sourceSets.gametest)
         }
@@ -226,6 +251,39 @@ tasks.withType(Jar).configureEach {
     from(rootProject.file('LICENSE')) {
         rename { "${it}_Mekanism" }
     }
+}
+
+for (String name : secondaryModules) {
+    def module = name
+    def moduleSourceSet = sourceSets.named(module).get()
+    tasks.named(moduleSourceSet.compileJavaTaskName, JavaCompile, {
+        options.annotationProcessorPath = configurations.annotationProcessor
+        options.compilerArgs.remove('-AmekanismModule=mekanism')
+        options.compilerArgs.add("-AmekanismModule=mekanism${module}".toString())
+    })
+    tasks.named(moduleSourceSet.processResourcesTaskName, ProcessResources, {
+        from(new File(neoSources, "${module}/resources")) {
+            exclude('META-INF/neoforge.mods.toml', 'META-INF/accesstransformer.cfg', 'META-INF/enumextensions.json')
+        }
+        from(new File(neoSources, "datagen/generated/mekanism${module}")) {
+            exclude('.cache/**', 'pack.mcmeta', '*-compat/**')
+        }
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        def expandProps = ['version'                    : version,
+                           'minecraft_version_range'    : minecraft_version_range,
+                           'fabric_loader_version_range': fabric_loader_version_range,
+                           'java_version'               : java_version]
+        inputs.properties(expandProps)
+        filesMatching('fabric.mod.json') {
+            filter { String line -> expandProps.inject(line) { String l, key, value -> l.replace('${' + key + '}', value.toString()) } }
+        }
+    })
+    def moduleJar = tasks.register("${module}Jar", Jar) {
+        group = 'build'
+        archiveBaseName = "Mekanism${module.capitalize()}-fabric"
+        from(moduleSourceSet.output)
+    }
+    tasks.named('assemble') { dependsOn(moduleJar) }
 }
 
 idea {

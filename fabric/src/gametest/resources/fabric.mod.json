@@ -13,14 +13,17 @@
     "fabric-gametest": [
       "mekanism.fabric.gametest.TransferBridgeTests",
       "mekanism.fabric.gametest.InteropTests",
-      "mekanism.fabric.gametest.ServerHookTests"
+      "mekanism.fabric.gametest.ServerHookTests",
+      "mekanism.fabric.gametest.GeneratorsTests"
     ],
     "fabric-client-gametest": [
-      "mekanism.fabric.gametest.MekanismClientTests"
+      "mekanism.fabric.gametest.MekanismClientTests",
+      "mekanism.fabric.gametest.GeneratorsClientTests"
     ]
   },
   "depends": {
     "mekanism": "*",
+    "mekanismgenerators": "*",
     "team_reborn_energy": "*",
     "fabric-gametest-api-v1": "*"
   }

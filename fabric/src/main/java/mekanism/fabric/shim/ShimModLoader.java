@@ -115,7 +115,7 @@ public final class ShimModLoader {
         }
         loaded = true;
         NeoForgeMod.init();
-        List<EntrypointContainer<ShimModInitializer>> entrypoints = FabricLoader.getInstance().getEntrypointContainers(ENTRYPOINT, ShimModInitializer.class);
+        List<EntrypointContainer<ShimModInitializer>> entrypoints = sortByDependencies(FabricLoader.getInstance().getEntrypointContainers(ENTRYPOINT, ShimModInitializer.class));
         List<FabricModContainer> containers = new ArrayList<>();
         for (EntrypointContainer<ShimModInitializer> entrypoint : entrypoints) {
             net.fabricmc.loader.api.ModContainer fabricMod = entrypoint.getProvider();
@@ -130,7 +130,7 @@ public final class ShimModLoader {
         }
         if (FMLEnvironment.getDist() == Dist.CLIENT) {
             //Equivalent of NeoForge's client only @Mod classes, constructed after all common ones
-            for (EntrypointContainer<ShimModInitializer> entrypoint : FabricLoader.getInstance().getEntrypointContainers(CLIENT_ENTRYPOINT, ShimModInitializer.class)) {
+            for (EntrypointContainer<ShimModInitializer> entrypoint : sortByDependencies(FabricLoader.getInstance().getEntrypointContainers(CLIENT_ENTRYPOINT, ShimModInitializer.class))) {
                 FabricModContainer container = FabricModList.INSTANCE.getModContainerById(entrypoint.getProvider().getMetadata().getId())
                       .orElseThrow(() -> new IllegalStateException("Client entrypoint of " + entrypoint.getProvider().getMetadata().getId() + " without a common entrypoint"));
                 entrypoint.getEntrypoint().construct(container, container.getEventBus());
@@ -254,6 +254,36 @@ public final class ShimModLoader {
         }
         ordered.addAll(BuiltInRegistries.REGISTRY.keySet().stream().sorted(java.util.Comparator.comparing(Identifier::getNamespace).thenComparing(Identifier::getPath)).toList());
         return ordered;
+    }
+
+    /**
+     * Sorts the entrypoints so that mods are constructed after the shim mods they depend on (like NeoForge's dependency ordering), as Fabric doesn't
+     * guarantee an order. Keeps the original order otherwise.
+     */
+    private static <T> List<EntrypointContainer<T>> sortByDependencies(List<EntrypointContainer<T>> entrypoints) {
+        Map<String, List<EntrypointContainer<T>>> byMod = new LinkedHashMap<>();
+        for (EntrypointContainer<T> entrypoint : entrypoints) {
+            byMod.computeIfAbsent(entrypoint.getProvider().getMetadata().getId(), id -> new ArrayList<>()).add(entrypoint);
+        }
+        List<EntrypointContainer<T>> sorted = new ArrayList<>(entrypoints.size());
+        Set<String> visited = new LinkedHashSet<>();
+        for (String modId : byMod.keySet()) {
+            visitDependencies(modId, byMod, visited, sorted);
+        }
+        return sorted;
+    }
+
+    private static <T> void visitDependencies(String modId, Map<String, List<EntrypointContainer<T>>> byMod, Set<String> visited, List<EntrypointContainer<T>> sorted) {
+        if (!visited.add(modId)) {
+            return;
+        }
+        List<EntrypointContainer<T>> modEntrypoints = byMod.get(modId);
+        for (net.fabricmc.loader.api.metadata.ModDependency dependency : modEntrypoints.getFirst().getProvider().getMetadata().getDependencies()) {
+            if (dependency.getKind().isPositive() && byMod.containsKey(dependency.getModId())) {
+                visitDependencies(dependency.getModId(), byMod, visited, sorted);
+            }
+        }
+        sorted.addAll(modEntrypoints);
     }
 
     private static Runnable CLIENT_FINISH;

@@ -169,6 +169,9 @@
       "net/minecraft/world/inventory/Slot": [
         "net/neoforged/neoforge/shim/extensions/ISlotExtension"
       ],
+      "net/minecraft/world/item/CreativeModeTab$Builder": [
+        "net/neoforged/neoforge/shim/extensions/ICreativeModeTabBuilderExtension"
+      ],
       "net/minecraft/world/item/DispensibleContainerItem": [
         "net/neoforged/neoforge/common/extensions/IDispensibleContainerItemExtension"
       ],

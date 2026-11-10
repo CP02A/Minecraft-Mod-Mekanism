@@ -22,6 +22,7 @@
     "LivingEntityShimMixin",
     "PlayerShimMixin",
     "SlotShimMixin",
+    "CreativeModeTab_BuilderShimMixin",
     "DispensibleContainerItemShimMixin",
     "DyeColorShimMixin",
     "ItemShimMixin",
