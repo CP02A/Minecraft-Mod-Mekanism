@@ -16,11 +16,13 @@
       "mekanism.fabric.gametest.ServerHookTests",
       "mekanism.fabric.gametest.TransmitterTests",
       "mekanism.fabric.gametest.GeneratorsTests",
-      "mekanism.fabric.gametest.AdditionsToolsTests"
+      "mekanism.fabric.gametest.AdditionsToolsTests",
+      "mekanism.fabric.gametest.GameplayTests"
     ],
     "fabric-client-gametest": [
       "mekanism.fabric.gametest.MekanismClientTests",
-      "mekanism.fabric.gametest.GeneratorsClientTests"
+      "mekanism.fabric.gametest.GeneratorsClientTests",
+      "mekanism.fabric.gametest.GameplayClientTests"
     ]
   },
   "depends": {
