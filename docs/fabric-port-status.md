@@ -37,7 +37,7 @@
 - `./gradlew :fabric:build` passes fully, including Loom's `validateAccessWidener` (`gen_fabric_glue.py` expands AT wildcards, normalizes dotted
   descriptors and skips members that don't exist in vanilla, such as signatures changed by NeoForge's patches) and `checkInjectedInterfaces`
   (0 conflicting default methods; needs Python 3 as `python` or `$PYTHON`).
-- `./gradlew :fabric:runGameTestServer`: 71 tests pass (`fabric/src/gametest`):
+- `./gradlew :fabric:runGameTestServer`: 79 tests pass (`fabric/src/gametest`):
   - `TransferBridgeTests`, `InteropTests`: Fabric Transfer API and Team Reborn Energy interop (blocks and items, both directions), machine
     processing, ore gen.
   - `TransmitterTests`: cables, transporters and pipes connecting to cubes, machines, tanks and chests placed after them; energy flow.
@@ -51,6 +51,9 @@
   - `GeneratorsTests`, `AdditionsToolsTests`: generators produce energy, fusion/fission/turbine form, path type of formed casings, meltdown;
     baby mobs (biome and structure spawns), plastic fence gate and beacon colors, paxel, FinalizeSpawnEvent.
   - `InjectedInterfaceTests`: formerly conflicting injected defaults.
+  - `LookingAtTests` (8): the server data providers of Jade (its block data request handler), The One Probe (its probe info builder, with a
+    probe) and WTHIT for energy cubes, fluid and chemical tanks and a formed dynamic tank (multiblock contents from a casing), checking the
+    synced energy/fluid/chemical elements after a network round trip.
 - `./gradlew :fabric:runGameTestClient` (`MekanismClientTests`, `GameplayClientTests`, `GeneratorsClientTests`): loads a world, checks
   model/atlas/fluid model events, recipe book settings and recipe sync, opens machine and generator GUIs and changes side config (checked on the
   server), opens Mekanism's recipe book, renders fluid tanks and buckets, emissive item layers and connected transmitters (model data checked
@@ -58,6 +61,8 @@
   scale) and a portable teleporter frequency. `JeiClientTests` (JEI is only on the client runs' classpath, via `fabric.addMods`): Mekanism's and
   Generators' plugins, the chemical ingredient type, recipe categories and recipes (fluid slots), catalysts, item subtypes, exclusion areas,
   ghost ingredient and recipe transfer handlers, `ScreenEvent.Opening` marking a GUI as switching to JEI, and screenshots of JEI's recipe view.
+  `LookingAtClientTests`: the Jade, WTHIT and TOP client registrations (tooltip renderers, configs, bounding block redirection, element
+  factories), and an energy cube's server synced energy in Jade's and WTHIT's overlays (screenshots, TOP's overlay shows as well).
   Screenshots in `fabric/runs/gametestclient/screenshots`.
 - `./gradlew :fabric:runServer`: the dedicated server boots (`fabric/runs/server/eula.txt` is gitignored and must be created locally).
 
@@ -87,6 +92,13 @@
   registered through `jei_mod_plugin` entrypoints (`MekanismFabricJeiPlugin` registers the screen hooks, using the shim's `ScreenEvent.Opening`).
   All categories, catalysts, transfer handlers, GUI handlers, subtypes and aliases. Mekanism's recipe book window opening mostly off-screen at
   small resolutions is shared code (`GuiRecipeBookWindowTab` places it below the GUI, unclamped), so not Fabric specific.
+- Jade (26.3.5), The One Probe (26.3-16.0.2) and WTHIT (21.0.0): the integrations' sources are shared in `common/src/integration/{jade,
+  the_one_probe,wthit}` (also compiled by `:neoforge`; TOP's IMC registration `MekanismTOPIntegration` stays in `neoforge/src`), compiled into
+  the `integration{Jade,TheOneProbe,Wthit}` source sets and packaged into the main jar. Registered through the `jade` entrypoint, the
+  `theoneprobe` entrypoint (`MekanismTOPPlugin` in `fabric/src/integration/the_one_probe`) and WTHIT's `wthit_plugins.json`; all three are
+  `suggests` and in the dev runs/game tests (Modrinth maven). Energy, fluid and chemical elements, multiblock contents, robit energy, builtin
+  energy/fluid line removal and bounding block redirection, unchanged from NeoForge. WTHIT refuses to start when `net.neoforged.fml.ModList`
+  exists (which the shim provides), so `compat.WailaPlatformCheckMixin` (`@Pseudo`, only applies with WTHIT) hides the shim from that check.
 
 ## Extension hooks Mekanism overrides
 Default methods of the shim's extension interfaces that Mekanism or its modules override, and where Fabric calls them (mixins in `mixin/hooks`
@@ -123,8 +135,8 @@ unless noted; the call sites are the ones of NeoForge's patches).
 | LivingEntity `onDamageTaken` | robit (energy) | `LivingEntityMixin` (only when the damage was applied), tested |
 
 ## Not done yet
-1. Integrations: JEI is ported (see Working). The other integration source sets (`neoforge/src/integration/*`: computer_craft, crafttweaker,
-   curios, emi, framedblocks, jade, nerb, open_computers, projecte, recipe_stages, the_one_probe, wthit) aren't compiled for Fabric. Main code only reaches them through optional
+1. Integrations: JEI, Jade, The One Probe and WTHIT are ported (see Working). The other integration source sets (`neoforge/src/integration/*`:
+   computer_craft, crafttweaker, curios, emi, framedblocks, nerb, open_computers, projecte, recipe_stages) aren't compiled for Fabric. Main code only reaches them through optional
    services (null on Fabric) behind `MekanismHooks` mod loaded checks, and their plugins are discovered through NeoForge-only means, so nothing
    loads or crashes with or without the mods. Fabric 26.3 builds exist (Modrinth, 2026-11-11) for JEI, Jade, WTHIT, CC: Tweaked and The One
    Probe; not for EMI, Curios, CraftTweaker, FramedBlocks, ProjectE (or Trinkets/Accessories).
@@ -152,9 +164,8 @@ unless noted; the call sites are the ones of NeoForge's patches).
    `onDataPacket`, respawn (Clone) and fog/arm events are wired but not asserted.
 
 ## Next steps
-1. Port the remaining integrations that have Fabric 26.3 builds (Jade, WTHIT, CC: Tweaked, TOP) like JEI: extra `:fabric` source sets compiled
-   from the integration sources with Fabric entrypoints (`jade`, `waila_plugins.json`, CC's peripheral lookup), each gated by `fabric.mod.json`
-   `suggests` and the existing mod loaded checks.
+1. Port the remaining integration that has a Fabric 26.3 build (CC: Tweaked) like JEI and the overlay mods: an extra `:fabric` source set
+   compiled from the integration sources with CC's peripheral lookup, gated by `fabric.mod.json` `suggests` and the existing mod loaded checks.
 2. Expose chemicals to Fabric (e.g. a Fabric API lookup for Mekanism's chemical handlers).
 3. Remove the `int` energy cap of the energy bridge.
 4. Server side canGlide parity for the elytra unit; the remaining uncalled hooks (`canPerformAction`).
