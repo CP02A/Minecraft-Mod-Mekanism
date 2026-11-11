@@ -1,6 +1,16 @@
 package mekanism.fabric.gametest;
 
+import java.lang.reflect.Method;
 import java.util.function.BiConsumer;
+import mekanism.common.lib.radiation.Meltdown;
+import mekanism.generators.common.content.fission.FissionReactorMultiblockData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.PathfindingContext;
+import net.minecraft.world.phys.Vec3;
 import mekanism.api.AutomationType;
 import mekanism.api.MekanismRegistries;
 import mekanism.api.chemical.ChemicalIds;
@@ -105,6 +115,62 @@ public class GeneratorsTests {
     public void fissionReactorForms(GameTestHelper helper) {
         assertForms(helper, (level, start) -> new SmallFissionReactorBuilder().build(level, start, false), new BlockPos(1, 1, 1), new BlockPos(1, 1, 1),
               "fission reactor");
+    }
+
+    private static FissionReactorMultiblockData formedReactor(GameTestHelper helper) {
+        if (!(helper.getLevel().getBlockEntity(helper.absolutePos(new BlockPos(1, 1, 1))) instanceof TileEntityMultiblock<?> tile)
+            || !(tile.getMultiblock() instanceof FissionReactorMultiblockData reactor) || !reactor.isFormed()) {
+            throw helper.assertionException(new BlockPos(1, 1, 1), "Expected a formed fission reactor");
+        }
+        return reactor;
+    }
+
+    /**
+     * Mobs path around the casing of a formed multiblock like around a fence (IBlockExtension#getBlockPathType), so they don't walk into it; vanilla
+     * would treat the solid casing as blocked.
+     */
+    @GameTest(maxTicks = 200)
+    public void formedMultiblockCasingIsAFenceForPathfinding(GameTestHelper helper) {
+        new SmallFissionReactorBuilder().build(helper.getLevel(), helper.absolutePos(new BlockPos(1, 1, 1)), false);
+        helper.startSequence()
+              .thenWaitUntil(() -> formedReactor(helper))
+              .thenExecute(() -> {
+                  Zombie zombie = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, new BlockPos(7, 1, 7));
+                  //A floor casing with the reactor's inside above it
+                  BlockPos casing = helper.absolutePos(new BlockPos(2, 1, 2));
+                  helper.assertValueEqual(new PathfindingContext(helper.getLevel(), zombie).getPathTypeFromState(casing.getX(), casing.getY(), casing.getZ()),
+                        PathType.FENCE, "path type of the formed reactor's casing");
+                  zombie.discard();
+              })
+              .thenSucceed();
+    }
+
+    /**
+     * A meltdown explosion makes the reactor melt down when it destroys one of its blocks (IBlockExtension#onBlockExploded), which damages the reactor.
+     */
+    @GameTest(maxTicks = 200)
+    public void meltdownExplosionMeltsTheReactorDown(GameTestHelper helper) {
+        new SmallFissionReactorBuilder().build(helper.getLevel(), helper.absolutePos(new BlockPos(1, 1, 1)), false);
+        helper.startSequence()
+              .thenWaitUntil(() -> formedReactor(helper))
+              .thenExecute(() -> {
+                  FissionReactorMultiblockData reactor = formedReactor(helper);
+                  helper.assertValueEqual(reactor.reactorDamage, FissionReactorMultiblockData.DEFAULT_REACTOR_DAMAGE, "reactor damage before the meltdown");
+                  Vec3 center = Vec3.atCenterOf(reactor.getBounds().getCenter());
+                  Meltdown meltdown = new Meltdown(reactor.getBounds(), 1, 1, 1, reactor.inventoryID);
+                  try {
+                      //The meltdown's explosions are random; the explosion itself always destroys one of the reactor's walls
+                      Method createExplosion = Meltdown.class.getDeclaredMethod("createExplosion", ServerLevel.class, double.class, double.class, double.class,
+                            float.class, boolean.class, Explosion.BlockInteraction.class);
+                      createExplosion.setAccessible(true);
+                      createExplosion.invoke(meltdown, helper.getLevel(), center.x, center.y, center.z, 1F, false, Explosion.BlockInteraction.DESTROY);
+                  } catch (ReflectiveOperationException e) {
+                      throw new RuntimeException(e);
+                  }
+                  helper.assertTrue(reactor.reactorDamage > FissionReactorMultiblockData.DEFAULT_REACTOR_DAMAGE,
+                        Component.literal("Expected the meltdown to damage the reactor, its damage is " + reactor.reactorDamage));
+              })
+              .thenSucceed();
     }
 
     /**
