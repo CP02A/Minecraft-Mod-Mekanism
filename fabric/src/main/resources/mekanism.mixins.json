@@ -60,7 +60,16 @@
     "hooks.LivingEntityGlideMixin",
     "hooks.PiglinAiMixin",
     "hooks.PowderSnowBlockMixin",
-    "hooks.ServerGamePacketListenerImplMixin"
+    "hooks.ServerGamePacketListenerImplMixin",
+    "hooks.AnvilMenuMixin",
+    "hooks.EnchantCommandMixin",
+    "hooks.EnchantRandomlyFunctionMixin",
+    "hooks.FireBlockIgnitionMixin",
+    "hooks.FlintAndSteelDispenseMixin",
+    "hooks.RegistryLoadTaskMixin",
+    "hooks.SupportsEnchantmentMixin",
+    "hooks.TntBlockMixin",
+    "hooks.WalkNodeEvaluatorMixin"
   ],
   "client": [
     "client.BlockColorsMixin",
@@ -97,7 +106,8 @@
     "client.SoundEngineMixin",
     "client.TextureAtlasMixin",
     "client.UnbakedCuboidGeometryMixin",
-    "client.UnbakedModelJsonDeserializerMixin"
+    "client.UnbakedModelJsonDeserializerMixin",
+    "client.FluidRendererOverlayMixin"
   ],
   "injectors": {
     "defaultRequire": 1
