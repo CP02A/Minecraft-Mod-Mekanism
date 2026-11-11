@@ -51,6 +51,7 @@ public class FabricShimBackend implements ShimBackend {
 
     private static final Map<Registry<?>, RegistrySettings<?>> REGISTRY_SETTINGS = new ConcurrentHashMap<>();
     private static final List<Registry<?>> BAKE_ON_COMPLETION = new CopyOnWriteArrayList<>();
+    private static final Map<ResourceKey<?>, List<BakeCallback<?>>> DATAPACK_BAKE_CALLBACKS = new ConcurrentHashMap<>();
 
     @Override
     public <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key, boolean sync) {
@@ -203,13 +204,36 @@ public class FabricShimBackend implements ShimBackend {
     }
 
     @Override
-    public <T> void addDatapackRegistry(ResourceKey<Registry<T>> key, Codec<T> codec, @Nullable Codec<T> networkCodec, boolean reloadable) {
+    public <T> void addDatapackRegistry(ResourceKey<Registry<T>> key, Codec<T> codec, @Nullable Codec<T> networkCodec, boolean reloadable,
+          List<RegistryCallback<T>> callbacks) {
+        List<BakeCallback<?>> bakeCallbacks = callbacks.stream().<BakeCallback<?>>mapMulti((callback, consumer) -> {
+            if (callback instanceof BakeCallback<T> bakeCallback) {
+                consumer.accept(bakeCallback);
+            }
+        }).toList();
+        if (!bakeCallbacks.isEmpty()) {
+            DATAPACK_BAKE_CALLBACKS.put(key, bakeCallbacks);
+        }
         if (reloadable) {
             DynamicRegistries.registerReloadable(key, codec);
         } else if (networkCodec == null) {
             DynamicRegistries.register(key, codec);
         } else {
             DynamicRegistries.registerSynced(key, codec, networkCodec);
+        }
+    }
+
+    /**
+     * Invokes the bake callbacks of datapack registries, called when a registry gets frozen (NeoForge calls them from {@code MappedRegistry#freeze}, which
+     * vanilla calls once a datapack registry has been loaded on the server or received by the client).
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static void onRegistryFrozen(Registry<?> registry) {
+        List<BakeCallback<?>> callbacks = DATAPACK_BAKE_CALLBACKS.get(registry.key());
+        if (callbacks != null) {
+            for (BakeCallback callback : callbacks) {
+                callback.onBake(registry);
+            }
         }
     }
 }

@@ -113,6 +113,13 @@ public class RegistryBuilder<T> {
      * @return the created registry
      * @see NewRegistryEvent#register(Registry)
      */
+    /**
+     * @apiNote Mekanism shim: Used to pass the callbacks of datapack registries to the loader.
+     */
+    List<RegistryCallback<T>> getCallbacks() {
+        return List.copyOf(this.callbacks);
+    }
+
     public Registry<T> create() {
         // Mekanism shim: Uses vanilla registries; syncing and callbacks are handled by the loader when the registry gets registered
         MappedRegistry<T> registry = this.defaultKey != null

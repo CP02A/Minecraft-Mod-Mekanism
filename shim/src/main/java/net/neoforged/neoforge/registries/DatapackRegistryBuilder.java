@@ -90,6 +90,6 @@ public final class DatapackRegistryBuilder<T> {
     NewDatapackRegistryEvent.RegistryData<T> build() {
         Objects.requireNonNull(this.key, "No registry key specified");
         Objects.requireNonNull(this.codec, "No loading codec specified");
-        return new NewDatapackRegistryEvent.RegistryData<>(this.key, this.codec, this.networkCodec);
+        return new NewDatapackRegistryEvent.RegistryData<>(this.key, this.codec, this.networkCodec, this.configurator);
     }
 }

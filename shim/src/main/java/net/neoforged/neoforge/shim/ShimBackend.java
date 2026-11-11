@@ -113,6 +113,7 @@ public interface ShimBackend {
      *
      * @param networkCodec Codec to sync the registry to clients with, or {@code null} to not sync it.
      * @param reloadable   {@code true} for registries that are reloaded with datapacks (like loot tables), {@code false} for world registries.
+     * @param callbacks    Callbacks of the registry (from its {@link net.neoforged.neoforge.registries.RegistryBuilder}).
      */
-    <T> void addDatapackRegistry(ResourceKey<Registry<T>> key, Codec<T> codec, @Nullable Codec<T> networkCodec, boolean reloadable);
+    <T> void addDatapackRegistry(ResourceKey<Registry<T>> key, Codec<T> codec, @Nullable Codec<T> networkCodec, boolean reloadable, List<RegistryCallback<T>> callbacks);
 }

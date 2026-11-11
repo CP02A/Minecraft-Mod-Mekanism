@@ -22,6 +22,7 @@
     "hooks.LevelChunkMixin",
     "hooks.LevelMixin",
     "hooks.LivingEntityMixin",
+    "hooks.MappedRegistryMixin",
     "hooks.MenuTypeAccessor",
     "hooks.MinecraftServerConfigMixin",
     "hooks.MinecraftServerMixin",

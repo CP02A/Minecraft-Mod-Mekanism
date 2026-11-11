@@ -34,7 +34,7 @@ public final class NewDatapackRegistryEvent extends Event implements IModBusEven
     }
 
     public <T> void worldRegistry(ResourceKey<Registry<T>> registryKey, Codec<T> codec, @Nullable Codec<T> networkCodec) {
-        this.worldRegistries.add(new RegistryData<>(registryKey, codec, networkCodec));
+        this.worldRegistries.add(new RegistryData<>(registryKey, codec, networkCodec, _ -> {}));
     }
 
     public <T> void worldRegistry(Consumer<DatapackRegistryBuilder<T>> builderConsumer) {
@@ -44,7 +44,7 @@ public final class NewDatapackRegistryEvent extends Event implements IModBusEven
     }
 
     public <T> void reloadableRegistry(ResourceKey<Registry<T>> registryKey, Codec<T> codec) {
-        this.reloadableRegistries.add(new RegistryData<>(registryKey, codec, null));
+        this.reloadableRegistries.add(new RegistryData<>(registryKey, codec, null, _ -> {}));
     }
 
     public <T> void reloadableRegistry(Consumer<DatapackRegistryBuilder<T>> builderConsumer) {
@@ -66,9 +66,13 @@ public final class NewDatapackRegistryEvent extends Event implements IModBusEven
     }
 
     private static <T> void register(RegistryData<T> data, boolean reloadable) {
-        ShimServices.BACKEND.addDatapackRegistry(data.key(), data.codec(), reloadable ? null : data.networkCodec(), reloadable);
+        //Mekanism shim: NeoForge applies the configurator to the registries it creates when loading datapack registries; the loader only supports its
+        // callbacks (bake callbacks are called when the loaded registry gets frozen)
+        RegistryBuilder<T> builder = new RegistryBuilder<>(data.key());
+        data.configurator().accept(builder);
+        ShimServices.BACKEND.addDatapackRegistry(data.key(), data.codec(), reloadable ? null : data.networkCodec(), reloadable, builder.getCallbacks());
     }
 
-    record RegistryData<T>(ResourceKey<Registry<T>> key, Codec<T> codec, @Nullable Codec<T> networkCodec) {
+    record RegistryData<T>(ResourceKey<Registry<T>> key, Codec<T> codec, @Nullable Codec<T> networkCodec, Consumer<RegistryBuilder<T>> configurator) {
     }
 }
