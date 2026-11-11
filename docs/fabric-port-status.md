@@ -38,11 +38,13 @@
   energy and item capability interop, universal cables/logistical transporters/mechanical pipes connecting to cubes, machines, tanks and vanilla
   chests placed after them (and disconnecting on removal), energy flowing through cables, forced chunk persistence, ticket level/passenger tick events,
   baby mobs in biome and structure spawn lists, FinalizeSpawnEvent spawn cancellation, SpawnPlacementCheck, plastic beacon beam colors, adding to
-  existing creative tabs)
+  existing creative tabs, tooltip appenders, grindstone merging)
 - `./gradlew :fabric:runGameTestClient` (opens a client, loads a world, checks model/atlas/fluid model events, modded recipe book settings
   codecs and that recipes reached the client, opens a machine GUI, clicks its side config tab and a side button (checked on the server) and
   opens Mekanism's recipe book, renders filled fluid tanks and buckets in hand/hotbar, emissive item layers, connects transmitters to each other and
-  to energy cubes (connections checked against the server, model data snapshot checked against the ModelDataManager), checks the wind generator's composite model and Tools' trimmed armor item models; screenshots in `fabric/runs/gametestclient/screenshots`)
+  to energy cubes (connections checked against the server, model data snapshot checked against the ModelDataManager), checks the wind generator's composite model and Tools' trimmed armor item models,
+  Mekanism's armor layer (EntityRenderersEvent.AddLayers), the tooltip lines of a charged energy cube and a filled fluid tank and screenshots a hovered
+  tooltip in the inventory; screenshots in `fabric/runs/gametestclient/screenshots`)
 - `./gradlew :fabric:runServer` (dedicated server; `fabric/runs/server/eula.txt` is accepted locally)
 
 ## Working
@@ -52,8 +54,12 @@ interop with Fabric Transfer API (blocks and items, both directions); energy int
 validated on load; ChunkTicketLevelUpdatedEvent, RegisterSpawnPlacementsEvent and server/passenger EntityTickEvents fire; all NeoForge biome
 modifier changes except climate/special effects (spawns, spawn costs, features, carvers, attributes; `BiomeModifierBridge`, server configs are loaded
 before Fabric's biome modification) and structure modifiers (`StructureMixin`) apply; FinalizeSpawnEvent spawn cancellation, SpawnPlacementCheck,
-block friction, beacon colors, `isDamageable` (repair recipe), `shouldCauseReequipAnimation`/`shouldCauseBlockBreakReset` (via `FabricItem`) and
-BuildCreativeModeTabContentsEvent are honored; client starts, joins a
+block friction (incl. leashed entity angular friction), beacon colors, `isDamageable` (repair recipe and grindstone),
+`shouldCauseReequipAnimation` (via `FabricItem` when the item stays the same, `FirstPersonHandsAndItemsMixin` when it changes),
+`shouldCauseBlockBreakReset` and BuildCreativeModeTabContentsEvent are honored; NeoForge's tooltip appenders (RegisterTooltipAppendersEvent, i.e.
+Mekanism's data component tooltips) run in `ItemStack#addDetailsToTooltip` (shim `ItemTooltipHandler` + `ItemStackTooltipMixin`; vanilla's own
+component tooltips stay in place and the modded ones run after the vanilla component NeoForge's sort puts them behind); EntityRenderersEvent.AddLayers
+fires; client starts, joins a
 world and renders Mekanism blocks (incl. custom energy cube model, NeoForge composite/OBJ model loaders, model data and part visibility, i.e.
 connected transmitters); fluid tank and bucket items show their fluid; model baking, atlas
 stitched, fluid model, particle provider, block tint and render pipeline registration events; machine GUIs open (with NeoForge menu extra data),
@@ -77,13 +83,11 @@ saved/synced; recipes are synced to the client; the dedicated server boots.
    plastic fence gate, paxel, FinalizeSpawnEvent, baby mob spawn modifiers, plastic beacon colors; client test renders generators and opens a
    generator GUI). No defense module exists in this repo; datagen stays NeoForge-only.
 6. Remaining server side gaps (events/extension hooks Mekanism uses that the shim doesn't fire/call):
-   - RegisterTooltipAppendersEvent is never fired, so Mekanism's data component tooltips (energy, fluids, chemicals, owner, security, robit,
-     upgrades, ...) are missing. Needs a port of NeoForge's `ItemTooltipHandler` (mixin into `ItemStack#addDetailsToTooltip`; Fabric's
-     `ItemComponentTooltipProviderRegistry` only takes `TooltipProvider` components, NeoForge's appenders are arbitrary functions).
    - MobSpawnEvent.PositionCheck is not fired (Mekanism doesn't use it); FinalizeSpawnEvent has no spawner and fires inside `Mob#finalizeSpawn`;
      spawn cancellation is stored in the event (no `Mob#setSpawnCancelled`).
-   - Block friction isn't applied to leashed entity angular friction (`Leashable#angularFriction`, an interface static method); `isDamageable` isn't
-     checked by the grindstone; reequip animation is only consulted by Fabric when the item stayed the same (vanilla always animates item changes).
+   - Vanilla's attribute tooltips are used instead of NeoForge's `AttributeUtil` ones. Injected default methods that conflict with Fabric API's
+     injected interfaces aren't found by `check_injected_interfaces.py` (`TooltipFlag#shouldDisplayAllInformation` is resolved by
+     `TooltipFlagDefaultMixin`).
    - Biome modifier climate/special effect changes and attribute removals aren't applied (warned once); direct (unregistered) features/carvers
      can't be added through Fabric's API.
    - Already listed as not supported in the shim: tool modification events, enchantment level event, block drops experience, custom permission
