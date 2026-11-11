@@ -5,25 +5,15 @@ plugins {
 }
 
 //Fabric version of Mekanism. The shared code in common/src is written against NeoForge's API (see :shim), and is compiled here as well
-// (see docs/multiloader.md)
+// (see docs/multiloader.md). Classes that need a loader specific implementation exist with the same name in neoforge/src and fabric/src
 def commonSrc = rootProject.file('common/src')
-def neoSources = rootProject.file('neoforge/src')
-//Shared classes that have Fabric specific implementations (with the same name) in this project
-def fabricOverrides = [
-        'mekanism/client/gui/recipe_book/VirtualRecipeBookComponent.java',
-]
 
-//Gradle's source filters apply to all source directories of a source set, so copy the shared sources (minus the excluded ones) into a
-// separate directory instead of excluding them directly, which would also exclude the Fabric versions of the overridden classes
+//The shared sources are copied into the build directory instead of being added as source directories, as IntelliJ doesn't allow the same
+// directory to be a content root of both the :neoforge and the :fabric modules
 def syncSharedSources = tasks.register('syncSharedSources', Sync) {
     from(new File(commonSrc, 'api/java'))
     from(new File(commonSrc, 'main/java'))
-    from(new File(neoSources, 'api/java'))
-    from(new File(neoSources, 'main/java'))
     into(layout.buildDirectory.dir('generated/sharedSources'))
-    exclude('mekanism/api/datagen/**')
-    exclude('mekanism/common/platform/neoforge/**', 'mekanism/client/platform/neoforge/**')
-    exclude(fabricOverrides)
 }
 
 sourceSets {
@@ -39,20 +29,14 @@ sourceSets {
     }
 }
 
-//Secondary modules, separate mods like on NeoForge. Each gets its own source set compiled from neoforge/src/<module> (plus Fabric specific
+//Secondary modules, separate mods like on NeoForge. Each gets its own source set compiled from common/src/<module> (plus Fabric specific
 // sources and resources in src/<module>) and its own jar
 def secondaryModules = ['additions', 'generators', 'tools']
-//Module classes that have Fabric specific implementations (with the same name) in src/<module>/java
-def moduleFabricOverrides = [
-        'additions': ['mekanism/additions/common/block/plastic/BlockPlasticFenceGate.java'],
-]
 for (String name : secondaryModules) {
     def module = name
     def syncModuleSources = tasks.register("sync${module.capitalize()}Sources", Sync) {
         from(new File(commonSrc, "${module}/java"))
-        from(new File(neoSources, "${module}/java"))
         into(layout.buildDirectory.dir("generated/${module}Sources"))
-        exclude(moduleFabricOverrides.getOrDefault(module, []))
     }
     def moduleSourceSet = sourceSets.create(module) {
         java {
@@ -214,14 +198,6 @@ tasks.named('processResources', ProcessResources, {
     from(new File(commonSrc, 'datagen/generated/mekanism')) {
         exclude('.cache/**', 'pack.mcmeta', '*-compat/**')
     }
-    from(new File(neoSources, 'main/resources')) {
-        exclude('META-INF/neoforge.mods.toml', 'META-INF/accesstransformer.cfg', 'META-INF/enumextensions.json')
-        //Fabric provides its own implementations of the platform services
-        exclude('META-INF/services/mekanism.common.platform.services.IPlatformHelper', 'META-INF/services/mekanism.client.platform.IClientPlatformHelper')
-    }
-    from(new File(neoSources, 'datagen/generated/mekanism')) {
-        exclude('.cache/**', 'pack.mcmeta', '*-compat/**')
-    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     def expandProps = ['version'                    : version,
                        'minecraft_version_range'    : minecraft_version_range,
@@ -251,12 +227,6 @@ for (String name : secondaryModules) {
     tasks.named(moduleSourceSet.processResourcesTaskName, ProcessResources, {
         from(new File(commonSrc, "${module}/resources"))
         from(new File(commonSrc, "datagen/generated/mekanism${module}")) {
-            exclude('.cache/**', 'pack.mcmeta', '*-compat/**')
-        }
-        from(new File(neoSources, "${module}/resources")) {
-            exclude('META-INF/neoforge.mods.toml', 'META-INF/accesstransformer.cfg', 'META-INF/enumextensions.json')
-        }
-        from(new File(neoSources, "datagen/generated/mekanism${module}")) {
             exclude('.cache/**', 'pack.mcmeta', '*-compat/**')
         }
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE

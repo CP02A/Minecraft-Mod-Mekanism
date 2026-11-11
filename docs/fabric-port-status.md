@@ -3,7 +3,9 @@
 ## Architecture
 - `shim/`: Fabric-only implementation of the NeoForge APIs Mekanism uses (`net.neoforged.*`, copied from NeoForge, LGPL-2.1).
   Loader specifics go through ServiceLoader backends in `net.neoforged.neoforge.shim` (`ShimServices`).
-- `fabric/`: compiles `neoforge/src/{api,main}/java` against the shim (Sync task, with per-file overrides listed in `fabricOverrides`).
+- `common/src`: the shared sources and resources (and the generated data), compiled by both `:neoforge` and `:fabric` (see docs/multiloader.md).
+  Loader specific classes have the same name in `neoforge/src` and `fabric/src` (`VirtualRecipeBookComponent`, `BlockPlasticFenceGate`).
+- `fabric/`: compiles `common/src/{api,main}/java` against the shim (Sync task).
   - `mekanism/fabric/shim/`: backends (transactions, registries, network, attachments, data maps, biome modifiers),
     `ShimModLoader` (constructs mods from the `neoforge-shim` / `neoforge-shim-client` entrypoints and fires the mod bus events),
     `GameEventBridge` (Fabric events -> NeoForge game events), `ServerHooks` (server side hooks called from mixins), `transfer/` (NeoForge
@@ -127,7 +129,7 @@ unless noted; the call sites are the ones of NeoForge's patches).
 4. Client side EntityTickEvent for non-passengers (ClientLevel#tickNonPassenger). Forced chunk persistence is tested via a codec round trip, not
    via an actual server restart with a chunk loader.
 5. Secondary modules: Generators, Additions and Tools are separate Fabric mods (`generators`/`additions`/`tools` source sets in `:fabric`,
-   compiled from `neoforge/src/<module>` with Fabric entrypoints, `fabric.mod.json` and per module overrides in `fabric/src/<module>`, own jars via
+   compiled from `common/src/<module>` with Fabric entrypoints, `fabric.mod.json` and per module overrides in `fabric/src/<module>`, own jars via
    `<module>Jar`), loaded in all runs and covered by game tests (generators produce energy, fusion/fission/turbine multiblocks form, baby mobs,
    plastic fence gate, paxel, FinalizeSpawnEvent, baby mob spawn modifiers, plastic beacon colors; client test renders generators and opens a
    generator GUI). No defense module exists in this repo; datagen stays NeoForge-only.
@@ -155,4 +157,3 @@ unless noted; the call sites are the ones of NeoForge's patches).
    have them; EMI, Curios, CraftTweaker, FramedBlocks, ProjectE (and Trinkets/Accessories as a Curios alternative) don't. Plan: port in that order
    as extra `:fabric` source sets compiled from the integration sources with Fabric entrypoints (`jei_mod_plugin`, `jade`, `waila_plugins.json`,
    CC's Fabric peripheral lookup), each gated by its own `fabric.mod.json` `suggests` and the existing mod loaded checks.
-8. Move shared sources from `neoforge/src` into `common/`; update docs/multiloader.md.

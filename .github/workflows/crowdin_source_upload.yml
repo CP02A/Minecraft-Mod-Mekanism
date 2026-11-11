@@ -2,10 +2,10 @@ name: Crowdin Upload
 on:
   push:
     paths:
-      - neoforge/src/datagen/generated/mekanism/assets/mekanism/lang/en_us.json
-      - neoforge/src/datagen/generated/mekanismadditions/assets/mekanismadditions/lang/en_us.json
-      - neoforge/src/datagen/generated/mekanismgenerators/assets/mekanismgenerators/lang/en_us.json
-      - neoforge/src/datagen/generated/mekanismtools/assets/mekanismtools/lang/en_us.json
+      - common/src/datagen/generated/mekanism/assets/mekanism/lang/en_us.json
+      - common/src/datagen/generated/mekanismadditions/assets/mekanismadditions/lang/en_us.json
+      - common/src/datagen/generated/mekanismgenerators/assets/mekanismgenerators/lang/en_us.json
+      - common/src/datagen/generated/mekanismtools/assets/mekanismtools/lang/en_us.json
     branches:
       - "1.21.x"
       - "26.3"

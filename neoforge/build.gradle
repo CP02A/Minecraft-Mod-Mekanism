@@ -90,7 +90,7 @@ sourceSets {
             // And also exclude the cache of the generated data from what gets built
             exclude('**/*.blend', '**/*.bbmodel', '**/*.psd', '.cache')
             //Add the generated main module resources
-            srcDirs += [commonSrc.dir('datagen/generated/mekanism'), 'src/datagen/generated/mekanism']
+            srcDirs += [commonSrc.dir('datagen/generated/mekanism')]
         }
         compileClasspath += api.output
     }
@@ -153,7 +153,7 @@ for (String name : secondaryModules) {
     sourceSet.resources {
         srcDir(commonSrc.dir("${name}/resources"))
         //Add the generated module resources
-        srcDirs += [commonSrc.dir("datagen/generated/mekanism${name}"), "src/datagen/generated/mekanism${name}"]
+        srcDirs += [commonSrc.dir("datagen/generated/mekanism${name}")]
         //But exclude the cache of the generated data from what gets built
         exclude('.cache')
     }

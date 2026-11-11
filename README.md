@@ -1,4 +1,4 @@
-![Mekanism Logo](src/main/resources/assets/mekanism/banner.png)
+![Mekanism Logo](common/src/main/resources/assets/mekanism/banner.png)
 
 # Mekanism for Minecraft 26.3 #
 

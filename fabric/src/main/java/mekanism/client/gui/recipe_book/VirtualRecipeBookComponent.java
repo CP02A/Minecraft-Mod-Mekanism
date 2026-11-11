@@ -1,6 +1,6 @@
 package mekanism.client.gui.recipe_book;
 
-// Fabric specific version of the shared class with the same name (see fabricOverrides in fabric/build.gradle)
+// Fabric specific version of the class with the same name in neoforge/src (shared code in common/src uses whichever loader's version is compiled)
 
 import java.util.List;
 import java.util.Optional;
