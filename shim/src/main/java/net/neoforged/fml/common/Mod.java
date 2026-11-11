@@ -23,4 +23,10 @@ public @interface Mod {
     String value();
 
     Dist[] dist() default { Dist.CLIENT, Dist.DEDICATED_SERVER };
+
+    /**
+     * Mod ids that must be loaded for this entrypoint to be constructed (not checked by the shim, the loader specific entrypoint decides when to
+     * construct it).
+     */
+    String[] depends() default {};
 }

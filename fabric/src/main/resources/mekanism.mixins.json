@@ -87,6 +87,7 @@
     "client.FirstPersonHandsAndItemsRendererMixin",
     "client.FluidStateModelSetMixin",
     "client.FogRendererMixin",
+    "client.GuiScreenEventMixin",
     "client.ItemModelGeneratorAccessor",
     "client.ItemModelGeneratorMixin",
     "client.LevelExtractorMixin",
