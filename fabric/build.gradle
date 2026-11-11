@@ -302,3 +302,44 @@ idea {
         excludeDirs.add(file('runs'))
     }
 }
+
+//Finds injected default methods (shim vs shim, Fabric API, other mods and vanilla) that conflict at runtime (IncompatibleClassChangeError), taking
+// the mixins of Mekanism and the mods on the classpath into account. Needs Python 3 (python on the path, or the PYTHON environment variable)
+def checkInjectedInterfaces = tasks.register('checkInjectedInterfaces', Exec) {
+    group = 'verification'
+    description = 'Checks injected interfaces for conflicting default methods'
+    def shimClasses = project(':shim').sourceSets.main.output.classesDirs
+    def mainClasses = sourceSets.main.output.classesDirs
+    def mixinConfigs = fileTree('src/main/resources') { include('*.mixins.json') }
+    def classpath = sourceSets.main.compileClasspath
+    def script = file('check_injected_interfaces.py')
+    def marker = layout.buildDirectory.file('checkInjectedInterfaces.txt')
+    def argFileProvider = layout.buildDirectory.file('checkInjectedInterfaces.args')
+    dependsOn(project(':shim').tasks.named('classes'), tasks.named('classes'))
+    inputs.files(shimClasses, mainClasses, mixinConfigs, script, rootProject.file('shim/src/main/resources/META-INF/shim-injected-interfaces.json'))
+    inputs.files(classpath).withNormalizer(ClasspathNormalizer)
+    outputs.file(marker)
+    executable = System.getenv('PYTHON') ?: 'python'
+    doFirst {
+        def jars = classpath.files.findAll { it.exists() }
+        def minecraft = jars.find { it.name.startsWith('minecraft-') && it.name.contains('merged') }
+        if (minecraft == null) {
+            throw new GradleException("Couldn't find the merged Minecraft jar on the compile classpath")
+        }
+        def arguments = []
+        mixinConfigs.each { arguments.addAll(['--mixin-config', it.absolutePath]) }
+        mainClasses.each { arguments.addAll(['--mixin-classes', it.absolutePath]) }
+        arguments.add(minecraft.absolutePath)
+        arguments.add(shimClasses.singleFile.absolutePath)
+        arguments.addAll((jars - minecraft).collect { it.absolutePath })
+        //Passed in a file, as the classpath can exceed Windows' command line length limit
+        def argFile = argFileProvider.get().asFile
+        argFile.parentFile.mkdirs()
+        argFile.text = arguments.join('\n') + '\n'
+        args(script.absolutePath, '@' + argFile.absolutePath)
+    }
+    doLast {
+        marker.get().asFile.text = 'No conflicting injected default methods\n'
+    }
+}
+tasks.named('check') { dependsOn(checkInjectedInterfaces) }
