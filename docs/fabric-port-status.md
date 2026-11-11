@@ -114,8 +114,9 @@
     viewer so they show on top. Items turn continuously around the y axis to face the camera, but keep the unrotated normals so they are lit
     the same from every side (east/west facing items were much darker otherwise). Stacks of the same item, color and progress render once, with
     the largest of their sizes.
-  - Smooth handoff between transporters: a stack moving into a transporter that hasn't ticked yet isn't moved again that tick (it used to
-    jump ahead one step); if the next transporter already ticked (it only syncs the stack next tick), the client removal is held back a tick so
+  - Smooth handoff between transporters: a stack moving into a transporter that hasn't ticked yet is still moved again that tick (like
+    upstream: skipping that move slowed transport down and broke NeoForge's `shorterDestinationRemoved` timing, so the stack can visibly jump
+    ahead one step there); if the next transporter already ticked (it only syncs the stack next tick), the client removal is held back a tick so
     the stack doesn't vanish. Client stacks move one step past the end of a transporter while waiting for the handoff (clamped in
     `TransporterUtils.getStackPosition`, so no overshoot and snap back), and a synced progress of 0 is no longer bumped to 5 in
     `TransporterStack.STREAM_CODEC`.

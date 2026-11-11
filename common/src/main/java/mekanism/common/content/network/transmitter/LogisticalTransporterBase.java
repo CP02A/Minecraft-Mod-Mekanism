@@ -75,9 +75,6 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
     protected int delayCount = 0;
     /// Game time of the last tick this transporter ran on the server, used to tell whether a stack moving into this transporter arrives before or after its tick
     private long lastServerTick = -1;
-    /// Stacks that moved into this transporter this tick before it ticked; they are already at the right progress, so they shouldn't be moved again this tick
-    private final IntSet enteredBeforeTick = new IntOpenHashSet();
-    private long enteredBeforeTickTime = -1;
     /// Stacks that moved into a transporter that already ticked this tick. That transporter only syncs them to the client next tick, so we hold back
     /// telling the client about the removal until then, to not have the stack disappear for a tick
     private final IntSet deferredClientDeletes = new IntOpenHashSet();
@@ -163,10 +160,6 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
 
     public void onUpdateServer(ServerLevel level) {
         lastServerTick = level.getGameTime();
-        if (enteredBeforeTickTime != lastServerTick) {
-            //Stacks that entered on an earlier tick that we didn't run on (shouldn't happen, but make sure we don't skip moving them)
-            enteredBeforeTick.clear();
-        }
         InventoryNetwork network = getTransmitterNetwork();
         if (network != null) {
             //Pull items into the transporter
@@ -191,7 +184,6 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
                         transaction.commit();
                     }
                 }
-                enteredBeforeTick.clear();
                 for (IntIterator iterator = deletes.iterator(); iterator.hasNext(); ) {
                     int stackId = iterator.nextInt();
                     if (!deferredClientDeletes.contains(stackId)) {
@@ -267,10 +259,6 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
                 }
             }
 
-            if (enteredBeforeTick.contains(stackId)) {
-                //The stack moved in from the previous transporter this tick, so it has already been moved for this tick
-                continue;
-            }
             int prevProgress = stack.progress;
             stack.progress += tier.getSpeed();
             if (stack.progress >= 100) {
@@ -585,11 +573,9 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
         stack.progress = progress;
         addStack(stackId, stack);
         needsSync.put(stackId, stack);
+        //Note: If this transporter didn't tick yet this tick, it moves the stack once more when it does (like upstream Mekanism, whose item
+        // transport timing depends on it), and syncs it to the client this tick
         boolean alreadyTicked = lastServerTick == level.getGameTime();
-        if (!alreadyTicked) {
-            enteredBeforeTick.add(stackId);
-            enteredBeforeTickTime = level.getGameTime();
-        }
 
         // N.B. We are not marking the chunk as dirty here! I don't believe it's needed, since
         // the next tick will generate the necessary save and if we crash before the next tick,
