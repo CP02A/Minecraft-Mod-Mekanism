@@ -42,6 +42,8 @@
 
 ## Verification
 - `./gradlew :neoforge:build :neoforge:runGameTestServer` (72 tests)
+- `./gradlew :fabric:build` passes fully, including Loom's `validateAccessWidener` (`gen_fabric_glue.py` expands AT wildcards into the members of
+  the class, normalizes dotted descriptors and skips members that don't exist in vanilla, such as signatures changed by NeoForge's patches)
 - `./gradlew :fabric:checkInjectedInterfaces` (0 conflicting default methods; needs Python 3 as `python` or `$PYTHON`)
 - `./gradlew :fabric:runGameTestServer` (Fabric game tests in `fabric/src/gametest`: transfer bridge, machine processing, ore gen, Team Reborn
   energy and item capability interop, universal cables/logistical transporters/mechanical pipes connecting to cubes, machines, tanks and vanilla

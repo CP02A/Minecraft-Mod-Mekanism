@@ -34,7 +34,8 @@ _class_cache = {}
 
 
 def read_class(internal_name):
-    """Returns (access_flags, {field name: descriptor}) for the class, or None if it is not in the jar."""
+    """Returns (access_flags, {field name: (descriptor, flags)}, {(method name, descriptor): flags}) for the class, or None if it is not in
+    the jar."""
     if internal_name in _class_cache:
         return _class_cache[internal_name]
     try:
@@ -76,14 +77,27 @@ def read_class(internal_name):
     field_count = struct.unpack_from('>H', data, pos)[0]
     pos += 2
     for _ in range(field_count):
-        _, name_idx, desc_idx, attr_count = struct.unpack_from('>HHHH', data, pos)
+        flags, name_idx, desc_idx, attr_count = struct.unpack_from('>HHHH', data, pos)
         pos += 8
-        fields[utf8[name_idx]] = utf8[desc_idx]
+        fields[utf8[name_idx]] = (utf8[desc_idx], flags)
         for _ in range(attr_count):
             length = struct.unpack_from('>I', data, pos + 2)[0]
             pos += 6 + length
-    _class_cache[internal_name] = (access, fields)
+    methods = {}
+    method_count = struct.unpack_from('>H', data, pos)[0]
+    pos += 2
+    for _ in range(method_count):
+        flags, name_idx, desc_idx, attr_count = struct.unpack_from('>HHHH', data, pos)
+        pos += 8
+        methods[(utf8[name_idx], utf8[desc_idx])] = flags
+        for _ in range(attr_count):
+            length = struct.unpack_from('>I', data, pos + 2)[0]
+            pos += 6 + length
+    _class_cache[internal_name] = (access, fields, methods)
     return _class_cache[internal_name]
+
+
+ACC_SYNTHETIC = 0x1000
 
 
 def is_interface(internal_name):
@@ -116,26 +130,45 @@ for at_file in AT_FILES:
                 entries.add(f'extendable class {cls}')
             continue
         member = parts[2]
+        _, fields, methods = read_class(cls)
         if '(' in member:
             name, desc = member[:member.index('(')], member[member.index('('):]
-            if base == 'protected':
-                # access wideners can't make methods protected, but extendable methods are protected and can be overridden
-                entries.add(f'extendable method {cls} {name} {desc}')
+            # NeoForge's AT parser tolerates dotted class names in descriptors, access wideners don't
+            desc = desc.replace('.', '/')
+            if name == '*':
+                # "*()" targets all methods; access wideners have no wildcards, so expand it to the methods the class declares (like NeoForge,
+                # skipping synthetic ones such as lambdas)
+                targets = [m for m, flags in methods.items() if m[0] != '<clinit>' and not flags & ACC_SYNTHETIC]
+            elif (name, desc) in methods:
+                targets = [(name, desc)]
             else:
-                entries.add(f'accessible method {cls} {name} {desc}')
-                if not name.startswith('<'):
-                    # accessible alone makes private methods final; NeoForge's transformers leave them overridable
+                # not in vanilla, e.g. a member with a signature changed by NeoForge's patches
+                missing.append(line)
+                continue
+            for name, desc in targets:
+                if base == 'protected':
+                    # access wideners can't make methods protected, but extendable methods are protected and can be overridden
                     entries.add(f'extendable method {cls} {name} {desc}')
+                else:
+                    entries.add(f'accessible method {cls} {name} {desc}')
+                    if not name.startswith('<'):
+                        # accessible alone makes private methods final; NeoForge's transformers leave them overridable
+                        entries.add(f'extendable method {cls} {name} {desc}')
             # make sure the owner class is accessible as well
             entries.add(f'accessible class {cls}')
         else:
-            desc = read_class(cls)[1].get(member)
-            if desc is None:
+            if member == '*':
+                # "*" targets all fields (except synthetic ones)
+                targets = [(f, d) for f, (d, flags) in fields.items() if not flags & ACC_SYNTHETIC]
+            elif member in fields:
+                targets = [(member, fields[member][0])]
+            else:
                 missing.append(line)
                 continue
-            entries.add(f'accessible field {cls} {member} {desc}')
-            if remove_final:
-                entries.add(f'mutable field {cls} {member} {desc}')
+            for name, desc in targets:
+                entries.add(f'accessible field {cls} {name} {desc}')
+                if remove_final:
+                    entries.add(f'mutable field {cls} {name} {desc}')
             entries.add(f'accessible class {cls}')
 aw_path = os.path.join(FABRIC, 'src', 'main', 'resources', 'mekanism.accesswidener')
 with open(aw_path, 'w', encoding='utf-8', newline='\n') as aw:
