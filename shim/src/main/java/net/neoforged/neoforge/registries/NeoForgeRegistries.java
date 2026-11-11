@@ -46,11 +46,21 @@ public class NeoForgeRegistries {
         public static final ResourceKey<Registry<MapCodec<? extends BiomeModifier>>> BIOME_MODIFIER_SERIALIZERS = key("biome_modifier_serializers");
         public static final ResourceKey<Registry<MapCodec<? extends StructureModifier>>> STRUCTURE_MODIFIER_SERIALIZERS = key("structure_modifier_serializers");
         public static final ResourceKey<Registry<MapCodec<? extends ICondition>>> CONDITION_CODECS = key("condition_codecs");
-        // Datapack registries
-        public static final ResourceKey<Registry<BiomeModifier>> BIOME_MODIFIERS = key("biome_modifier");
-        public static final ResourceKey<Registry<StructureModifier>> STRUCTURE_MODIFIERS = key("structure_modifier");
+        // Datapack registries: these keep NeoForge's names, as they determine the data pack directories (data/<namespace>/neoforge/biome_modifier/...)
+        public static final ResourceKey<Registry<BiomeModifier>> BIOME_MODIFIERS = datapackKey("biome_modifier");
+        public static final ResourceKey<Registry<StructureModifier>> STRUCTURE_MODIFIERS = datapackKey("structure_modifier");
 
+        /**
+         * Mekanism shim: The static registries live under the shim's own namespace instead of {@code neoforge}. Other mods ship their own NeoForge shims
+         * (for example MineColonies' {@code com.ldtteam.shim}), which register registries like {@code neoforge:ingredient_serializer} as well; vanilla
+         * rejects a second registry with the same key, crashing whichever mod initializes later. These registry names are only used for registry sync
+         * between two sides that both run this shim (entries keep their {@code neoforge:} ids), so a unique namespace is safe.
+         */
         private static <T> ResourceKey<Registry<T>> key(String name) {
+            return ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("mekanism_shim", name));
+        }
+
+        private static <T> ResourceKey<Registry<T>> datapackKey(String name) {
             return ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("neoforge", name));
         }
     }
