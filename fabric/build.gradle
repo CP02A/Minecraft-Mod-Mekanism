@@ -53,23 +53,16 @@ for (String name : secondaryModules) {
     sourceSets.main.runtimeClasspath += sourceSets.named(name).get().output
 }
 
-//Block/entity info overlay integrations (Jade, The One Probe, WTHIT). Compiled from the NeoForge integration sources
-// (neoforge/src/integration/<name>, minus NeoForge only classes) plus Fabric specific sources in src/integration/<name>, and packaged in the
-// main jar. Their classes are only loaded by the mods' own plugin entrypoints (fabric.mod.json, wthit_plugins.json), so Mekanism runs without them
-def overlayIntegrations = [
-        'jade'        : [],
-        'the_one_probe': ['**/MekanismTOPIntegration.java'],//NeoForge IMC registration, replaced by the theoneprobe entrypoint
-        'wthit'       : []
-]
+//Block/entity info overlay integrations (Jade, The One Probe, WTHIT). Compiled from their loader agnostic sources in
+// common/src/integration/<name> (shared with :neoforge, whose NeoForge only classes stay in neoforge/src/integration) plus Fabric specific sources
+// in src/integration/<name>, and packaged in the main jar. Their classes are only loaded by the mods' own plugin entrypoints (fabric.mod.json,
+// wthit_plugins.json), so Mekanism runs without them
 def overlaySourceSets = []
-for (def entry : overlayIntegrations) {
-    def path = entry.key
-    def excludes = entry.value
+for (String name : ['jade', 'the_one_probe', 'wthit']) {
+    def path = name
     def baseName = path.split('_').collect { it.capitalize() }.join('')
     def syncIntegrationSources = tasks.register("sync${baseName}IntegrationSources", Sync) {
-        from(rootProject.file("neoforge/src/integration/${path}/java")) {
-            exclude(excludes)
-        }
+        from(new File(commonSrc, "integration/${path}/java"))
         into(layout.buildDirectory.dir("generated/integration${baseName}Sources"))
     }
     def integrationSourceSet = sourceSets.create("integration${baseName}") {
@@ -78,7 +71,7 @@ for (def entry : overlayIntegrations) {
             srcDir("src/integration/${path}/java")
         }
         resources {
-            srcDir(rootProject.file("neoforge/src/integration/${path}/resources"))
+            srcDir(new File(commonSrc, "integration/${path}/resources"))
             srcDir("src/integration/${path}/resources")
         }
         compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
@@ -86,7 +79,7 @@ for (def entry : overlayIntegrations) {
     }
     overlaySourceSets.add(integrationSourceSet)
     //Only reference the resources output when there are resources, as Fabric Loader warns about missing class path entries
-    def hasResources = rootProject.file("neoforge/src/integration/${path}/resources").exists() || file("src/integration/${path}/resources").exists()
+    def hasResources = new File(commonSrc, "integration/${path}/resources").exists() || file("src/integration/${path}/resources").exists()
     def integrationOutput = hasResources ? integrationSourceSet.output : integrationSourceSet.output.classesDirs
     sourceSets.main.runtimeClasspath += integrationOutput
     sourceSets.gametest.compileClasspath += integrationSourceSet.output + integrationSourceSet.compileClasspath
