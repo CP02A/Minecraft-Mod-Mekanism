@@ -14,7 +14,9 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
 
-    @ModifyExpressionValue(method = "forEachModifier", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getOrDefault(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;"))
+    //Note: Both overloads (slot group for tooltips, slot for equipment); a plain name only selects the first one
+    @ModifyExpressionValue(method = {"forEachModifier(Lnet/minecraft/world/entity/EquipmentSlotGroup;Lorg/apache/commons/lang3/function/TriConsumer;)V",
+                                     "forEachModifier(Lnet/minecraft/world/entity/EquipmentSlot;Ljava/util/function/BiConsumer;)V"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getOrDefault(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;"))
     private Object mekanism$modifyAttributes(Object modifiers) {
         ItemStack stack = (ItemStack) (Object) this;
         if (stack.isEmpty() || !(modifiers instanceof ItemAttributeModifiers attributeModifiers)) {
