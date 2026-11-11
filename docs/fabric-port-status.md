@@ -37,7 +37,7 @@
 - `./gradlew :fabric:build` passes fully, including Loom's `validateAccessWidener` (`gen_fabric_glue.py` expands AT wildcards, normalizes dotted
   descriptors and skips members that don't exist in vanilla, such as signatures changed by NeoForge's patches) and `checkInjectedInterfaces`
   (0 conflicting default methods; needs Python 3 as `python` or `$PYTHON`).
-- `./gradlew :fabric:runGameTestServer`: 79 tests pass (`fabric/src/gametest`):
+- `./gradlew :fabric:runGameTestServer`: 86 tests pass (`fabric/src/gametest`):
   - `TransferBridgeTests`, `InteropTests`: Fabric Transfer API and Team Reborn Energy interop (blocks and items, both directions), machine
     processing, ore gen.
   - `TransmitterTests`: cables, transporters and pipes connecting to cubes, machines, tanks and chests placed after them; energy flow.
@@ -54,6 +54,10 @@
   - `LookingAtTests` (8): the server data providers of Jade (its block data request handler), The One Probe (its probe info builder, with a
     probe) and WTHIT for energy cubes, fluid and chemical tanks and a formed dynamic tank (multiblock contents from a casing), checking the
     synced energy/fluid/chemical elements after a network round trip.
+  - `ComputerCraftTests` (7, CC: Tweaked is only in this run and the client run, via `fabric.addMods`): peripherals of an energy cube, an
+    enrichment chamber, fluid and chemical tanks, an induction port, a fission reactor logic adapter and digital miner bounding blocks found
+    through CC's `PeripheralLookup`; types, method calls (energy, redstone mode getter/setter, Lua errors) and item/fluid/chemical conversion;
+    a computer running a ROM autorun Lua script that uses an energy cube and the `mekanismFilterHelper` API.
 - `./gradlew :fabric:runGameTestClient` (`MekanismClientTests`, `GameplayClientTests`, `GeneratorsClientTests`): loads a world, checks
   model/atlas/fluid model events, recipe book settings and recipe sync, opens machine and generator GUIs and changes side config (checked on the
   server), opens Mekanism's recipe book, renders fluid tanks and buckets, emissive item layers and connected transmitters (model data checked
@@ -99,6 +103,13 @@
   `suggests` and in the dev runs/game tests (Modrinth maven). Energy, fluid and chemical elements, multiblock contents, robit energy, builtin
   energy/fluid line removal and bounding block redirection, unchanged from NeoForge. WTHIT refuses to start when `net.neoforged.fml.ModList`
   exists (which the shim provides), so `compat.WailaPlatformCheckMixin` (`@Pseudo`, only applies with WTHIT) hides the shim from that check.
+- CC: Tweaked (1.121.0): the integration's sources are shared in `common/src/integration/computer_craft` (also compiled by `:neoforge`), compiled
+  into the `integrationComputerCraft` source set and packaged into the main jar. `CCPeripheralCapability` is loader specific: CC's
+  `PeripheralCapability` on NeoForge; on Fabric a shim block capability whose providing blocks (including the bounding block proxies) are
+  registered with CC's `PeripheralLookup` at common setup, keeping Mekanism's capability resolvers. `MekanismComputerCraft` is constructed through
+  the `mekanism:computercraft` entrypoint, which `MekanismShimMod` only loads when CC: Tweaked is present (NeoForge's `@Mod(depends)`). All
+  computer integrated blocks (machines, multiblock ports, logic adapters), their methods, the Lua converters and the `mekanismFilterHelper` API;
+  Mekanism queues no CC events. Only in the client and game test server runs, so the dedicated server and client game tests run without it.
 
 ## Extension hooks Mekanism overrides
 Default methods of the shim's extension interfaces that Mekanism or its modules override, and where Fabric calls them (mixins in `mixin/hooks`
@@ -135,8 +146,8 @@ unless noted; the call sites are the ones of NeoForge's patches).
 | LivingEntity `onDamageTaken` | robit (energy) | `LivingEntityMixin` (only when the damage was applied), tested |
 
 ## Not done yet
-1. Integrations: JEI, Jade, The One Probe and WTHIT are ported (see Working). The other integration source sets (`neoforge/src/integration/*`:
-   computer_craft, crafttweaker, curios, emi, framedblocks, nerb, open_computers, projecte, recipe_stages) aren't compiled for Fabric. Main code only reaches them through optional
+1. Integrations: JEI, Jade, The One Probe, WTHIT and CC: Tweaked are ported (see Working). The other integration source sets (`neoforge/src/integration/*`:
+   crafttweaker, curios, emi, framedblocks, nerb, open_computers, projecte, recipe_stages) aren't compiled for Fabric. Main code only reaches them through optional
    services (null on Fabric) behind `MekanismHooks` mod loaded checks, and their plugins are discovered through NeoForge-only means, so nothing
    loads or crashes with or without the mods. Fabric 26.3 builds exist (Modrinth, 2026-11-11) for JEI, Jade, WTHIT, CC: Tweaked and The One
    Probe; not for EMI, Curios, CraftTweaker, FramedBlocks, ProjectE (or Trinkets/Accessories).
@@ -164,11 +175,9 @@ unless noted; the call sites are the ones of NeoForge's patches).
    `onDataPacket`, respawn (Clone) and fog/arm events are wired but not asserted.
 
 ## Next steps
-1. Port the remaining integration that has a Fabric 26.3 build (CC: Tweaked) like JEI and the overlay mods: an extra `:fabric` source set
-   compiled from the integration sources with CC's peripheral lookup, gated by `fabric.mod.json` `suggests` and the existing mod loaded checks.
-2. Expose chemicals to Fabric (e.g. a Fabric API lookup for Mekanism's chemical handlers).
-3. Remove the `int` energy cap of the energy bridge.
-4. Server side canGlide parity for the elytra unit; the remaining uncalled hooks (`canPerformAction`).
-5. Client models: `ExtraFaceData` colour/AO and the `neoforge:conditional` model loader.
-6. RenderLevelStage, Screen and tooltip events (unused by Mekanism) if other shim users need them.
-7. Close the test gaps above.
+1. Expose chemicals to Fabric (e.g. a Fabric API lookup for Mekanism's chemical handlers).
+2. Remove the `int` energy cap of the energy bridge.
+3. Server side canGlide parity for the elytra unit; the remaining uncalled hooks (`canPerformAction`).
+4. Client models: `ExtraFaceData` colour/AO and the `neoforge:conditional` model loader.
+5. RenderLevelStage, Screen and tooltip events (unused by Mekanism) if other shim users need them.
+6. Close the test gaps above.

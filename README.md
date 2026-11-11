@@ -74,9 +74,10 @@ For Minecraft **26.3**, put these in your `mods` folder:
 Forge Config API Port (26.3.1) and Team Reborn Energy (5.0.0) are bundled inside the Mekanism jar, so you don't need to install them.
 
 Optional integrations, used when the mod is installed:
-[JEI](https://modrinth.com/mod/jei), [Jade](https://modrinth.com/mod/jade), [The One Probe](https://modrinth.com/mod/the-one-probe)
-and [WTHIT](https://modrinth.com/mod/wthit) (which itself needs [Bad Packets](https://modrinth.com/mod/badpackets)).
-Other integrations of the NeoForge version, such as CC: Tweaked, are not ported to Fabric yet unless listed in
+[JEI](https://modrinth.com/mod/jei), [Jade](https://modrinth.com/mod/jade), [The One Probe](https://modrinth.com/mod/the-one-probe),
+[WTHIT](https://modrinth.com/mod/wthit) (which itself needs [Bad Packets](https://modrinth.com/mod/badpackets))
+and [CC: Tweaked](https://modrinth.com/mod/cc-tweaked).
+Other integrations of the NeoForge version, such as CraftTweaker or Curios, are not ported to Fabric yet unless listed in
 [docs/fabric-port-status.md](docs/fabric-port-status.md).
 
 ### Installing on NeoForge ###
