@@ -128,6 +128,11 @@ repositories {
         forRepository { maven { url = 'https://api.modrinth.com/maven' } }
         filter { includeGroup('maven.modrinth') }
     }
+    //CC: Tweaked integration
+    exclusiveContent {
+        forRepository { maven { url = 'https://maven.squiddev.cc' } }
+        filter { includeGroup('cc.tweaked') }
+    }
 }
 
 //Block/entity info overlay integrations: compiled against the mods, and loaded in the dev runs and game tests
@@ -403,5 +408,63 @@ sourceSets.gametest.compileClasspath += jeiCompileConfig
 for (String name : ['client', 'gameTestClient']) {
     loom.runs.named(name) {
         vmArg("-Dfabric.addMods=${jeiRuntimeConfig.singleFile.absolutePath}")
+    }
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+//CC: Tweaked integration. Like the overlay integrations, compiled from common/src/integration/computer_craft (shared with :neoforge) plus the Fabric
+// specific sources in src/integration/computer_craft (CCPeripheralCapability, the same named class as in neoforge/src/integration/computer_craft, which
+// registers the peripheral capability's providers with CC's PeripheralLookup, and the entrypoint constructing MekanismComputerCraft), and packaged in
+// the main jar. MekanismShimMod only constructs it when CC: Tweaked is loaded (mekanism:computercraft entrypoint). CC: Tweaked itself is only added to
+// the client and game test server runs (through fabric.addMods), the dedicated server and client game tests run without it (its repository is declared
+// at the top)
+def computerCraftRuntimeConfig = configurations.create('computerCraftRuntime') {
+    canBeConsumed = false
+    transitive = false
+}
+def syncComputerCraftSources = tasks.register('syncComputerCraftIntegrationSources', Sync) {
+    from(new File(commonSrc, 'integration/computer_craft/java'))
+    into(layout.buildDirectory.dir('generated/integrationComputerCraftSources'))
+}
+def computerCraftSourceSet = sourceSets.create('integrationComputerCraft') {
+    java {
+        srcDir(syncComputerCraftSources)
+        srcDir('src/integration/computer_craft/java')
+    }
+    resources {
+        srcDir(new File(commonSrc, 'integration/computer_craft/resources'))
+    }
+    compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+}
+dependencies {
+    //CC's common and Fabric API (and transitively the core API: Lua and peripheral interfaces)
+    integrationComputerCraftCompileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-fabric-api:${cc_tweaked_version}")
+    //The full mod, its libraries are nested jars
+    computerCraftRuntime("cc.tweaked:cc-tweaked-${minecraft_version}-fabric:${cc_tweaked_version}")
+}
+sourceSets.main.runtimeClasspath += computerCraftSourceSet.output
+//The game tests also use CC's internals to start a computer running a Lua script
+sourceSets.gametest.compileClasspath += computerCraftSourceSet.output + computerCraftSourceSet.compileClasspath + computerCraftRuntimeConfig
+sourceSets.gametest.runtimeClasspath += computerCraftSourceSet.output
+loom.mods.named('mekanism') {
+    sourceSet(computerCraftSourceSet)
+}
+tasks.named('jar', Jar) {
+    from(computerCraftSourceSet.output)
+}
+for (String name : ['client', 'gameTestServer']) {
+    loom.runs.named(name) {
+        vmArg("-Dfabric.addMods=${computerCraftRuntimeConfig.singleFile.absolutePath}")
+    }
+}
+//Several integrations add mods to the same run: merge their fabric.addMods properties into one (a path separated list), as only the last one would apply
+afterEvaluate {
+    loom.runs.configureEach {
+        def prefix = '-Dfabric.addMods='
+        def args = jvmArguments.get()
+        def addMods = args.findAll { it.startsWith(prefix) }
+        if (addMods.size() > 1) {
+            jvmArguments.set(args.findAll { !it.startsWith(prefix) } + (prefix + addMods.collect { it.substring(prefix.length()) }.join(File.pathSeparator)))
+        }
     }
 }

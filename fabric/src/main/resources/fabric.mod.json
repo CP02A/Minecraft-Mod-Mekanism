@@ -46,6 +46,9 @@
     ],
     "theoneprobe": [
       "mekanism.common.integration.lookingat.theoneprobe.MekanismTOPPlugin"
+    ],
+    "mekanism:computercraft": [
+      "mekanism.fabric.integration.computercraft.MekanismComputerCraftShim"
     ]
   },
   "depends": {
@@ -60,7 +63,8 @@
     "jei": "*",
     "jade": "*",
     "theoneprobe": "*",
-    "wthit": "*"
+    "wthit": "*",
+    "computercraft": "*"
   },
   "custom": {
     "loom:injected_interfaces": {
