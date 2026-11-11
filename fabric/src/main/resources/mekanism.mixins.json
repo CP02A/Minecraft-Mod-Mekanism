@@ -69,7 +69,8 @@
     "hooks.RegistryLoadTaskMixin",
     "hooks.SupportsEnchantmentMixin",
     "hooks.TntBlockMixin",
-    "hooks.WalkNodeEvaluatorMixin"
+    "hooks.WalkNodeEvaluatorMixin",
+    "compat.WailaPlatformCheckMixin"
   ],
   "client": [
     "client.BlockColorsMixin",

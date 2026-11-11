@@ -40,6 +40,12 @@
     "jei_mod_plugin": [
       "mekanism.client.recipe_viewer.jei.MekanismJEI",
       "mekanism.fabric.integration.jei.MekanismFabricJeiPlugin"
+    ],
+    "jade": [
+      "mekanism.common.integration.lookingat.jade.MekanismJadePlugin"
+    ],
+    "theoneprobe": [
+      "mekanism.common.integration.lookingat.theoneprobe.MekanismTOPPlugin"
     ]
   },
   "depends": {
@@ -51,7 +57,10 @@
     "team_reborn_energy": "*"
   },
   "suggests": {
-    "jei": "*"
+    "jei": "*",
+    "jade": "*",
+    "theoneprobe": "*",
+    "wthit": "*"
   },
   "custom": {
     "loom:injected_interfaces": {
