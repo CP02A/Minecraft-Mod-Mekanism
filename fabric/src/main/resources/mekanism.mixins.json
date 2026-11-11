@@ -16,6 +16,7 @@
     "hooks.EntityTypeMixin",
     "hooks.GrindstoneMenuMixin",
     "hooks.ItemMixin",
+    "hooks.ItemStackDefaultMixin",
     "hooks.ItemStackInvoker",
     "hooks.ItemStackMixin",
     "hooks.ItemStackTooltipMixin",

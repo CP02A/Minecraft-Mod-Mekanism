@@ -17,7 +17,8 @@
       "mekanism.fabric.gametest.TransmitterTests",
       "mekanism.fabric.gametest.GeneratorsTests",
       "mekanism.fabric.gametest.AdditionsToolsTests",
-      "mekanism.fabric.gametest.GameplayTests"
+      "mekanism.fabric.gametest.GameplayTests",
+      "mekanism.fabric.gametest.InjectedInterfaceTests"
     ],
     "fabric-client-gametest": [
       "mekanism.fabric.gametest.MekanismClientTests",
