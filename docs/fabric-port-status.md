@@ -22,7 +22,9 @@
   - `mekanism/fabric/mixin/`: `data/` (NeoForge ingredient/holder set/conditions formats), `hooks/` (BlockEntity#onLoad, capability
     invalidation and model data refresh on block entity placement/removal, tick, damage,
     fall, jump, invulnerability, attributes, break speed, crafting events, menu opening, modded recipe book type settings incl. saving/syncing,
-    slot backgrounds, entity/passenger tick, forced chunk persistence, chunk ticket level events), `client/` (level load/unload, login/logout/clone,
+    slot backgrounds, entity/passenger tick, forced chunk persistence, chunk ticket level events, datapack registry bake callbacks on freeze,
+    value based `TypedInstance#is(Holder)`, `onItemUseFirst`/`doesSneakBypassUse` and `onDestroyedByPlayer` in `ServerPlayerGameMode` and
+    `MultiPlayerGameMode` (`ItemUseHooks`)), `client/` (level load/unload, login/logout/clone,
     mouse scroll, fog, first person arm, sound engine/play sound, block outline extraction, NeoForge's model `loader` key in Fabric's unbaked model
     deserializer, model dependency discovery, model baking/atlas stitched/fluid model/particle provider/block tint events, recipe book search
     categories and result indexing, json model `transform`/`visibility`/`neoforge_data` keys and Transformation Gson adapter, NeoForge's water tint
@@ -38,13 +40,16 @@
   energy and item capability interop, universal cables/logistical transporters/mechanical pipes connecting to cubes, machines, tanks and vanilla
   chests placed after them (and disconnecting on removal), energy flowing through cables, forced chunk persistence, ticket level/passenger tick events,
   baby mobs in biome and structure spawn lists, FinalizeSpawnEvent spawn cancellation, SpawnPlacementCheck, plastic beacon beam colors, adding to
-  existing creative tabs, tooltip appenders, grindstone merging)
+  existing creative tabs, tooltip appenders, grindstone merging; `GameplayTests`: dynamic tank, induction matrix charge/discharge, thermal
+  evaporation, boiler and SPS forming, chemicals through pressurized tubes, digital miner mining, QIO importer into drives, teleporter, cardboard
+  box, configurator wrench/rotate, breaking bounding blocks, block entity save/load and drop/place persistence, configs loaded)
 - `./gradlew :fabric:runGameTestClient` (opens a client, loads a world, checks model/atlas/fluid model events, modded recipe book settings
   codecs and that recipes reached the client, opens a machine GUI, clicks its side config tab and a side button (checked on the server) and
   opens Mekanism's recipe book, renders filled fluid tanks and buckets in hand/hotbar, emissive item layers, connects transmitters to each other and
   to energy cubes (connections checked against the server, model data snapshot checked against the ModelDataManager), checks the wind generator's composite model and Tools' trimmed armor item models,
   Mekanism's armor layer (EntityRenderersEvent.AddLayers), the tooltip lines of a charged energy cube and a filled fluid tank and screenshots a hovered
-  tooltip in the inventory; screenshots in `fabric/runs/gametestclient/screenshots`)
+  tooltip in the inventory, opens the portable teleporter's GUI and sets a frequency from it (checked on the server and the synced item);
+  screenshots in `fabric/runs/gametestclient/screenshots`)
 - `./gradlew :fabric:runServer` (dedicated server; `fabric/runs/server/eula.txt` is accepted locally)
 
 ## Working
@@ -64,7 +69,10 @@ world and renders Mekanism blocks (incl. custom energy cube model, NeoForge comp
 connected transmitters); fluid tank and bucket items show their fluid; model baking, atlas
 stitched, fluid model, particle provider, block tint and render pipeline registration events; machine GUIs open (with NeoForge menu extra data),
 render and are interactive (side config changes reach the server); Mekanism's recipe book with its search category, modded recipe book settings
-saved/synced; recipes are synced to the client; the dedicated server boots.
+saved/synced; recipes are synced to the client; the dedicated server boots. Gameplay covered by `GameplayTests`: main module multiblocks form and
+work, chemicals flow through tubes (chemical registry bake callback), digital miner, QIO, teleporters (`TypedInstance#is(Holder)` with registry
+objects), cardboard box and configurator (`onItemUseFirst`/`doesSneakBypassUse`), multi-block machines drop when a bounding block is broken
+(`onDestroyedByPlayer`), block entity and item persistence, configs; an item-held GUI (portable teleporter) and its frequency packet.
 
 ## Not done yet (rough priority)
 1. Client: RenderLevelStageEvent, ScreenEvent and tooltip events (RenderTooltipEvent, ItemTooltipEvent, ...) are not fired (Mekanism doesn't
@@ -90,6 +98,9 @@ saved/synced; recipes are synced to the client; the dedicated server boots.
      `TooltipFlagDefaultMixin`).
    - Biome modifier climate/special effect changes and attribute removals aren't applied (warned once); direct (unregistered) features/carvers
      can't be added through Fabric's API.
+   - Level aware `IBlockExtension` hooks without a vanilla call site: `getExplosionResistance` (Mekanism's custom resistances),
+     `getLightEmission` (fluid tanks with glowing fluids), `getCloneItemStack` (pick block on bounding blocks), `onBlockExploded`, `getExpDrop`.
+     Datapack registries only get the bake callbacks of their `RegistryBuilder` configurator (no default key, add/clear callbacks).
    - Already listed as not supported in the shim: tool modification events, enchantment level event, block drops experience, custom permission
      handlers, explosion events, BooleanAttribute/PercentageAttribute tooltip formatting.
 7. Integrations: the integration source sets (`neoforge/src/integration/*`: computer_craft, crafttweaker, curios, emi, framedblocks, jade, jei,
