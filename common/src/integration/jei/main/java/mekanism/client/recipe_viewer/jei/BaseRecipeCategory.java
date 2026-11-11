@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.ToIntFunction;
+import java.util.function.UnaryOperator;
 import mekanism.api.IMekanismAccess;
 import mekanism.api.chemical.ChemicalStack;
 import mekanism.api.recipes.ingredients.chemical.display.ChemicalStackContentsFactory;
@@ -37,7 +38,6 @@ import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.ICodecHelper;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -286,18 +286,21 @@ public abstract class BaseRecipeCategory<RECIPE> extends AbstractContainerEventH
     }
 
     protected IRecipeSlotBuilder initFluid(IRecipeLayoutBuilder builder, RecipeIngredientRole role, GuiGauge<?> gauge, SlotDisplay display) {
-        RecipeTankBuilder tankBuilder = init(builder, NeoForgeTypes.FLUID_STACK, role, gauge, display, FluidStackContentsFactory.INSTANCE, FluidStack::amount);
-        return tankBuilder.slotBuilder().setFluidRenderer(tankBuilder.max(), false, tankBuilder.width(), tankBuilder.height(), TilingDirection.UP_RIGHT);
+        RecipeTankBuilder tankBuilder = init(builder, role, gauge, display, FluidStackContentsFactory.INSTANCE, FluidStack::amount,
+              slotBuilder -> JeiFluidHelper.addDisplay(slotBuilder, display));
+        return tankBuilder.slotBuilder().setFluidRenderer(JeiFluidHelper.toJeiAmount(tankBuilder.max()), false, tankBuilder.width(), tankBuilder.height(),
+              TilingDirection.UP_RIGHT);
     }
 
     protected IRecipeSlotBuilder initChemical(IRecipeLayoutBuilder builder, RecipeIngredientRole role, GuiElement element, SlotDisplay display) {
         IIngredientType<ChemicalStack> chemicalType = IMekanismAccess.INSTANCE.jeiHelper().getChemicalIngredientType();
-        RecipeTankBuilder tankBuilder = init(builder, chemicalType, role, element, display, ChemicalStackContentsFactory.INSTANCE, ChemicalStack::amount);
+        RecipeTankBuilder tankBuilder = init(builder, role, element, display, ChemicalStackContentsFactory.INSTANCE, ChemicalStack::amount,
+              slotBuilder -> slotBuilder.add(chemicalType, display));
         return tankBuilder.slotBuilder().setCustomRenderer(chemicalType, new ChemicalStackRenderer(tankBuilder.max(), tankBuilder.width(), tankBuilder.height()));
     }
 
-    private <STACK> RecipeTankBuilder init(IRecipeLayoutBuilder builder, IIngredientType<STACK> type, RecipeIngredientRole role, GuiElement element,
-          SlotDisplay display, DisplayContentsFactory<STACK> factory, ToIntFunction<STACK> sizeExtractor) {
+    private <STACK> RecipeTankBuilder init(IRecipeLayoutBuilder builder, RecipeIngredientRole role, GuiElement element, SlotDisplay display,
+          DisplayContentsFactory<STACK> factory, ToIntFunction<STACK> sizeExtractor, UnaryOperator<IRecipeSlotBuilder> contentsAdder) {
         int width = element.getWidth() - 2;
         int height = element.getHeight() - 2;
         int x = element.getX() + 1;
@@ -312,7 +315,7 @@ public abstract class BaseRecipeCategory<RECIPE> extends AbstractContainerEventH
               .mapToInt(sizeExtractor)
               .filter(stackSize -> stackSize > 0)
               .max().orElse(FluidType.BUCKET_VOLUME);
-        return new RecipeTankBuilder(slotBuilder.add(type, display), max, width, height);
+        return new RecipeTankBuilder(contentsAdder.apply(slotBuilder), max, width, height);
     }
 
     private record RecipeTankBuilder(IRecipeSlotBuilder slotBuilder, int max, int width, int height) {

@@ -12,7 +12,7 @@ public class JeiGhostIngredientHandler<GUI extends GuiMekanism<?>> implements IG
 
     @Override
     public <INGREDIENT> List<Target<INGREDIENT>> getTargetsTyped(GUI gui, ITypedIngredient<INGREDIENT> ingredient, boolean doStart) {
-        return GhostIngredientHandler.getTargetsTyped(gui, ingredient, (handler, typed) -> handler.supportedTarget(typed.getIngredient()), JeiTarget::new);
+        return GhostIngredientHandler.getTargetsTyped(gui, ingredient, (handler, typed) -> handler.supportedTarget(JeiFluidHelper.fromJeiIngredient(typed.getIngredient())), JeiTarget::new);
     }
 
     @Override

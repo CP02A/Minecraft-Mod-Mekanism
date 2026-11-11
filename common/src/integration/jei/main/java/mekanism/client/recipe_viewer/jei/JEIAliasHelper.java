@@ -15,7 +15,6 @@ import mekanism.common.Mekanism;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredientTypeWithSubtypes;
-import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.registration.IIngredientAliasRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
@@ -33,7 +32,6 @@ import net.neoforged.neoforge.fluids.FluidType;
 public class JEIAliasHelper implements RVAliasHelper<ItemStack, FluidStack, ChemicalStack> {
 
     private static final Function<ItemStack, String> ITEM_TO_STRING = stack -> stack.getItem().toString();
-    private static final Function<FluidStack, String> FLUID_TO_STRING = stack -> stack.getFluid().toString();
     private static final Function<ChemicalStack, String> CHEMICAL_TO_STRING = stack -> stack.typeHolder().getRegisteredName();
 
     private final IIngredientAliasRegistration registration;
@@ -111,12 +109,12 @@ public class JEIAliasHelper implements RVAliasHelper<ItemStack, FluidStack, Chem
 
     @Override
     public void addFluidHolderAliases(Collection<? extends Holder<Fluid>> fluids, IHasTranslationKey... aliases) {
-        addRawAliases(NeoForgeTypes.FLUID_STACK, fluids.stream().map(Holder::value).toList(), aliases);
+        addRawAliases(JeiFluidHelper.type(), fluids.stream().map(Holder::value).toList(), aliases);
     }
 
     @Override
     public void addFluidAliases(List<FluidStack> stacks, IHasTranslationKey... aliases) {
-        addAliases(NeoForgeTypes.FLUID_STACK, stacks, FLUID_TO_STRING, aliases);
+        addAliases(JeiFluidHelper.type(), stacks.stream().map(JeiFluidHelper::toJei).toList(), JeiFluidHelper::describe, aliases);
     }
 
     @Override

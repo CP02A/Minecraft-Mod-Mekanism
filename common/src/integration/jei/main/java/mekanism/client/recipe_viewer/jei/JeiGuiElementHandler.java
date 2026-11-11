@@ -37,7 +37,8 @@ public class JeiGuiElementHandler implements IGuiContainerHandler<GuiMekanism<?>
 
     @Override
     public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(IClickableIngredientFactory builder, GuiMekanism<?> gui, double mouseX, double mouseY) {
-        return GuiElementHandler.getClickableIngredientUnderMouse(gui, mouseX, mouseY, (helper, ingredient) -> wrapIngredient(builder, mouseX, mouseY, helper, ingredient));
+        return GuiElementHandler.getClickableIngredientUnderMouse(gui, mouseX, mouseY, (helper, ingredient) -> wrapIngredient(builder, mouseX, mouseY, helper,
+              JeiFluidHelper.toJeiIngredient(ingredient)));
     }
 
     @Nullable

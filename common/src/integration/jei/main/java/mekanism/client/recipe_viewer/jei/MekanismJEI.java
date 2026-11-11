@@ -76,7 +76,6 @@ import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.ISlotDisplayInterpreter;
 import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
 import mezz.jei.api.ingredients.subtypes.UidContext;
-import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.types.IRecipeType;
@@ -200,8 +199,8 @@ public class MekanismJEI implements IModPlugin {
         registration.register(MekanismSlotDisplayTypes.WITH_AMOUNT.get(), VanillaTypes.ITEM_STACK, (display, _, builder) -> builder
               .addChildDisplay(display.source(), stack -> stack.copyWithCount(display.amount()))
         );
-        registration.register(MekanismSlotDisplayTypes.WITH_AMOUNT.get(), NeoForgeTypes.FLUID_STACK, (display, _, builder) -> builder
-              .addChildDisplay(display.source(), stack -> stack.copyWithAmount(display.amount()))
+        registration.register(MekanismSlotDisplayTypes.WITH_AMOUNT.get(), JeiFluidHelper.type(), (display, _, builder) -> builder
+              .addChildDisplay(display.source(), stack -> JeiFluidHelper.withAmount(stack, display.amount()))
         );
         IIngredientType<ChemicalStack> chemicalType = IMekanismAccess.INSTANCE.jeiHelper().getChemicalIngredientType();
         registration.register(MekanismSlotDisplayTypes.WITH_AMOUNT.get(), chemicalType, (display, _, builder) -> builder
@@ -329,7 +328,7 @@ public class MekanismJEI implements IModPlugin {
         RecipeRegistryHelper.register(registry, RecipeViewerRecipeType.ENERGY_CONVERSION, MekanismRecipeType.ENERGY_CONVERSION);
         RecipeRegistryHelper.register(registry, RecipeViewerRecipeType.CHEMICAL_CONVERSION, MekanismRecipeType.CHEMICAL_CONVERSION);
         //Note: Use a "full" bucket's worth of heavy water, so that JEI renders it as desired in the info page
-        registry.addIngredientInfo(MekanismFluids.HEAVY_WATER.asStack(FluidType.BUCKET_VOLUME), NeoForgeTypes.FLUID_STACK,
+        registry.addIngredientInfo(JeiFluidHelper.toJei(MekanismFluids.HEAVY_WATER.asStack(FluidType.BUCKET_VOLUME)), JeiFluidHelper.type(),
               MekanismLang.RECIPE_VIEWER_INFO_HEAVY_WATER.translate(MekanismConfig.general.pumpHeavyWaterAmount.get()));
         registry.addIngredientInfo(MekanismRegistries.MODULES.stream().map(data -> IModuleHelper.INSTANCE.asStack(MekanismRegistries.MODULES.wrapAsHolder(data))).toList(),
               VanillaTypes.ITEM_STACK, MekanismLang.RECIPE_VIEWER_INFO_MODULE_INSTALLATION.translate());

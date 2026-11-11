@@ -203,6 +203,9 @@ def setupIntegrationSourceSet(String name, IntegrationSettings settings) {
         }
         integration.java.srcDirs = ["src/integration/${path}/java"]
         integration.resources.srcDirs = ["src/integration/${path}/resources"]
+        //Integrations that are also compiled for Fabric keep their loader agnostic sources in common/src/integration
+        integration.java.srcDir(rootProject.layout.projectDirectory.dir("common/src/integration/${path}/java"))
+        integration.resources.srcDir(rootProject.layout.projectDirectory.dir("common/src/integration/${path}/resources"))
         setGroups(integration)
         //Add the directory where Gradle would usually put the AP sources explicitly so IntelliJ picks it up
         // If we don't do this, IJ seems to run a weird heuristic on where to put the AP sources and put them
@@ -260,6 +263,8 @@ def setupIntegrationSourceSet(String name, IntegrationSettings settings) {
                 moduleIntegration = sourceSets.create(IntegrationSettings.getName(name, module))
                 moduleIntegration.java.srcDirs = ["src/integration/${name}/${module}/java"]
                 moduleIntegration.resources.srcDirs = ["src/integration/${name}/${module}/resources"]
+                moduleIntegration.java.srcDir(rootProject.layout.projectDirectory.dir("common/src/integration/${name}/${module}/java"))
+                moduleIntegration.resources.srcDir(rootProject.layout.projectDirectory.dir("common/src/integration/${name}/${module}/resources"))
                 moduleIntegration.java.srcDir(project.file("build/generated/sources/annotationProcessor/java/${moduleIntegration.name}"))
                 setGroups(moduleIntegration)
 
