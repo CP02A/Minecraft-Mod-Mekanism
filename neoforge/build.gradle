@@ -43,6 +43,10 @@ idea {
     }
 }
 
+//Multiloader: The loader agnostic sources and resources (and the generated data) live in common/src and are compiled directly into each of
+// the loader projects (see docs/multiloader.md). This project only contains the NeoForge specific code, datagen, integrations and tests
+def commonSrc = rootProject.layout.projectDirectory.dir('common/src')
+
 ext {
     secondaryModules = ['additions', 'generators', 'tools']
     extraTypes = ['datagen']
@@ -73,17 +77,20 @@ ext {
 
 sourceSets {
     api {
+        java.srcDir(commonSrc.dir('api/java'))
         //The API has no resources
         resources.srcDirs = []
     }
     main {
+        java.srcDir(commonSrc.dir('main/java'))
         resources {
+            srcDir(commonSrc.dir('main/resources'))
             include('**/**')
             // copy everything else, but blender, psd, and bbmodel files.
             // And also exclude the cache of the generated data from what gets built
             exclude('**/*.blend', '**/*.bbmodel', '**/*.psd', '.cache')
             //Add the generated main module resources
-            srcDirs += ['src/datagen/generated/mekanism']
+            srcDirs += [commonSrc.dir('datagen/generated/mekanism'), 'src/datagen/generated/mekanism']
         }
         compileClasspath += api.output
     }
@@ -142,9 +149,11 @@ setupExtraSourceSets(sourceSets.gameTest, false)
 // based on the primary added source set
 for (String name : secondaryModules) {
     def sourceSet = sourceSets.create(name)
+    sourceSet.java.srcDir(commonSrc.dir("${name}/java"))
     sourceSet.resources {
+        srcDir(commonSrc.dir("${name}/resources"))
         //Add the generated module resources
-        srcDirs += ["src/datagen/generated/mekanism${name}"]
+        srcDirs += [commonSrc.dir("datagen/generated/mekanism${name}"), "src/datagen/generated/mekanism${name}"]
         //But exclude the cache of the generated data from what gets built
         exclude('.cache')
     }
@@ -633,13 +642,15 @@ neoForge {
         //See https://neoforged.net/news/21.4release/ for why we only use clientData instead of splitting and having clientData and serverData
         clientData()
         configureRun(dataMods, run)
-        programArguments.addAll('--all', '--output', file('src/datagen/generated/').absolutePath,
-                '--mod', 'mekanism', '--existing', file('src/main/resources/').absolutePath)
+        programArguments.addAll('--all', '--output', commonSrc.dir('datagen/generated/').asFile.absolutePath,
+                '--mod', 'mekanism', '--existing', commonSrc.dir('main/resources/').asFile.absolutePath,
+                '--existing', file('src/main/resources/').absolutePath)
 
         sourceSet = sourceSets.runData
 
         for (String name : secondaryModules) {
-            programArguments.addAll('--mod', 'mekanism' + name, '--existing', file("src/${name}/resources/").absolutePath)
+            programArguments.addAll('--mod', 'mekanism' + name, '--existing', commonSrc.dir("${name}/resources/").asFile.absolutePath,
+                    '--existing', file("src/${name}/resources/").absolutePath)
         }
     })
 
@@ -731,43 +742,6 @@ repositories { RepositoryHandler handler ->
 
 tasks.named('test', Test, {
     useJUnitPlatform()
-})
-
-//Multiloader: The loader agnostic code lives in :common and gets compiled directly into the main Mekanism module
-// (the same approach as https://github.com/jaredlll08/MultiLoader-Template)
-configurations {
-    commonJava {
-        canBeResolved = true
-        canBeConsumed = false
-    }
-    commonResources {
-        canBeResolved = true
-        canBeConsumed = false
-    }
-}
-
-dependencies {
-    compileOnly(project(':common')) {
-        attributes {
-            attribute(Attribute.of('io.github.mcgradleconventions.loader', String), 'common')
-        }
-    }
-    commonJava(project(path: ':common', configuration: 'commonJava'))
-    commonResources(project(path: ':common', configuration: 'commonResources'))
-}
-
-tasks.named(sourceSets.main.compileJavaTaskName, JavaCompile, {
-    dependsOn(configurations.commonJava)
-    source(configurations.commonJava)
-})
-tasks.named(sourceSets.main.processResourcesTaskName, ProcessResources, {
-    dependsOn(configurations.commonResources)
-    from(configurations.commonResources)
-})
-tasks.named(sourceSets.main.sourcesJarTaskName, Jar, {
-    dependsOn(configurations.commonJava, configurations.commonResources)
-    from(configurations.commonJava)
-    from(configurations.commonResources)
 })
 
 dependencies {

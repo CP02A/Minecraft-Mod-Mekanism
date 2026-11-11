@@ -4,8 +4,9 @@ plugins {
     id('net.fabricmc.fabric-loom')
 }
 
-//Fabric version of Mekanism. The shared code is written against NeoForge's API (see :shim), and currently still lives in the :neoforge
-// project's source directories, so compile those here as well (excluding the NeoForge specific implementations).
+//Fabric version of Mekanism. The shared code in common/src is written against NeoForge's API (see :shim), and is compiled here as well
+// (see docs/multiloader.md)
+def commonSrc = rootProject.file('common/src')
 def neoSources = rootProject.file('neoforge/src')
 //Shared classes that have Fabric specific implementations (with the same name) in this project
 def fabricOverrides = [
@@ -15,6 +16,8 @@ def fabricOverrides = [
 //Gradle's source filters apply to all source directories of a source set, so copy the shared sources (minus the excluded ones) into a
 // separate directory instead of excluding them directly, which would also exclude the Fabric versions of the overridden classes
 def syncSharedSources = tasks.register('syncSharedSources', Sync) {
+    from(new File(commonSrc, 'api/java'))
+    from(new File(commonSrc, 'main/java'))
     from(new File(neoSources, 'api/java'))
     from(new File(neoSources, 'main/java'))
     into(layout.buildDirectory.dir('generated/sharedSources'))
@@ -46,6 +49,7 @@ def moduleFabricOverrides = [
 for (String name : secondaryModules) {
     def module = name
     def syncModuleSources = tasks.register("sync${module.capitalize()}Sources", Sync) {
+        from(new File(commonSrc, "${module}/java"))
         from(new File(neoSources, "${module}/java"))
         into(layout.buildDirectory.dir("generated/${module}Sources"))
         exclude(moduleFabricOverrides.getOrDefault(module, []))
@@ -73,17 +77,6 @@ base.archivesName = 'Mekanism-fabric'
 java {
     toolchain.languageVersion = JavaLanguageVersion.of("${java_version}")
     withSourcesJar()
-}
-
-configurations {
-    commonJava {
-        canBeResolved = true
-        canBeConsumed = false
-    }
-    commonResources {
-        canBeResolved = true
-        canBeConsumed = false
-    }
 }
 
 def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
@@ -129,12 +122,6 @@ dependencies {
         transitive = false
     }
 
-    compileOnly(project(':common')) {
-        attributes {
-            attribute(loaderAttribute, 'common')
-        }
-    }
-
     //Fabric implementation of the subset of NeoForge's API the shared code uses, bundled (with its dependencies) as nested jars
     implementation(project(':shim')) {
         attributes {
@@ -157,8 +144,6 @@ dependencies {
         transitive = false
     }
     include("teamreborn:energy:${team_reborn_energy_version}")
-    commonJava(project(path: ':common', configuration: 'commonJava'))
-    commonResources(project(path: ':common', configuration: 'commonResources'))
 }
 
 loom {
@@ -223,15 +208,12 @@ tasks.named('compileGametestJava', JavaCompile, {
     options.compilerArgs.remove('-AmekanismModule=mekanism')
 })
 
-tasks.named('compileJava', JavaCompile, {
-    dependsOn(configurations.commonJava)
-    source(configurations.commonJava)
-})
-
 tasks.named('processResources', ProcessResources, {
-    dependsOn(configurations.commonResources)
-    from(configurations.commonResources)
-    //Shared resources, and the generated data (which still lives in the NeoForge project)
+    //Shared resources, and the generated data
+    from(new File(commonSrc, 'main/resources'))
+    from(new File(commonSrc, 'datagen/generated/mekanism')) {
+        exclude('.cache/**', 'pack.mcmeta', '*-compat/**')
+    }
     from(new File(neoSources, 'main/resources')) {
         exclude('META-INF/neoforge.mods.toml', 'META-INF/accesstransformer.cfg', 'META-INF/enumextensions.json')
         //Fabric provides its own implementations of the platform services
@@ -252,12 +234,6 @@ tasks.named('processResources', ProcessResources, {
     }
 })
 
-tasks.named('sourcesJar', Jar, {
-    dependsOn(configurations.commonJava, configurations.commonResources)
-    from(configurations.commonJava)
-    from(configurations.commonResources)
-})
-
 tasks.withType(Jar).configureEach {
     from(rootProject.file('LICENSE')) {
         rename { "${it}_Mekanism" }
@@ -273,6 +249,10 @@ for (String name : secondaryModules) {
         options.compilerArgs.add("-AmekanismModule=mekanism${module}".toString())
     })
     tasks.named(moduleSourceSet.processResourcesTaskName, ProcessResources, {
+        from(new File(commonSrc, "${module}/resources"))
+        from(new File(commonSrc, "datagen/generated/mekanism${module}")) {
+            exclude('.cache/**', 'pack.mcmeta', '*-compat/**')
+        }
         from(new File(neoSources, "${module}/resources")) {
             exclude('META-INF/neoforge.mods.toml', 'META-INF/accesstransformer.cfg', 'META-INF/enumextensions.json')
         }

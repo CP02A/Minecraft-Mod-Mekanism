@@ -21,8 +21,8 @@ plugins {
 }
 
 include('annotation-processor')
-//Multiloader layout: loader agnostic code lives in common and is compiled into each of the loader specific projects
-include('common')
+//Multiloader layout: the shared sources and resources live in common/src (not a project of its own) and are compiled by each of the
+// loader specific projects (see docs/multiloader.md)
 //Fabric implementation of the subset of NeoForge APIs used by the shared code
 include('shim')
 include('neoforge')
