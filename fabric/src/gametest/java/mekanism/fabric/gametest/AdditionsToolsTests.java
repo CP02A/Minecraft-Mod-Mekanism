@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -130,6 +131,26 @@ public class AdditionsToolsTests {
               Identifier.fromNamespaceAndPath("mekanism", "uranium"), Identifier.fromNamespaceAndPath("mekanismadditions", "baby_skeleton"));
         assertRegistryContains(helper, "structure_modifier", Identifier.fromNamespaceAndPath("mekanismadditions", "baby_skeleton"),
               Identifier.fromNamespaceAndPath("mekanismadditions", "baby_wither_skeleton"));
+        helper.succeed();
+    }
+
+    @GameTest
+    public void noNeoForgeEntriesInVanillaRegistries(GameTestHelper helper) {
+        //The shim's entries in vanilla/Fabric registries (attributes, ticket types, slot displays) use the mekanism_shim namespace, as other mods' NeoForge
+        //shims may register NeoForge's ids too. Only the shim's own registries (mekanism_shim:*) keep NeoForge's entry ids (data format ids)
+        java.util.List<String> found = new java.util.ArrayList<>();
+        BuiltInRegistries.REGISTRY.entrySet().forEach(registry -> {
+            if (!registry.getKey().identifier().getNamespace().equals("mekanism_shim")) {
+                for (Identifier id : registry.getValue().keySet()) {
+                    if (id.getNamespace().equals("neoforge")) {
+                        found.add(registry.getKey().identifier() + " " + id);
+                    }
+                }
+            }
+        });
+        helper.assertTrue(found.isEmpty(), Component.literal("Vanilla registries shouldn't contain neoforge: entries: " + found));
+        helper.assertTrue(BuiltInRegistries.ATTRIBUTE.containsKey(Identifier.fromNamespaceAndPath("mekanism_shim", "gliding_flight")),
+              Component.literal("The gliding flight attribute should be mekanism_shim:gliding_flight"));
         helper.succeed();
     }
 

@@ -17,7 +17,9 @@ import mekanism.shim.neoforged.neoforge.client.event.RegisterRenderPipelinesEven
 
 /**
  * Mekanism shim: Registered by {@code ClientShimLoader} instead of through an event bus subscriber. Vanilla's {@link OitPipelineSet#builder(String,
- * RenderPipeline.Builder)} only takes a location suffix in the minecraft namespace, so the OIT pipeline sets use {@code neoforge_} prefixed suffixes.
+ * RenderPipeline.Builder)} only takes a location suffix in the minecraft namespace, so the OIT pipeline sets use {@code mekanism_shim_}
+ * prefixed suffixes. All pipeline locations are the shim's own (not NeoForge's), as duplicate locations are rejected and other mods' NeoForge shims may
+ * register NeoForge's.
  */
 public final class NeoForgeRenderPipelines {
     private static final RenderPipeline.Snippet ITEM_UNLIT_SNIPPET = RenderPipeline.builder(RenderPipelines.ITEM_SNIPPET)
@@ -30,36 +32,36 @@ public final class NeoForgeRenderPipelines {
 
     /// Duplicate of [RenderPipelines#ITEM_CUTOUT] with directional shading and lighting disabled
     public static final RenderPipeline ITEM_CUTOUT_UNLIT = RenderPipeline.builder(ITEM_UNLIT_SNIPPET)
-            .withLocation(Identifier.parse("neoforge:pipeline/item_cutout_unlit"))
+            .withLocation(Identifier.parse("mekanism_shim:pipeline/item_cutout_unlit"))
             .withColorTargetState(ColorTargetState.DEFAULT)
             .build();
     /// Duplicate of [RenderPipelines#ITEM_CUTOUT_GLINT] with directional shading and lighting disabled
     public static final RenderPipeline ITEM_CUTOUT_UNLIT_GLINT = RenderPipeline.builder(ITEM_UNLIT_SNIPPET, RenderPipelines.GLINT_SNIPPET)
-            .withLocation(Identifier.parse("neoforge:pipeline/item_cutout_unlit_glint"))
+            .withLocation(Identifier.parse("mekanism_shim:pipeline/item_cutout_unlit_glint"))
             .withColorTargetState(ColorTargetState.DEFAULT)
             .build();
     /// Duplicate of [RenderPipelines#ITEM_CUTOUT_GLINT_SPECIAL] with directional shading and lighting disabled
     public static final RenderPipeline ITEM_CUTOUT_UNLIT_GLINT_SPECIAL = RenderPipeline.builder(ITEM_UNLIT_SNIPPET, RenderPipelines.GLINT_SPECIAL_SNIPPET)
-            .withLocation(Identifier.parse("neoforge:pipeline/item_cutout_unlit_glint_special"))
+            .withLocation(Identifier.parse("mekanism_shim:pipeline/item_cutout_unlit_glint_special"))
             .withVertexBinding(0, DefaultVertexFormat.ENTITY_GLINT_SPECIAL)
             .withColorTargetState(ColorTargetState.DEFAULT)
             .build();
     /// Duplicate of [RenderPipelines#ITEM_TRANSLUCENT] with directional shading and lighting disabled
     public static final RenderPipeline ITEM_TRANSLUCENT_UNLIT = RenderPipeline.builder(ITEM_UNLIT_SNIPPET)
-            .withLocation(Identifier.parse("neoforge:pipeline/item_translucent_unlit"))
+            .withLocation(Identifier.parse("mekanism_shim:pipeline/item_translucent_unlit"))
             .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
             .build();
     /// Duplicate of [RenderPipelines#OIT_ITEM] with directional shading and lighting disabled
-    public static final OitPipelineSet OIT_ITEM_UNLIT = OitPipelineSet.builder("neoforge_item_unlit", RenderPipeline.builder(OIT_ITEM_UNLIT_SNIPPET))
+    public static final OitPipelineSet OIT_ITEM_UNLIT = OitPipelineSet.builder("mekanism_shim_item_unlit", RenderPipeline.builder(OIT_ITEM_UNLIT_SNIPPET))
             .withAccumulateModifier(accumulate -> accumulate.withBindGroupLayout(BindGroupLayouts.SAMPLER1).withBindGroupLayout(BindGroupLayouts.SAMPLER2))
             .build();
     /// Duplicate of [RenderPipelines#ITEM_TRANSLUCENT_GLINT] with directional shading and lighting disabled
     public static final RenderPipeline ITEM_TRANSLUCENT_UNLIT_GLINT = RenderPipeline.builder(ITEM_UNLIT_SNIPPET, RenderPipelines.GLINT_SNIPPET)
-            .withLocation(Identifier.parse("neoforge:pipeline/item_translucent_unlit_glint"))
+            .withLocation(Identifier.parse("mekanism_shim:pipeline/item_translucent_unlit_glint"))
             .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
             .build();
     /// Duplicate of [RenderPipelines#OIT_ITEM_GLINT] with directional shading and lighting disabled
-    public static final OitPipelineSet OIT_ITEM_UNLIT_GLINT = OitPipelineSet.builder("neoforge_item_unlit_glint", RenderPipeline.builder(OIT_ITEM_UNLIT_SNIPPET))
+    public static final OitPipelineSet OIT_ITEM_UNLIT_GLINT = OitPipelineSet.builder("mekanism_shim_item_unlit_glint", RenderPipeline.builder(OIT_ITEM_UNLIT_SNIPPET))
             .withAccumulateModifier(
                     accumulate -> accumulate.withSnippet(RenderPipelines.GLINT_SNIPPET)
                             .withBindGroupLayout(BindGroupLayouts.GLOBALS)
@@ -68,12 +70,12 @@ public final class NeoForgeRenderPipelines {
             .build();
     /// Duplicate of [RenderPipelines#ITEM_TRANSLUCENT_GLINT_SPECIAL] with directional shading and lighting disabled
     public static final RenderPipeline ITEM_TRANSLUCENT_UNLIT_GLINT_SPECIAL = RenderPipeline.builder(ITEM_UNLIT_SNIPPET, RenderPipelines.GLINT_SPECIAL_SNIPPET)
-            .withLocation(Identifier.parse("neoforge:pipeline/item_translucent_unlit_glint_special"))
+            .withLocation(Identifier.parse("mekanism_shim:pipeline/item_translucent_unlit_glint_special"))
             .withVertexBinding(0, DefaultVertexFormat.ENTITY_GLINT_SPECIAL)
             .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
             .build();
     /// Duplicate of [RenderPipelines#OIT_ITEM_GLINT_SPECIAL] with directional shading and lighting disabled
-    public static final OitPipelineSet OIT_ITEM_UNLIT_GLINT_SPECIAL = OitPipelineSet.builder("neoforge_item_unlit_glint_special", RenderPipeline.builder(OIT_ITEM_UNLIT_SNIPPET).withVertexBinding(0, DefaultVertexFormat.ENTITY_GLINT_SPECIAL))
+    public static final OitPipelineSet OIT_ITEM_UNLIT_GLINT_SPECIAL = OitPipelineSet.builder("mekanism_shim_item_unlit_glint_special", RenderPipeline.builder(OIT_ITEM_UNLIT_SNIPPET).withVertexBinding(0, DefaultVertexFormat.ENTITY_GLINT_SPECIAL))
             .withAccumulateModifier(
                     accumulate -> accumulate.withSnippet(RenderPipelines.GLINT_SPECIAL_SNIPPET)
                             .withBindGroupLayout(BindGroupLayouts.GLOBALS)
@@ -82,14 +84,14 @@ public final class NeoForgeRenderPipelines {
             .build();
     /// Duplicate of [RenderPipelines#ENTITY_TRANSLUCENT] with directional shading and lighting disabled
     public static final RenderPipeline ENTITY_UNLIT_TRANSLUCENT = RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
-            .withLocation(Identifier.parse("neoforge:pipeline/entity_unlit_translucent"))
+            .withLocation(Identifier.parse("mekanism_shim:pipeline/entity_unlit_translucent"))
             .withShaderDefine("ALPHA_CUTOUT", 0.1F)
             .withShaderDefine("NO_CARDINAL_LIGHTING")
             .withBindGroupLayout(BindGroupLayouts.SAMPLER1)
             .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
             .withCull(false)
             .build();
-    public static final OitPipelineSet OIT_ENTITY_UNLIT = OitPipelineSet.builder("neoforge_entity_unlit", RenderPipeline.builder(RenderPipelines.OIT_ENTITY_SNIPPET).withCull(false))
+    public static final OitPipelineSet OIT_ENTITY_UNLIT = OitPipelineSet.builder("mekanism_shim_entity_unlit", RenderPipeline.builder(RenderPipelines.OIT_ENTITY_SNIPPET).withCull(false))
             .withAccumulateModifier(
                     accumulate -> accumulate.withShaderDefine("NO_CARDINAL_LIGHTING")
                             .withBindGroupLayout(BindGroupLayouts.SAMPLER1)

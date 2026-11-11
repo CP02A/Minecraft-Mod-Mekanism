@@ -122,12 +122,17 @@ import mekanism.shim.neoforged.neoforge.registries.holdersets.OrHolderSet;
 public class NeoForgeMod {
 
     public static final String MOD_ID = "neoforge";
+    /**
+     * Mekanism shim: Namespace of the shim's entries in vanilla registries (slot displays, ticket types, attributes) instead of {@code neoforge}, as other
+     * mods' NeoForge shims may register the same entries and vanilla rejects duplicate keys. Translation keys keep NeoForge's names.
+     */
+    public static final String SHIM_NAMESPACE = "mekanism_shim";
 
-    public static final DeferredHolder<SlotDisplay.Type<?>, SlotDisplay.Type<FluidSlotDisplay>> FLUID_SLOT_DISPLAY = register(BuiltInRegistries.SLOT_DISPLAY,
+    public static final DeferredHolder<SlotDisplay.Type<?>, SlotDisplay.Type<FluidSlotDisplay>> FLUID_SLOT_DISPLAY = registerVanilla(BuiltInRegistries.SLOT_DISPLAY,
           "fluid", () -> new SlotDisplay.Type<>(FluidSlotDisplay.MAP_CODEC, FluidSlotDisplay.STREAM_CODEC));
-    public static final DeferredHolder<SlotDisplay.Type<?>, SlotDisplay.Type<FluidStackSlotDisplay>> FLUID_STACK_SLOT_DISPLAY = register(BuiltInRegistries.SLOT_DISPLAY,
+    public static final DeferredHolder<SlotDisplay.Type<?>, SlotDisplay.Type<FluidStackSlotDisplay>> FLUID_STACK_SLOT_DISPLAY = registerVanilla(BuiltInRegistries.SLOT_DISPLAY,
           "fluid_stack", () -> new SlotDisplay.Type<>(FluidStackSlotDisplay.MAP_CODEC, FluidStackSlotDisplay.STREAM_CODEC));
-    public static final DeferredHolder<SlotDisplay.Type<?>, SlotDisplay.Type<FluidTagSlotDisplay>> FLUID_TAG_SLOT_DISPLAY = register(BuiltInRegistries.SLOT_DISPLAY,
+    public static final DeferredHolder<SlotDisplay.Type<?>, SlotDisplay.Type<FluidTagSlotDisplay>> FLUID_TAG_SLOT_DISPLAY = registerVanilla(BuiltInRegistries.SLOT_DISPLAY,
           "fluid_tag", () -> new SlotDisplay.Type<>(FluidTagSlotDisplay.MAP_CODEC, FluidTagSlotDisplay.STREAM_CODEC));
 
     public static final DeferredHolder<IngredientType<?>, IngredientType<CompoundIngredient>> COMPOUND_INGREDIENT_TYPE = register(NeoForgeRegistries.INGREDIENT_TYPES,
@@ -298,7 +303,7 @@ public class NeoForgeMod {
     public static final DeferredHolder<Fluid, Fluid> FLOWING_MILK = DeferredHolder.create(Registries.FLUID, Identifier.withDefaultNamespace("flowing_milk"));
 
     private static Holder<TicketType> registerTicket(String name, TicketType type) {
-        return Registry.registerForHolder(BuiltInRegistries.TICKET_TYPE, Identifier.fromNamespaceAndPath(MOD_ID, name), type);
+        return Registry.registerForHolder(BuiltInRegistries.TICKET_TYPE, Identifier.fromNamespaceAndPath(SHIM_NAMESPACE, name), type);
     }
 
     /// If the server is intended to be vanilla-compatible then this attribute must not be applied via item attribute modifiers.
@@ -324,7 +329,7 @@ public class NeoForgeMod {
     }
 
     private static Holder<Attribute> registerAttribute(String name, Attribute attribute) {
-        return Registry.registerForHolder(BuiltInRegistries.ATTRIBUTE, Identifier.fromNamespaceAndPath(MOD_ID, name), attribute);
+        return Registry.registerForHolder(BuiltInRegistries.ATTRIBUTE, Identifier.fromNamespaceAndPath(SHIM_NAMESPACE, name), attribute);
     }
 
     public static final Holder<FluidType> EMPTY_TYPE = registerVanillaFluidType("empty", () -> new FluidType(FluidType.Properties.create()
@@ -371,6 +376,12 @@ public class NeoForgeMod {
 
     private static <R, T extends R> DeferredHolder<R, T> register(Registry<R> registry, String name, Supplier<T> value) {
         Identifier id = Identifier.fromNamespaceAndPath(MOD_ID, name);
+        Registry.register(registry, id, value.get());
+        return DeferredHolder.create(registry.key(), id);
+    }
+
+    private static <R, T extends R> DeferredHolder<R, T> registerVanilla(Registry<R> registry, String name, Supplier<T> value) {
+        Identifier id = Identifier.fromNamespaceAndPath(SHIM_NAMESPACE, name);
         Registry.register(registry, id, value.get());
         return DeferredHolder.create(registry.key(), id);
     }

@@ -44,7 +44,7 @@
 - `./gradlew :fabric:build` passes fully, including Loom's `validateAccessWidener` (`gen_fabric_glue.py` expands AT wildcards, normalizes dotted
   descriptors and skips members that don't exist in vanilla, such as signatures changed by NeoForge's patches) and `checkInjectedInterfaces`
   (0 conflicting default methods; needs Python 3 as `python` or `$PYTHON`).
-- `./gradlew :fabric:runGameTestServer`: 87 tests pass (`fabric/src/gametest`):
+- `./gradlew :fabric:runGameTestServer`: 88 tests pass (`fabric/src/gametest`):
   - `TransferBridgeTests`, `InteropTests`: Fabric Transfer API and Team Reborn Energy interop (blocks and items, both directions), machine
     processing, ore gen.
   - `TransmitterTests`: cables, transporters and pipes connecting to cubes, machines, tanks and chests placed after them; energy flow.
@@ -91,8 +91,11 @@
   `neoforge:add_features` are unchanged. Datapacks using NeoForge's layout (`neoforge/biome_modifier`) don't apply on Fabric. Datapack registries get their `RegistryBuilder` bake callbacks
   and default key (`ShimBackend.addDatapackRegistry` -> `RegistryLoadTaskMixin` creates a `DefaultedMappedRegistry`; robit skins).
   The shim's own Fabric payloads (`advanced_open_screen`, `recipe_content`, `sync_data_maps`), reload listeners (`data_maps`, client
-  `obj_loader`) and biome modification (`biome_modifiers`) use `mekanism_shim:` ids too. `neoforge:` entries in vanilla registries (attributes,
-  ticket types, slot displays) and data conventions (serializer/model loader/item model ids, `data/neoforge/data_maps`) keep NeoForge's ids.
+  `obj_loader`), biome modification (`biome_modifiers`), entries in vanilla registries (attributes `swim_speed`/`creative_flight`/
+  `gliding_flight`, ticket types `entity`/`entity_with_natural_spawning`, slot displays `fluid`/`fluid_stack`/`fluid_tag`) and render pipeline
+  locations use `mekanism_shim:` ids too (OIT pipeline sets: `mekanism_shim_` suffixes); translation keys stay NeoForge's (`neoforge.swim_speed`,
+  English names in `assets/mekanism_shim/lang`). Data format ids (serializer/condition/ingredient/holder set/model loader/item model ids,
+  `neoforge:core/item_unlit` shader, `data/neoforge/data_maps`) keep NeoForge's names.
 - Item/fluid interop with the Fabric Transfer API and energy interop with Team Reborn Energy (1:1, bundled jar-in-jar), blocks and items, both
   directions.
 - Forced chunks of Mekanism's chunk loaders persist and are validated on load; ChunkTicketLevelUpdatedEvent, RegisterSpawnPlacementsEvent,
