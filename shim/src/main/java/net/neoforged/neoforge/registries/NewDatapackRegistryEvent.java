@@ -66,11 +66,12 @@ public final class NewDatapackRegistryEvent extends Event implements IModBusEven
     }
 
     private static <T> void register(RegistryData<T> data, boolean reloadable) {
-        //Mekanism shim: NeoForge applies the configurator to the registries it creates when loading datapack registries; the loader only supports its
-        // callbacks (bake callbacks are called when the loaded registry gets frozen)
+        //Mekanism shim: NeoForge applies the configurator to the registries it creates when loading datapack registries; the loader supports its
+        // callbacks (bake callbacks are called when the loaded registry gets frozen) and default key (the loaded registry is a defaulted one)
         RegistryBuilder<T> builder = new RegistryBuilder<>(data.key());
         data.configurator().accept(builder);
-        ShimServices.BACKEND.addDatapackRegistry(data.key(), data.codec(), reloadable ? null : data.networkCodec(), reloadable, builder.getCallbacks());
+        ShimServices.BACKEND.addDatapackRegistry(data.key(), data.codec(), reloadable ? null : data.networkCodec(), reloadable, builder.getCallbacks(),
+              builder.getDefaultKey());
     }
 
     record RegistryData<T>(ResourceKey<Registry<T>> key, Codec<T> codec, @Nullable Codec<T> networkCodec, Consumer<RegistryBuilder<T>> configurator) {

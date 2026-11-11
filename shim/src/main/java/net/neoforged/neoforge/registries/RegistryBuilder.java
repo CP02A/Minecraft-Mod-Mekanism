@@ -120,6 +120,14 @@ public class RegistryBuilder<T> {
         return List.copyOf(this.callbacks);
     }
 
+    /**
+     * @apiNote Mekanism shim: Used to pass the default key of datapack registries to the loader.
+     */
+    @Nullable
+    Identifier getDefaultKey() {
+        return this.defaultKey;
+    }
+
     public Registry<T> create() {
         // Mekanism shim: Uses vanilla registries; syncing and callbacks are handled by the loader when the registry gets registered
         MappedRegistry<T> registry = this.defaultKey != null

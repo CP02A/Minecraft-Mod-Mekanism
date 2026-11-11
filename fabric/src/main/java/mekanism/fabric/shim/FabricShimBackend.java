@@ -52,6 +52,7 @@ public class FabricShimBackend implements ShimBackend {
     private static final Map<Registry<?>, RegistrySettings<?>> REGISTRY_SETTINGS = new ConcurrentHashMap<>();
     private static final List<Registry<?>> BAKE_ON_COMPLETION = new CopyOnWriteArrayList<>();
     private static final Map<ResourceKey<?>, List<BakeCallback<?>>> DATAPACK_BAKE_CALLBACKS = new ConcurrentHashMap<>();
+    private static final Map<ResourceKey<?>, Identifier> DATAPACK_DEFAULT_KEYS = new ConcurrentHashMap<>();
 
     @Override
     public <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key, boolean sync) {
@@ -205,7 +206,10 @@ public class FabricShimBackend implements ShimBackend {
 
     @Override
     public <T> void addDatapackRegistry(ResourceKey<Registry<T>> key, Codec<T> codec, @Nullable Codec<T> networkCodec, boolean reloadable,
-          List<RegistryCallback<T>> callbacks) {
+          List<RegistryCallback<T>> callbacks, @Nullable Identifier defaultKey) {
+        if (defaultKey != null) {
+            DATAPACK_DEFAULT_KEYS.put(key, defaultKey);
+        }
         List<BakeCallback<?>> bakeCallbacks = callbacks.stream().<BakeCallback<?>>mapMulti((callback, consumer) -> {
             if (callback instanceof BakeCallback<T> bakeCallback) {
                 consumer.accept(bakeCallback);
@@ -221,6 +225,15 @@ public class FabricShimBackend implements ShimBackend {
         } else {
             DynamicRegistries.registerSynced(key, codec, networkCodec);
         }
+    }
+
+    /**
+     * {@return the default key of a datapack registry (NeoForge's {@code RegistryBuilder#defaultKey}), or {@code null} if it has none} Used by
+     * {@code RegistryLoadTaskMixin} to create the loaded registry as a defaulted registry, like NeoForge's patch of {@code RegistryLoadTask}.
+     */
+    @Nullable
+    public static Identifier datapackDefaultKey(ResourceKey<?> registryKey) {
+        return DATAPACK_DEFAULT_KEYS.get(registryKey);
     }
 
     /**
