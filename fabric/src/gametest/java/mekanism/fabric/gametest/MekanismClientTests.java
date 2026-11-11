@@ -1,6 +1,10 @@
 package mekanism.fabric.gametest;
 
 import mekanism.client.MekanismClient;
+import mekanism.client.render.layer.MekanismArmorLayer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import mekanism.client.key.MekanismKeyHandler;
 import mekanism.client.gui.GuiMekanism;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -108,6 +112,15 @@ public class MekanismClientTests implements FabricClientGameTest {
             if (enriching == 0) {
                 throw new AssertionError("No enriching recipes were synced to the client");
             }
+
+            //EntityRenderersEvent.AddLayers: Mekanism adds its armor layer to renderers with vanilla's armor layer
+            context.runOnClient(client -> {
+                Zombie zombie = new Zombie(EntityTypes.ZOMBIE, client.level);
+                if (!(client.getEntityRenderDispatcher().getRenderer(zombie) instanceof LivingEntityRenderer<?, ?, ?> renderer)
+                    || renderer.layers.stream().noneMatch(MekanismArmorLayer.class::isInstance)) {
+                    throw new AssertionError("EntityRenderersEvent.AddLayers was not fired, the zombie renderer has no Mekanism armor layer");
+                }
+            });
 
             context.getInput().pressKey(options -> options.keyUse);
             context.waitFor(client -> client.gui.screen() instanceof GuiMekanism<?>);
