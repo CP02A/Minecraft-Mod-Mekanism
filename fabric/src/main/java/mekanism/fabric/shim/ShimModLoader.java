@@ -29,7 +29,10 @@ import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.ResourceKey;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityDataRegistry;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -158,6 +161,10 @@ public final class ShimModLoader {
         }
         FabricShimBackend.bakeRegistries();
         ShimCustomIngredient.registerSerializers();
+        //NeoForge's entity data serializer registry: vanilla only syncs serializers registered in EntityDataSerializers (by id)
+        for (Map.Entry<ResourceKey<EntityDataSerializer<?>>, EntityDataSerializer<?>> entry : NeoForgeRegistries.ENTITY_DATA_SERIALIZERS.entrySet()) {
+            FabricEntityDataRegistry.register(entry.getKey().identifier(), entry.getValue());
+        }
         FabricAttachmentBackend.registerTypes();
 
         Map<ResourceKey<Registry<?>>, Map<Identifier, DataMapType<?, ?>>> dataMaps = new HashMap<>();
