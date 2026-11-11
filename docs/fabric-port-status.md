@@ -211,3 +211,23 @@ unless noted; the call sites are the ones of NeoForge's patches).
 4. Client models: `ExtraFaceData` colour/AO and the `neoforge:conditional` model loader.
 5. RenderLevelStage, Screen and tooltip events (unused by Mekanism) if other shim users need them.
 6. Close the test gaps above.
+
+## Isolation from other mods
+Other mods can bundle their own NeoForge shim or run through Sinytra Connector, and Fabric Loader puts every mod on one class path (keeping one copy
+of a nested jar per mod id), so nothing Mekanism ships may use names another mod could also use:
+- Shim classes (`mekanism.shim.neoforged.*`) and the libraries shaded into the shim jar (event bus, typetools, maven-artifact, relocated
+  under `mekanism.shim`) live in Mekanism-specific packages, in a nested jar with the mod id `mekanism_shim`. Only allowlisted real Fabric mods (Forge Config API Port,
+  Team Reborn Energy) are nested under their own ids, which Fabric Loader dedupes against other mods' copies.
+- Shim registries, payload ids and datapack folders use the `mekanism_shim:` namespace; mod content keeps its `mekanism:` (and module) ids.
+  Service files (`mekanism.shim.neoforged.*`) and custom entrypoint keys (`mekanism_shim`, `mekanism_shim_client`) are Mekanism-specific as
+  well.
+- Injected interfaces keep NeoForge's method signatures (the shared code calls them), guarded against conflicting defaults by
+  `checkInjectedInterfaces`.
+- Mixins use `@Inject`/MixinExtras (`@WrapOperation`, `@ModifyReturnValue`...) rather than `@Overwrite`/`@Redirect`, `@Unique` on added
+  fields and helper methods (not on methods implementing injected interfaces), and Mekanism-specific mixin config/refmap/access widener names
+  and mixin packages.
+- Interop with other mods goes through shared APIs only: Team Reborn Energy, the Fabric Transfer API and `c:` tags.
+- `./gradlew :fabric:checkJarIsolation` (part of `check`, `fabric/check_jar_isolation.py`) inspects the built jars (main, modules and the all
+  in one jar, recursively including nested jars) and fails on classes outside `mekanism/`, nested jars that aren't allowlisted,
+  `data/*/neoforge/` folders, non-Mekanism mixin config/refmap/access widener names or mixin packages, and foreign service files or entrypoint
+  keys. The allowlists (owned prefixes, third-party mod ids, foreign entrypoint keys) are at the top of the script.

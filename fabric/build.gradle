@@ -397,6 +397,28 @@ def checkInjectedInterfaces = tasks.register('checkInjectedInterfaces', Exec) {
 }
 tasks.named('check') { dependsOn(checkInjectedInterfaces) }
 
+//Checks that the built jars (the main and module jars and the all in one jar, including their nested jars) keep Mekanism isolated from other mods:
+// only classes in Mekanism's packages, no nested jars except allowlisted third-party mods, no data/*/neoforge/ datapack folders, and Mekanism-specific
+// mixin config/refmap/access widener names, services and entrypoints (see check_jar_isolation.py, which holds the allowlists). Needs Python 3 (python
+// on the path, or the PYTHON environment variable)
+def checkJarIsolation = tasks.register('checkJarIsolation', Exec) {
+    group = 'verification'
+    description = 'Checks that the Fabric jars only contain Mekanism-specific classes, nested jars, data folders and mixin names'
+    def checkedJars = files(tasks.named('jar'), secondaryModules.collect { tasks.named("${it}Jar") }, tasks.named('allJar'))
+    def script = file('check_jar_isolation.py')
+    def marker = layout.buildDirectory.file('checkJarIsolation.txt')
+    inputs.files(checkedJars, script)
+    outputs.file(marker)
+    executable = System.getenv('PYTHON') ?: 'python'
+    doFirst {
+        args([script.absolutePath] + checkedJars.files.collect { it.absolutePath })
+    }
+    doLast {
+        marker.get().asFile.text = 'The Fabric jars are isolated\n'
+    }
+}
+tasks.named('check') { dependsOn(checkJarIsolation) }
+
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 //JEI integration. Compiled from common/src/integration/jei/<module>/java (shared with :neoforge) plus the Fabric specific sources in src/jei/java (loader
 // specific classes with the same name as in neoforge/src/integration/jei, e.g. JeiFluidHelper) into one source set per module, which is packaged into
