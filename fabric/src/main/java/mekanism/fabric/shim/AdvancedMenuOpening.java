@@ -44,7 +44,7 @@ public final class AdvancedMenuOpening {
 
     public record Payload(int windowId, MenuType<?> menuType, Component name, byte[] additionalData) implements CustomPacketPayload {
 
-        public static final Type<Payload> TYPE = new Type<>(Identifier.fromNamespaceAndPath("neoforge", "advanced_open_screen"));
+        public static final Type<Payload> TYPE = new Type<>(Identifier.fromNamespaceAndPath("mekanism_shim", "advanced_open_screen"));
         public static final StreamCodec<RegistryFriendlyByteBuf, Payload> STREAM_CODEC = StreamCodec.composite(
               ByteBufCodecs.VAR_INT, Payload::windowId,
               ByteBufCodecs.registry(Registries.MENU), Payload::menuType,

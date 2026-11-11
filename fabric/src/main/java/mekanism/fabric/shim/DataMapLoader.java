@@ -59,7 +59,7 @@ import org.slf4j.Logger;
 public final class DataMapLoader implements ResourceManagerReloadListener {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Identifier ID = Identifier.fromNamespaceAndPath("neoforge", "data_maps");
+    private static final Identifier ID = Identifier.fromNamespaceAndPath("mekanism_shim", "data_maps");
     private static final FileToIdConverter FILES = FileToIdConverter.json("data_maps");
 
     private static Map<DataMapType<?, ?>, List<JsonObject>> pending = Map.of();
@@ -216,7 +216,7 @@ public final class DataMapLoader implements ResourceManagerReloadListener {
      */
     public record SyncPayload(CompoundTag data) implements CustomPacketPayload {
 
-        public static final Type<SyncPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath("neoforge", "sync_data_maps"));
+        public static final Type<SyncPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath("mekanism_shim", "sync_data_maps"));
         public static final StreamCodec<RegistryFriendlyByteBuf, SyncPayload> STREAM_CODEC = ByteBufCodecs.compoundTagCodec(NbtAccounter::unlimitedHeap)
               .<RegistryFriendlyByteBuf>cast().map(SyncPayload::new, SyncPayload::data);
 

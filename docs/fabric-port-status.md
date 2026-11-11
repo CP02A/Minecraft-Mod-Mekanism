@@ -90,6 +90,9 @@
   `data/<namespace>/neoforge/{biome,structure}_modifier/` files there (NeoForge resources/datagen unchanged); serializer type ids such as
   `neoforge:add_features` are unchanged. Datapacks using NeoForge's layout (`neoforge/biome_modifier`) don't apply on Fabric. Datapack registries get their `RegistryBuilder` bake callbacks
   and default key (`ShimBackend.addDatapackRegistry` -> `RegistryLoadTaskMixin` creates a `DefaultedMappedRegistry`; robit skins).
+  The shim's own Fabric payloads (`advanced_open_screen`, `recipe_content`, `sync_data_maps`), reload listeners (`data_maps`, client
+  `obj_loader`) and biome modification (`biome_modifiers`) use `mekanism_shim:` ids too. `neoforge:` entries in vanilla registries (attributes,
+  ticket types, slot displays) and data conventions (serializer/model loader/item model ids, `data/neoforge/data_maps`) keep NeoForge's ids.
 - Item/fluid interop with the Fabric Transfer API and energy interop with Team Reborn Energy (1:1, bundled jar-in-jar), blocks and items, both
   directions.
 - Forced chunks of Mekanism's chunk loaders persist and are validated on load; ChunkTicketLevelUpdatedEvent, RegisterSpawnPlacementsEvent,

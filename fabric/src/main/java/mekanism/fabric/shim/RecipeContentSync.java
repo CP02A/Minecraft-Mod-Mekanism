@@ -56,7 +56,7 @@ public final class RecipeContentSync {
 
     public record Payload(Set<RecipeType<?>> recipeTypes, List<RecipeHolder<?>> recipes) implements CustomPacketPayload {
 
-        public static final Type<Payload> TYPE = new Type<>(Identifier.fromNamespaceAndPath("neoforge", "recipe_content"));
+        public static final Type<Payload> TYPE = new Type<>(Identifier.fromNamespaceAndPath("mekanism_shim", "recipe_content"));
         public static final StreamCodec<RegistryFriendlyByteBuf, Payload> STREAM_CODEC = StreamCodec.composite(
               ByteBufCodecs.registry(Registries.RECIPE_TYPE).apply(ByteBufCodecs.collection(HashSet::new)), Payload::recipeTypes,
               RecipeHolder.STREAM_CODEC.apply(ByteBufCodecs.list()), Payload::recipes,

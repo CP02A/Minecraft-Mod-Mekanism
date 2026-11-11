@@ -160,7 +160,7 @@ public final class ClientShimLoader {
 
         AddClientReloadListenersEvent reloadListenersEvent = new AddClientReloadListenersEvent();
         //NeoForge's own reload listeners (registered by ClientNeoForgeMod on NeoForge)
-        reloadListenersEvent.addListener(Identifier.fromNamespaceAndPath("neoforge", "obj_loader"), ObjLoader.INSTANCE);
+        reloadListenersEvent.addListener(Identifier.fromNamespaceAndPath("mekanism_shim", "obj_loader"), ObjLoader.INSTANCE);
         ModLoader.postEvent(reloadListenersEvent);
         reloadListenersEvent.getListeners().forEach((id, listener) -> ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(id, listener));
 
