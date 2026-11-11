@@ -20,7 +20,8 @@
       "mekanism.fabric.gametest.GameplayTests",
       "mekanism.fabric.gametest.InjectedInterfaceTests",
       "mekanism.fabric.gametest.ExtensionHookTests",
-      "mekanism.fabric.gametest.HookCallSiteTests"
+      "mekanism.fabric.gametest.HookCallSiteTests",
+      "mekanism.fabric.gametest.LookingAtTests"
     ],
     "fabric-client-gametest": [
       "mekanism.fabric.gametest.MekanismClientTests",
