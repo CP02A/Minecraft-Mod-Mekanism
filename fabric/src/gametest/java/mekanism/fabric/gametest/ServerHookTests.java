@@ -182,4 +182,21 @@ public class ServerHookTests {
         }
         component.getSiblings().forEach(sibling -> collectTranslationKeys(sibling, keys));
     }
+
+    @GameTest
+    public void grindstoneMergesDamageableItems(GameTestHelper helper) {
+        //The grindstone checks NeoForge's isDamageable (GrindstoneMenuMixin), vanilla items keep merging their durability
+        net.minecraft.world.entity.player.Player player = helper.makeMockPlayer(net.minecraft.world.level.GameType.SURVIVAL);
+        net.minecraft.world.inventory.GrindstoneMenu menu = new net.minecraft.world.inventory.GrindstoneMenu(0, player.getInventory());
+        net.minecraft.world.item.ItemStack first = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_SWORD);
+        first.setDamageValue(200);
+        net.minecraft.world.item.ItemStack second = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_SWORD);
+        second.setDamageValue(200);
+        menu.getSlot(0).set(first);
+        menu.getSlot(1).set(second);
+        net.minecraft.world.item.ItemStack result = menu.getSlot(2).getItem();
+        helper.assertTrue(result.is(net.minecraft.world.item.Items.IRON_SWORD) && result.getDamageValue() < 200,
+              Component.literal("Grindstone should repair two damaged iron swords, got " + result + " with damage " + result.getDamageValue()));
+        helper.succeed();
+    }
 }
