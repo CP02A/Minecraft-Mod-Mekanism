@@ -64,7 +64,12 @@ public abstract class LivingEntityMixin {
             if (NeoForge.EVENT_BUS.post(new LivingIncomingDamageEvent(mekanism$self(), container)).isCanceled()) {
                 return false;
             }
-            return original.call(level, source, Math.max(container.getNewDamage(), 0));
+            boolean hurt = original.call(level, source, Math.max(container.getNewDamage(), 0));
+            if (hurt) {
+                //NeoForge's post damage extension hook (approximation: NeoForge also calls it when the damage was fully blocked by a shield)
+                mekanism$self().onDamageTaken(container);
+            }
+            return hurt;
         } finally {
             mekanism$damageContainers.pop();
         }

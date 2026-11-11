@@ -47,6 +47,7 @@ public final class ClientGameEventBridge {
         ClientTickEvents.START_CLIENT_TICK.register(client -> ClientHooks.fireClientTickPre());
         ClientTickEvents.END_CLIENT_TICK.register(client -> ClientHooks.fireClientTickPost());
         ClientEntityEvents.ENTITY_LOAD.register((entity, level) -> NeoForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, level)));
+        ClientEntityEvents.ENTITY_UNLOAD.register((entity, level) -> entity.onRemovedFromLevel());
         //NeoForge's ModelDataManager drops the model data of unloaded chunks
         ClientChunkEvents.CHUNK_UNLOAD.register((level, chunk) -> {
             var modelDataManager = level.getModelDataManager();

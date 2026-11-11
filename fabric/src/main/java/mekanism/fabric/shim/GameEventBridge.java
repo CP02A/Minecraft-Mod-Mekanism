@@ -96,6 +96,8 @@ public final class GameEventBridge {
         ServerChunkEvents.CHUNK_LOAD.register((level, chunk, newChunk) -> NeoForge.EVENT_BUS.post(new ChunkEvent.Load(chunk, newChunk)));
         ServerChunkEvents.CHUNK_UNLOAD.register((level, chunk) -> NeoForge.EVENT_BUS.post(new ChunkEvent.Unload(chunk)));
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> NeoForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, level)));
+        //NeoForge calls IEntityExtension#onRemovedFromLevel when the entity stops being tracked by the level, which is where Fabric fires ENTITY_UNLOAD
+        ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> entity.onRemovedFromLevel());
 
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> NeoForge.EVENT_BUS.post(new RegisterCommandsEvent(dispatcher, selection, context)));
 

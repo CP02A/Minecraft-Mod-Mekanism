@@ -11,7 +11,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
@@ -124,6 +128,16 @@ public final class ServerHooks {
      */
     public static boolean isSpawnCancelled(Entity entity) {
         return entity instanceof SpawnCancellable cancellable && cancellable.mekanism$isSpawnCancelled();
+    }
+
+    /**
+     * {@return the enchantment registry of the running server, or null if there is none} Like NeoForge's {@code CommonHooks#resolveLookup}, except that
+     * the client's registries aren't used when connected to a remote server (gameplay enchantments are then only applied where an entity provides the
+     * registries).
+     */
+    public static HolderLookup.@Nullable RegistryLookup<Enchantment> enchantmentLookup() {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        return server == null ? null : server.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
     }
 
     /**
