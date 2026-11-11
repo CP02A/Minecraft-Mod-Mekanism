@@ -47,7 +47,7 @@ public class TransporterRenderClientTests implements FabricClientGameTest {
             context.runOnClient(client -> client.options.fov().set(70));
             view(context, singleplayer, lineX, lineZ, x + 0.5, origin.getY(), z - 1.5 + 2.5, 180, "wide-south-looking-north");
             view(context, singleplayer, lineX, lineZ, x - 8.5 - 2.5, origin.getY(), z + 0.5, -90, "wide-west-looking-east");
-            //Diagonal view (looking north-east), where items next to each other shouldn't face different ways
+            //Diagonal view (looking north-east), where every item should still face the camera
             view(context, singleplayer, lineX, lineZ, x - 2.5, origin.getY(), z + 1.5, 225, "wide-diagonal-looking-north-east");
         }
     }

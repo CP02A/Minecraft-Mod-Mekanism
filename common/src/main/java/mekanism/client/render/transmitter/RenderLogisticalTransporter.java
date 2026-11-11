@@ -83,7 +83,7 @@ public class RenderLogisticalTransporter extends RenderTransmitterBase<TileEntit
                 //Similar to campfire renderer's seed, except we bind it to the original location so that when the stack goes from one transporter to the next
                 // it doesn't change types
                 int seed = (int) stack.originalLocation;
-                TransporterStackRenderState stackRenderState = new TransporterStackRenderState(stackPos, stack.getSide(transmitter).getAxis(), stack.color, seed, stack.size());
+                TransporterStackRenderState stackRenderState = new TransporterStackRenderState(stackPos, stack.color, seed, stack.size());
                 this.itemModelResolver.updateForTopItem(stackRenderState.item, stack.asItemStack(), ItemDisplayContext.NONE, level, null, seed);
                 information.put(key, stackRenderState);
             }
@@ -107,25 +107,13 @@ public class RenderLogisticalTransporter extends RenderTransmitterBase<TileEntit
                           new int[]{stackRenderState.color.getPackedColor()}, state.lightCoords, OverlayTexture.NO_OVERLAY, EntityRenderState.NO_OUTLINE);
                     poseStack.popPose();
                 }
-                //Turn the item so that it faces the camera, snapped to a horizontal direction
+                //Turn the item around the y axis so that it faces the camera
                 double dx = camera.pos.x - (state.blockPos.getX() + stackPos.x());
                 double dz = camera.pos.z - (state.blockPos.getZ() + stackPos.z());
                 //Note: Only the positions get turned, not the normals, so that the item gets lit the same no matter which way it faces. Otherwise, items
                 // facing east or west are much darker than ones facing north or south, due to the direction of the item lighting
                 Matrix3f normal = new Matrix3f(poseStack.last().normal());
-                //Items moving horizontally face across the transporter, towards the side the camera is on. This way they only flip around when the camera
-                // crosses the line the item is moving along, where the item is seen edge on anyway (if we picked whichever axis points the most towards the
-                // camera, items next to each other would face different ways when looking at the transporter diagonally)
-                boolean faceX = switch (stackRenderState.travelAxis) {
-                    case X -> false;
-                    case Z -> true;
-                    case Y -> Math.abs(dx) > Math.abs(dz);
-                };
-                if (faceX) {
-                    poseStack.rotate(Axis.YP, dx > 0 ? Mth.HALF_PI : -Mth.HALF_PI);
-                } else if (dz < 0) {
-                    poseStack.rotate(Axis.YP, Mth.PI);
-                }
+                poseStack.rotate(Axis.YP, (float) Mth.atan2(dx, dz));
                 poseStack.last().normal().set(normal);
                 AABB bb = stackRenderState.item.getModelBoundingBox();
                 double maxDimension = Math.max(bb.getXsize(), Math.max(bb.getYsize(), bb.getZsize()));
