@@ -1,5 +1,7 @@
 package mekanism.fabric.mixin.data;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import java.util.List;
@@ -18,7 +20,6 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
@@ -49,8 +50,9 @@ public abstract class IngredientMixin {
     /**
      * Skips validating the contents of holder sets that are not immediately resolvable (NeoForge's custom holder sets containing tags), like NeoForge does.
      */
-    @Redirect(method = "<init>(Lnet/minecraft/core/HolderSet;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/HolderSet;unwrap()Lcom/mojang/datafixers/util/Either;"))
-    private Either<TagKey<Item>, List<Holder<Item>>> mekanism$skipUnresolvableValidation(HolderSet<Item> values) {
-        return values.isImmediatelyResolvable() ? values.unwrap() : Either.left(null);
+    @WrapOperation(method = "<init>(Lnet/minecraft/core/HolderSet;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/HolderSet;unwrap()Lcom/mojang/datafixers/util/Either;"))
+    private Either<TagKey<Item>, List<Holder<Item>>> mekanism$skipUnresolvableValidation(HolderSet<Item> values,
+          Operation<Either<TagKey<Item>, List<Holder<Item>>>> original) {
+        return values.isImmediatelyResolvable() ? original.call(values) : Either.left(null);
     }
 }

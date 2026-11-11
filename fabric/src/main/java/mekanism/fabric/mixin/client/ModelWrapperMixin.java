@@ -10,6 +10,7 @@ import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.client.resources.model.geometry.UnbakedGeometry;
 import net.minecraft.client.resources.model.sprite.TextureSlots;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
@@ -20,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(targets = "net.minecraft.client.resources.model.ModelDiscovery$ModelWrapper")
 public abstract class ModelWrapperMixin {
 
+    @Unique
     private static final String BAKE = "Lnet/minecraft/client/resources/model/geometry/UnbakedGeometry;bake(Lnet/minecraft/client/resources/model/sprite/TextureSlots;Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/renderer/block/dispatch/ModelState;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/geometry/QuadCollection;";
 
     @WrapOperation(method = {"bakeDefaultState", "lambda$bakeTopGeometry$0"}, at = @At(value = "INVOKE", target = BAKE), require = 2)
