@@ -36,6 +36,10 @@
     ],
     "neoforge-shim-client": [
       "mekanism.fabric.MekanismShimClientMod"
+    ],
+    "jei_mod_plugin": [
+      "mekanism.client.recipe_viewer.jei.MekanismJEI",
+      "mekanism.fabric.integration.jei.MekanismFabricJeiPlugin"
     ]
   },
   "depends": {
@@ -45,6 +49,9 @@
     "fabric-api": "*",
     "forgeconfigapiport": "*",
     "team_reborn_energy": "*"
+  },
+  "suggests": {
+    "jei": "*"
   },
   "custom": {
     "loom:injected_interfaces": {

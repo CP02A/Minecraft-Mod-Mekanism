@@ -293,3 +293,63 @@ def checkInjectedInterfaces = tasks.register('checkInjectedInterfaces', Exec) {
     }
 }
 tasks.named('check') { dependsOn(checkInjectedInterfaces) }
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+//JEI integration. Compiled from common/src/integration/jei/<module>/java (shared with :neoforge) plus the Fabric specific sources in src/jei/java (loader
+// specific classes with the same name as in neoforge/src/integration/jei, e.g. JeiFluidHelper) into one source set per module, which is packaged into
+// that module's jar and registered through the jei_mod_plugin entrypoints of its fabric.mod.json, so it is only loaded when JEI is present.
+// JEI itself is only added to the client runs (through fabric.addMods), the servers run without it
+def jeiCompileConfig = configurations.create('jeiCompile') {
+    canBeConsumed = false
+}
+def jeiRuntimeConfig = configurations.create('jeiRuntime') {
+    canBeConsumed = false
+    transitive = false
+}
+dependencies {
+    jeiCompile("mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}") {
+        transitive = false
+    }
+    //The Fabric jar contains all of JEI (and its config library as a nested jar)
+    jeiRuntime("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
+}
+def jeiSourceSets = [:]
+for (String name : ['main'] + secondaryModules) {
+    def module = name
+    def setName = module == 'main' ? 'jei' : "${module}Jei"
+    def syncJeiSources = tasks.register("sync${setName.capitalize()}Sources", Sync) {
+        from(new File(commonSrc, "integration/jei/${module}/java"))
+        into(layout.buildDirectory.dir("generated/${setName}Sources"))
+    }
+    def jeiSourceSet = sourceSets.create(setName) {
+        java {
+            srcDir(syncJeiSources)
+        }
+        resources {
+            srcDir(new File(commonSrc, "integration/jei/${module}/resources"))
+        }
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output + jeiCompileConfig
+        if (module != 'main') {
+            compileClasspath += sourceSets.named(module).get().output + jeiSourceSets['main'].output
+        }
+    }
+    jeiSourceSets[module] = jeiSourceSet
+    //Loaded in all runs (like in the jars), and visible to the game tests. Only the main one has resources (Fabric Loader warns about missing class
+    // path entries)
+    def jeiOutput = module == 'main' ? jeiSourceSet.output : jeiSourceSet.output.classesDirs
+    sourceSets.main.runtimeClasspath += jeiOutput
+    sourceSets.gametest.compileClasspath += jeiSourceSet.output
+    sourceSets.gametest.runtimeClasspath += jeiOutput
+    loom.mods.named(module == 'main' ? 'mekanism' : "mekanism${module}") {
+        sourceSet(jeiSourceSet)
+    }
+    tasks.named(module == 'main' ? 'jar' : "${module}Jar", Jar) {
+        from(jeiSourceSet.output)
+    }
+}
+sourceSets.gametest.compileClasspath += jeiCompileConfig
+for (String name : ['client', 'gameTestClient']) {
+    loom.runs.named(name) {
+        vmArg("-Dfabric.addMods=${jeiRuntimeConfig.singleFile.absolutePath}")
+    }
+}

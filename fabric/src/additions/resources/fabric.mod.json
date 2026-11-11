@@ -29,6 +29,9 @@
     ],
     "neoforge-shim-client": [
       "mekanism.additions.fabric.AdditionsShimClientMod"
+    ],
+    "jei_mod_plugin": [
+      "mekanism.additions.client.recipe_viewer.jei.AdditionsJEI"
     ]
   },
   "depends": {
@@ -37,5 +40,8 @@
     "java": ">=${java_version}",
     "fabric-api": "*",
     "mekanism": "*"
+  },
+  "suggests": {
+    "jei": "*"
   }
 }
