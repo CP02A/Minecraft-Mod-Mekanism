@@ -32,17 +32,22 @@
     (interface injection + enum extensions).
 - `fabric/gen_fabric_glue.py <merged MC jar>`: regenerates the access widener, injected interfaces and shim mixins. Re-run after changing ATs
   (including `fabric/fabric-accesstransformer.cfg`), `shim-injected-interfaces.json` or `enumextensions.json`.
-- `fabric/check_injected_interfaces.py <merged MC jar> shim/build/classes/java/main`: finds conflicting injected default methods.
+- `fabric/check_injected_interfaces.py` (run by `./gradlew :fabric:checkInjectedInterfaces`, part of `check`): finds injected default methods that
+  conflict at runtime (IncompatibleClassChangeError/IllegalAccessError) between the shim's interfaces and those of Fabric API and the other mods on
+  the compile classpath (`loom:injected_interfaces` and class tweaker `inject-interface`s, incl. nested jars) or vanilla, taking Mekanism's and the
+  mods' mixins into account. Conflicts are resolved by a mixin implementing the method on the class (`TooltipFlagDefaultMixin`,
+  `ItemStackDefaultMixin`), covered by `InjectedInterfaceTests`.
 
 ## Verification
 - `./gradlew :neoforge:build :neoforge:runGameTestServer` (72 tests)
+- `./gradlew :fabric:checkInjectedInterfaces` (0 conflicting default methods; needs Python 3 as `python` or `$PYTHON`)
 - `./gradlew :fabric:runGameTestServer` (Fabric game tests in `fabric/src/gametest`: transfer bridge, machine processing, ore gen, Team Reborn
   energy and item capability interop, universal cables/logistical transporters/mechanical pipes connecting to cubes, machines, tanks and vanilla
   chests placed after them (and disconnecting on removal), energy flowing through cables, forced chunk persistence, ticket level/passenger tick events,
   baby mobs in biome and structure spawn lists, FinalizeSpawnEvent spawn cancellation, SpawnPlacementCheck, plastic beacon beam colors, adding to
   existing creative tabs, tooltip appenders, grindstone merging; `GameplayTests`: dynamic tank, induction matrix charge/discharge, thermal
   evaporation, boiler and SPS forming, chemicals through pressurized tubes, digital miner mining, QIO importer into drives, teleporter, cardboard
-  box, configurator wrench/rotate, breaking bounding blocks, block entity save/load and drop/place persistence, configs loaded)
+  box, configurator wrench/rotate, breaking bounding blocks, block entity save/load and drop/place persistence, configs loaded; `InjectedInterfaceTests`: formerly conflicting injected defaults)
 - `./gradlew :fabric:runGameTestClient` (opens a client, loads a world, checks model/atlas/fluid model events, modded recipe book settings
   codecs and that recipes reached the client, opens a machine GUI, clicks its side config tab and a side button (checked on the server) and
   opens Mekanism's recipe book, renders filled fluid tanks and buckets in hand/hotbar, emissive item layers, connects transmitters to each other and
@@ -93,9 +98,7 @@ objects), cardboard box and configurator (`onItemUseFirst`/`doesSneakBypassUse`)
 6. Remaining server side gaps (events/extension hooks Mekanism uses that the shim doesn't fire/call):
    - MobSpawnEvent.PositionCheck is not fired (Mekanism doesn't use it); FinalizeSpawnEvent has no spawner and fires inside `Mob#finalizeSpawn`;
      spawn cancellation is stored in the event (no `Mob#setSpawnCancelled`).
-   - Vanilla's attribute tooltips are used instead of NeoForge's `AttributeUtil` ones. Injected default methods that conflict with Fabric API's
-     injected interfaces aren't found by `check_injected_interfaces.py` (`TooltipFlag#shouldDisplayAllInformation` is resolved by
-     `TooltipFlagDefaultMixin`).
+   - Vanilla's attribute tooltips are used instead of NeoForge's `AttributeUtil` ones.
    - Biome modifier climate/special effect changes and attribute removals aren't applied (warned once); direct (unregistered) features/carvers
      can't be added through Fabric's API.
    - Level aware `IBlockExtension` hooks without a vanilla call site: `getExplosionResistance` (Mekanism's custom resistances),
