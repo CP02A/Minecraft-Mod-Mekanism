@@ -280,12 +280,26 @@ tasks.named('compileGametestJava', JavaCompile, {
     options.compilerArgs.remove('-AmekanismModule=mekanism')
 })
 
+//The shim's biome/structure modifier registries are mekanism_shim:biome_modifier and mekanism_shim:structure_modifier (the neoforge names could clash
+//with other mods' NeoForge shims), so move the data/<namespace>/neoforge/<registry>/ files to data/<namespace>/mekanism_shim/<registry>/
+def moveShimDatapackRegistries = { ProcessResources task ->
+    task.eachFile { FileCopyDetails details ->
+        def matcher = details.path =~ /^data\/([^\/]+)\/neoforge\/(biome_modifier|structure_modifier)\/(.+)$/
+        if (matcher.matches()) {
+            details.path = "data/${matcher.group(1)}/mekanism_shim/${matcher.group(2)}/${matcher.group(3)}"
+        }
+    }
+    //Don't keep the emptied neoforge/<registry> directories
+    task.includeEmptyDirs = false
+}
+
 tasks.named('processResources', ProcessResources, {
     //Shared resources, and the generated data
     from(new File(commonSrc, 'main/resources'))
     from(new File(commonSrc, 'datagen/generated/mekanism')) {
         exclude('.cache/**', 'pack.mcmeta', '*-compat/**')
     }
+    moveShimDatapackRegistries(it)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     def expandProps = ['version'                    : version,
                        'minecraft_version_range'    : minecraft_version_range,
@@ -317,6 +331,7 @@ for (String name : secondaryModules) {
         from(new File(commonSrc, "datagen/generated/mekanism${module}")) {
             exclude('.cache/**', 'pack.mcmeta', '*-compat/**')
         }
+        moveShimDatapackRegistries(it)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         def expandProps = ['version'                    : version,
                            'minecraft_version_range'    : minecraft_version_range,

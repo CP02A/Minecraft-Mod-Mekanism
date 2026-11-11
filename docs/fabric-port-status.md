@@ -44,7 +44,7 @@
 - `./gradlew :fabric:build` passes fully, including Loom's `validateAccessWidener` (`gen_fabric_glue.py` expands AT wildcards, normalizes dotted
   descriptors and skips members that don't exist in vanilla, such as signatures changed by NeoForge's patches) and `checkInjectedInterfaces`
   (0 conflicting default methods; needs Python 3 as `python` or `$PYTHON`).
-- `./gradlew :fabric:runGameTestServer`: 86 tests pass (`fabric/src/gametest`):
+- `./gradlew :fabric:runGameTestServer`: 87 tests pass (`fabric/src/gametest`):
   - `TransferBridgeTests`, `InteropTests`: Fabric Transfer API and Team Reborn Energy interop (blocks and items, both directions), machine
     processing, ore gen.
   - `TransmitterTests`: cables, transporters and pipes connecting to cubes, machines, tanks and chests placed after them; energy flow.
@@ -56,7 +56,7 @@
     experience, piglin currency, powder snow, electric bow flame and enchantment support, robit damage and removal, obsidian TNT ignition,
     destroyed item drops, MekaSuit glide energy, robit skin registry default).
   - `GeneratorsTests`, `AdditionsToolsTests`: generators produce energy, fusion/fission/turbine form, path type of formed casings, meltdown;
-    baby mobs (biome and structure spawns), plastic fence gate and beacon colors, paxel, FinalizeSpawnEvent.
+    baby mobs (biome and structure spawns), modifiers in the `mekanism_shim` registries, plastic fence gate and beacon colors, paxel, FinalizeSpawnEvent.
   - `InjectedInterfaceTests`: formerly conflicting injected defaults.
   - `LookingAtTests` (8): the server data providers of Jade (its block data request handler), The One Probe (its probe info builder, with a
     probe) and WTHIT for energy cubes, fluid and chemical tanks and a formed dynamic tank (multiblock contents from a casing), checking the
@@ -84,7 +84,11 @@
   in `:fabric`, compiled from `common/src/<module>` with per module overrides in `fabric/src/<module>`, own jars via `<module>Jar`). No defense
   module exists in this repo; datagen stays NeoForge-only.
 - Recipes, tags, conditions, data maps, biome modifiers (all but climate/special effects; `BiomeModifierBridge`, server configs load before
-  Fabric's biome modification) and structure modifiers (`StructureMixin`) load. Datapack registries get their `RegistryBuilder` bake callbacks
+  Fabric's biome modification) and structure modifiers (`StructureMixin`) load. All shim registries, including these two datapack registries,
+  are in the `mekanism_shim` namespace (other mods' NeoForge shims may register the `neoforge:` ones, and duplicates crash), so modifiers live in
+  `data/<namespace>/mekanism_shim/{biome,structure}_modifier/`: the Fabric build's resource processing moves Mekanism's generated
+  `data/<namespace>/neoforge/{biome,structure}_modifier/` files there (NeoForge resources/datagen unchanged); serializer type ids such as
+  `neoforge:add_features` are unchanged. Datapacks using NeoForge's layout (`neoforge/biome_modifier`) don't apply on Fabric. Datapack registries get their `RegistryBuilder` bake callbacks
   and default key (`ShimBackend.addDatapackRegistry` -> `RegistryLoadTaskMixin` creates a `DefaultedMappedRegistry`; robit skins).
 - Item/fluid interop with the Fabric Transfer API and energy interop with Team Reborn Energy (1:1, bundled jar-in-jar), blocks and items, both
   directions.

@@ -46,9 +46,11 @@ public class NeoForgeRegistries {
         public static final ResourceKey<Registry<MapCodec<? extends BiomeModifier>>> BIOME_MODIFIER_SERIALIZERS = key("biome_modifier_serializers");
         public static final ResourceKey<Registry<MapCodec<? extends StructureModifier>>> STRUCTURE_MODIFIER_SERIALIZERS = key("structure_modifier_serializers");
         public static final ResourceKey<Registry<MapCodec<? extends ICondition>>> CONDITION_CODECS = key("condition_codecs");
-        // Datapack registries: these keep NeoForge's names, as they determine the data pack directories (data/<namespace>/neoforge/biome_modifier/...)
-        public static final ResourceKey<Registry<BiomeModifier>> BIOME_MODIFIERS = datapackKey("biome_modifier");
-        public static final ResourceKey<Registry<StructureModifier>> STRUCTURE_MODIFIERS = datapackKey("structure_modifier");
+        // Datapack registries: Mekanism shim: also in the shim's namespace, so their data lives in data/<namespace>/mekanism_shim/biome_modifier/... (the
+        // Fabric build moves Mekanism's data/<namespace>/neoforge/{biome,structure}_modifier files there). Another mod registering neoforge:biome_modifier
+        // with Fabric's DynamicRegistries would crash the game otherwise.
+        public static final ResourceKey<Registry<BiomeModifier>> BIOME_MODIFIERS = key("biome_modifier");
+        public static final ResourceKey<Registry<StructureModifier>> STRUCTURE_MODIFIERS = key("structure_modifier");
 
         /**
          * Mekanism shim: The static registries live under the shim's own namespace instead of {@code neoforge}. Other mods ship their own NeoForge shims
@@ -58,10 +60,6 @@ public class NeoForgeRegistries {
          */
         private static <T> ResourceKey<Registry<T>> key(String name) {
             return ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("mekanism_shim", name));
-        }
-
-        private static <T> ResourceKey<Registry<T>> datapackKey(String name) {
-            return ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("neoforge", name));
         }
     }
 }

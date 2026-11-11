@@ -9,7 +9,11 @@ import mekanism.tools.common.registries.ToolsItems;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.random.Weighted;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.EntityType;
@@ -116,6 +120,27 @@ public class AdditionsToolsTests {
         helper.assertTrue(monsters != null, Component.literal("Fortresses should have monster spawn overrides"));
         assertSpawns(helper, monsters.spawns().unwrap(), "fortress", BabyType.SKELETON, BabyType.WITHER_SKELETON);
         helper.succeed();
+    }
+
+    @GameTest
+    public void modifiersInShimRegistries(GameTestHelper helper) {
+        //The shim's datapack registries are in the mekanism_shim namespace (not neoforge, which other mods' NeoForge shims may register too), and the
+        //Fabric build moves Mekanism's modifiers from data/<namespace>/neoforge/<registry> to data/<namespace>/mekanism_shim/<registry>
+        assertRegistryContains(helper, "biome_modifier", Identifier.fromNamespaceAndPath("mekanism", "osmium"),
+              Identifier.fromNamespaceAndPath("mekanism", "uranium"), Identifier.fromNamespaceAndPath("mekanismadditions", "baby_skeleton"));
+        assertRegistryContains(helper, "structure_modifier", Identifier.fromNamespaceAndPath("mekanismadditions", "baby_skeleton"),
+              Identifier.fromNamespaceAndPath("mekanismadditions", "baby_wither_skeleton"));
+        helper.succeed();
+    }
+
+    private static void assertRegistryContains(GameTestHelper helper, String registryName, Identifier... ids) {
+        RegistryAccess registries = helper.getLevel().registryAccess();
+        helper.assertTrue(registries.lookup(ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("neoforge", registryName))).isEmpty(),
+              Component.literal("There should be no neoforge:" + registryName + " registry"));
+        Registry<Object> registry = registries.lookupOrThrow(ResourceKey.<Object>createRegistryKey(Identifier.fromNamespaceAndPath("mekanism_shim", registryName)));
+        for (Identifier id : ids) {
+            helper.assertTrue(registry.containsKey(id), Component.literal("mekanism_shim:" + registryName + " should contain " + id + ": " + registry.keySet()));
+        }
     }
 
     private static void assertSpawns(GameTestHelper helper, java.util.List<Weighted<MobSpawnSettings.SpawnerData>> spawns, String where, BabyType... types) {

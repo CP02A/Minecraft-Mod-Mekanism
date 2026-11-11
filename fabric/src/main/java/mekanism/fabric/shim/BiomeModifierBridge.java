@@ -48,8 +48,10 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 /**
- * Loads NeoForge's data driven biome modifiers ({@code data/<namespace>/neoforge/biome_modifier}) and applies them through Fabric's biome modification
- * API, and NeoForge's structure modifiers ({@code data/<namespace>/neoforge/structure_modifier}) through {@code StructureMixin}.
+ * Loads NeoForge's data driven biome modifiers and applies them through Fabric's biome modification API, and NeoForge's structure modifiers through
+ * {@code StructureMixin}. Their registries are {@code mekanism_shim:biome_modifier} and {@code mekanism_shim:structure_modifier}, so the files live in
+ * {@code data/<namespace>/mekanism_shim/biome_modifier} and {@code data/<namespace>/mekanism_shim/structure_modifier} (the Fabric build moves Mekanism's
+ * {@code neoforge/} ones there); the {@code neoforge} names could clash with other mods' NeoForge shims.
  * <p>
  * Biome modifiers are run against a NeoForge {@link ModifiableBiomeInfo.BiomeInfo.Builder} built from the biome's current state for each Fabric modification
  * phase (NeoForge's {@code BEFORE_EVERYTHING} and {@code ADD} phases in {@link ModificationPhase#ADDITIONS}, {@code REMOVE} in
@@ -71,7 +73,7 @@ public final class BiomeModifierBridge {
     public static void register() {
         DynamicRegistries.register(NeoForgeRegistries.Keys.BIOME_MODIFIERS, BiomeModifier.DIRECT_CODEC);
         DynamicRegistries.register(NeoForgeRegistries.Keys.STRUCTURE_MODIFIERS, StructureModifier.DIRECT_CODEC);
-        BiomeModifications.create(Identifier.fromNamespaceAndPath("neoforge", "biome_modifiers"))
+        BiomeModifications.create(Identifier.fromNamespaceAndPath("mekanism_shim", "biome_modifiers"))
               .add(ModificationPhase.ADDITIONS, context -> true, (selection, modification) -> apply(selection, modification, BiomeModifier.Phase.BEFORE_EVERYTHING,
                     BiomeModifier.Phase.ADD))
               .add(ModificationPhase.REMOVALS, context -> true, (selection, modification) -> apply(selection, modification, BiomeModifier.Phase.REMOVE))
