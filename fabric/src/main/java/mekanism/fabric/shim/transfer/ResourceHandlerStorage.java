@@ -8,9 +8,9 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.resource.Resource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import mekanism.shim.neoforged.neoforge.transfer.ResourceHandler;
+import mekanism.shim.neoforged.neoforge.transfer.resource.Resource;
+import mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
  * Exposes a NeoForge resource handler as a Fabric slotted storage.

@@ -29,10 +29,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.PowderSnowBlock;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import mekanism.shim.neoforged.neoforge.capabilities.Capabilities;
+import mekanism.shim.neoforged.neoforge.transfer.ResourceHandler;
+import mekanism.shim.neoforged.neoforge.transfer.fluid.FluidResource;
+import mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
  * Level aware NeoForge extension hooks (IBlockExtension, IItemExtension, IEntityExtension) that vanilla has no call site for, called by the shim's mixins.

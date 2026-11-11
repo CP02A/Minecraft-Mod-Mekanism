@@ -27,18 +27,18 @@ import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
+import mekanism.shim.neoforged.api.distmarker.Dist;
+import mekanism.shim.neoforged.fml.ModContainer;
+import mekanism.shim.neoforged.fml.ModList;
 import net.neoforged.fml.config.IConfigSpec;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.common.crafting.ICustomIngredient;
-import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.registries.callback.AddCallback;
-import net.neoforged.neoforge.registries.callback.BakeCallback;
-import net.neoforged.neoforge.registries.callback.RegistryCallback;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import net.neoforged.neoforge.shim.ShimBackend;
+import mekanism.shim.neoforged.neoforge.common.crafting.ICustomIngredient;
+import mekanism.shim.neoforged.neoforge.fluids.FluidType;
+import mekanism.shim.neoforged.neoforge.registries.callback.AddCallback;
+import mekanism.shim.neoforged.neoforge.registries.callback.BakeCallback;
+import mekanism.shim.neoforged.neoforge.registries.callback.RegistryCallback;
+import mekanism.shim.neoforged.neoforge.server.ServerLifecycleHooks;
+import mekanism.shim.neoforged.neoforge.shim.ShimBackend;
 import org.jspecify.annotations.Nullable;
 
 /**

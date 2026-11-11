@@ -23,12 +23,12 @@ import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.vehicle.minecart.Minecart;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.TicketStorage;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.world.chunk.ForcedChunkManager;
-import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
-import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
-import net.neoforged.neoforge.event.level.ChunkTicketLevelUpdatedEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import mekanism.shim.neoforged.neoforge.common.NeoForge;
+import mekanism.shim.neoforged.neoforge.common.world.chunk.ForcedChunkManager;
+import mekanism.shim.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
+import mekanism.shim.neoforged.neoforge.event.entity.living.MobSpawnEvent;
+import mekanism.shim.neoforged.neoforge.event.level.ChunkTicketLevelUpdatedEvent;
+import mekanism.shim.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /**
  * Tests the server side NeoForge hooks: forced chunks of ticket controllers (and their persistence), ticket level events, spawn placements and entity

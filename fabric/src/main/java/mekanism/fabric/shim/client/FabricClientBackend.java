@@ -17,14 +17,14 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.resources.Identifier;
-import net.neoforged.fml.ModLoader;
-import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.gui.GuiLayer;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
-import net.neoforged.neoforge.client.model.standalone.StandaloneModelLoader;
-import net.neoforged.neoforge.client.model.standalone.UnbakedStandaloneModel;
-import net.neoforged.neoforge.shim.ClientBackend;
+import mekanism.shim.neoforged.fml.ModLoader;
+import mekanism.shim.neoforged.neoforge.client.event.ModelEvent;
+import mekanism.shim.neoforged.neoforge.client.gui.GuiLayer;
+import mekanism.shim.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import mekanism.shim.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
+import mekanism.shim.neoforged.neoforge.client.model.standalone.StandaloneModelLoader;
+import mekanism.shim.neoforged.neoforge.client.model.standalone.UnbakedStandaloneModel;
+import mekanism.shim.neoforged.neoforge.shim.ClientBackend;
 import org.jspecify.annotations.Nullable;
 
 /**

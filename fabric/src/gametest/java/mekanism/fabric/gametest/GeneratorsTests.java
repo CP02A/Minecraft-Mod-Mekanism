@@ -33,10 +33,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import mekanism.shim.neoforged.neoforge.capabilities.Capabilities;
+import mekanism.shim.neoforged.neoforge.transfer.ResourceHandler;
+import mekanism.shim.neoforged.neoforge.transfer.fluid.FluidResource;
+import mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
  * Tests that Mekanism: Generators works on Fabric: generators produce energy and its multiblocks form.

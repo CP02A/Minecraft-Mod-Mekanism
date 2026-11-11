@@ -22,15 +22,15 @@ import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.ModLoader;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
-import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import net.neoforged.neoforge.network.registration.HandlerThread;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import net.neoforged.neoforge.shim.NetworkBackend;
+import mekanism.shim.neoforged.api.distmarker.Dist;
+import mekanism.shim.neoforged.fml.ModLoader;
+import mekanism.shim.neoforged.fml.loading.FMLEnvironment;
+import mekanism.shim.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
+import mekanism.shim.neoforged.neoforge.network.handling.IPayloadContext;
+import mekanism.shim.neoforged.neoforge.network.handling.IPayloadHandler;
+import mekanism.shim.neoforged.neoforge.network.registration.HandlerThread;
+import mekanism.shim.neoforged.neoforge.server.ServerLifecycleHooks;
+import mekanism.shim.neoforged.neoforge.shim.NetworkBackend;
 import org.jspecify.annotations.Nullable;
 
 /**

@@ -6,8 +6,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import mekanism.fabric.shim.ServerHooks;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
+import mekanism.shim.neoforged.neoforge.common.NeoForge;
+import mekanism.shim.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 

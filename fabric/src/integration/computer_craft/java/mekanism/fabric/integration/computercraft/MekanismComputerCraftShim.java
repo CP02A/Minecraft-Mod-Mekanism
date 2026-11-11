@@ -3,9 +3,9 @@ package mekanism.fabric.integration.computercraft;
 import mekanism.common.integration.computercraft.CCPeripheralCapability;
 import mekanism.common.integration.computercraft.MekanismComputerCraft;
 import mekanism.fabric.shim.ShimModInitializer;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import mekanism.shim.neoforged.bus.api.IEventBus;
+import mekanism.shim.neoforged.fml.ModContainer;
+import mekanism.shim.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 /// Constructs [MekanismComputerCraft], which NeoForge constructs as a `@Mod(depends = "computercraft")` class. Registered as Mekanism's
 /// `mekanism:computercraft` entrypoint, which [mekanism.fabric.MekanismShimMod] only loads when CC: Tweaked is present.

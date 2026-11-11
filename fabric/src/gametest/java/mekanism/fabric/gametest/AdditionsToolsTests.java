@@ -37,8 +37,8 @@ import net.minecraft.world.level.block.entity.BeaconBeamOwner;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
+import mekanism.shim.neoforged.neoforge.common.NeoForge;
+import mekanism.shim.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 
 /**
  * Tests for Mekanism: Additions and Mekanism: Tools on Fabric.

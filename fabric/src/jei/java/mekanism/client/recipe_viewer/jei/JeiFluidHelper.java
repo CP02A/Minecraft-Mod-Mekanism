@@ -10,9 +10,9 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.crafting.display.FluidStackContentsFactory;
+import mekanism.shim.neoforged.neoforge.fluids.FluidStack;
+import mekanism.shim.neoforged.neoforge.fluids.FluidType;
+import mekanism.shim.neoforged.neoforge.fluids.crafting.display.FluidStackContentsFactory;
 
 /**
  * Loader specific representation of fluids in JEI (the NeoForge version, with the same name, uses {@link FluidStack}s directly). JEI on Fabric represents

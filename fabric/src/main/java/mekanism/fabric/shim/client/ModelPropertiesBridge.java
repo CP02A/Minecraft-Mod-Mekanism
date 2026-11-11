@@ -8,7 +8,7 @@ import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.client.resources.model.sprite.TextureSlots;
-import net.neoforged.neoforge.client.model.ExtraFaceData;
+import mekanism.shim.neoforged.neoforge.client.model.ExtraFaceData;
 import org.jspecify.annotations.Nullable;
 
 /**

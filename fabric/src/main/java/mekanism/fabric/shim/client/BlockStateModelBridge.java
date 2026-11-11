@@ -12,10 +12,10 @@ import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
-import net.neoforged.fml.ModLoader;
-import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
-import net.neoforged.neoforge.client.model.block.CustomBlockModelDefinition;
-import net.neoforged.neoforge.client.model.block.CustomUnbakedBlockStateModel;
+import mekanism.shim.neoforged.fml.ModLoader;
+import mekanism.shim.neoforged.neoforge.client.event.RegisterBlockStateModels;
+import mekanism.shim.neoforged.neoforge.client.model.block.CustomBlockModelDefinition;
+import mekanism.shim.neoforged.neoforge.client.model.block.CustomUnbakedBlockStateModel;
 
 /**
  * Supports NeoForge's custom block state models ({@code {"type": "<model type>", ...}} in blockstate files) by registering them as Fabric custom

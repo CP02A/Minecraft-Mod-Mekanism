@@ -28,9 +28,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.ExtendedRecipeBookCategory;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.RecipeDisplayId;
-import net.neoforged.neoforge.client.RecipeBookManager;
-import net.neoforged.neoforge.client.recipebook.RecipeOverlayButtonCreator;
-import net.neoforged.neoforge.fluids.FluidStack;
+import mekanism.shim.neoforged.neoforge.client.RecipeBookManager;
+import mekanism.shim.neoforged.neoforge.client.recipebook.RecipeOverlayButtonCreator;
+import mekanism.shim.neoforged.neoforge.fluids.FluidStack;
 import org.jspecify.annotations.Nullable;
 
 //TODO - 26.4: Double check nothing changed that might have broken this, the overlay, or the ghost slots

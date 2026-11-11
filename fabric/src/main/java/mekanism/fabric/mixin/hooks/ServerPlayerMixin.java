@@ -10,12 +10,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.neoforged.neoforge.common.util.FriendlyByteBufUtil;
+import mekanism.shim.neoforged.neoforge.common.util.FriendlyByteBufUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
- * Sends the additional client side menu data of NeoForge's {@link net.neoforged.neoforge.common.extensions.IMenuProviderExtension} when opening a menu.
+ * Sends the additional client side menu data of NeoForge's {@link mekanism.shim.neoforged.neoforge.common.extensions.IMenuProviderExtension} when opening a menu.
  */
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin {

@@ -11,9 +11,9 @@ import java.util.Map;
 import mekanism.fabric.shim.client.ModelPropertiesBridge;
 import net.minecraft.client.resources.model.cuboid.CuboidModel;
 import net.minecraft.util.context.ContextMap;
-import net.neoforged.neoforge.client.model.ExtraFaceData;
-import net.neoforged.neoforge.client.model.NeoForgeModelProperties;
-import net.neoforged.neoforge.common.util.TransformationHelper;
+import mekanism.shim.neoforged.neoforge.client.model.ExtraFaceData;
+import mekanism.shim.neoforged.neoforge.client.model.NeoForgeModelProperties;
+import mekanism.shim.neoforged.neoforge.common.util.TransformationHelper;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -48,7 +48,7 @@ public abstract class CuboidModelMixin implements ModelPropertiesBridge.CuboidMo
     }
 
     /**
-     * Overrides {@link net.neoforged.neoforge.client.extensions.UnbakedModelExtension#fillAdditionalProperties(ContextMap.Builder)}.
+     * Overrides {@link mekanism.shim.neoforged.neoforge.client.extensions.UnbakedModelExtension#fillAdditionalProperties(ContextMap.Builder)}.
      */
     public void fillAdditionalProperties(ContextMap.Builder propertiesBuilder) {
         NeoForgeModelProperties.fillRootTransformProperty(propertiesBuilder, mekanism$rootTransform);

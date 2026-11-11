@@ -3,7 +3,7 @@ package mekanism.fabric.mixin.hooks;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
-import net.neoforged.neoforge.shim.ShimHooks;
+import mekanism.shim.neoforged.neoforge.shim.ShimHooks;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

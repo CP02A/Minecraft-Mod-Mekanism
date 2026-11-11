@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * NeoForge's {@link net.neoforged.neoforge.event.level.ChunkTicketLevelUpdatedEvent}, fired at the same place as NeoForge (not for chunks that
+ * NeoForge's {@link mekanism.shim.neoforged.neoforge.event.level.ChunkTicketLevelUpdatedEvent}, fired at the same place as NeoForge (not for chunks that
  * are neither loaded before nor after the change).
  */
 @Mixin(ChunkMap.class)

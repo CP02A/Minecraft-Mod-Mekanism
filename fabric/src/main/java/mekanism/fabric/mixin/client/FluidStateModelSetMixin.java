@@ -8,10 +8,10 @@ import net.minecraft.client.renderer.block.FluidStateModelSet;
 import net.minecraft.client.resources.model.sprite.MaterialBaker;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.client.fluid.FluidTintSource;
-import net.neoforged.neoforge.client.fluid.FluidTintSources;
-import net.neoforged.fml.ModLoader;
-import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
+import mekanism.shim.neoforged.neoforge.client.fluid.FluidTintSource;
+import mekanism.shim.neoforged.neoforge.client.fluid.FluidTintSources;
+import mekanism.shim.neoforged.fml.ModLoader;
+import mekanism.shim.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 

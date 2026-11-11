@@ -11,9 +11,9 @@ import net.minecraft.client.resources.model.geometry.UnbakedGeometry;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.util.context.ContextMap;
-import net.neoforged.neoforge.client.model.ExtendedUnbakedGeometry;
-import net.neoforged.neoforge.client.model.ExtraFaceData;
-import net.neoforged.neoforge.client.model.NeoForgeModelProperties;
+import mekanism.shim.neoforged.neoforge.client.model.ExtendedUnbakedGeometry;
+import mekanism.shim.neoforged.neoforge.client.model.ExtraFaceData;
+import mekanism.shim.neoforged.neoforge.client.model.NeoForgeModelProperties;
 
 /**
  * NeoForge's item layer face data ({@code neoforge_data} of {@code layerN} textures, see {@link NeoForgeModelProperties#getItemLayerFaceData}) for

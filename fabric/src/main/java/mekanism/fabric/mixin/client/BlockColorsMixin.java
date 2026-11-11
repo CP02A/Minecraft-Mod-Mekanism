@@ -2,8 +2,8 @@ package mekanism.fabric.mixin.client;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.client.color.block.BlockColors;
-import net.neoforged.fml.ModLoader;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import mekanism.shim.neoforged.fml.ModLoader;
+import mekanism.shim.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 

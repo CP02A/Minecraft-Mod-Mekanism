@@ -4,8 +4,8 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import mekanism.fabric.shim.client.ModelDataSnapshotHolder;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
 import net.minecraft.core.BlockPos;
-import net.neoforged.neoforge.model.data.ModelData;
-import net.neoforged.neoforge.model.data.ModelDataManager;
+import mekanism.shim.neoforged.neoforge.model.data.ModelData;
+import mekanism.shim.neoforged.neoforge.model.data.ModelDataManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 

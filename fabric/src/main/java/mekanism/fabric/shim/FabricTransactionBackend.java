@@ -3,7 +3,7 @@ package mekanism.fabric.shim;
 import java.util.function.Consumer;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.neoforged.neoforge.shim.TransactionBackend;
+import mekanism.shim.neoforged.neoforge.shim.TransactionBackend;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -59,12 +59,12 @@ public class FabricTransactionBackend implements TransactionBackend {
     }
 
     @Override
-    public net.neoforged.neoforge.transfer.transaction.Transaction.Lifecycle lifecycle() {
+    public mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction.Lifecycle lifecycle() {
         return switch (Transaction.getLifecycle()) {
-            case NONE -> net.neoforged.neoforge.transfer.transaction.Transaction.Lifecycle.NONE;
-            case OPEN -> net.neoforged.neoforge.transfer.transaction.Transaction.Lifecycle.OPEN;
-            case CLOSING -> net.neoforged.neoforge.transfer.transaction.Transaction.Lifecycle.CLOSING;
-            case OUTER_CLOSING -> net.neoforged.neoforge.transfer.transaction.Transaction.Lifecycle.ROOT_CLOSING;
+            case NONE -> mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction.Lifecycle.NONE;
+            case OPEN -> mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction.Lifecycle.OPEN;
+            case CLOSING -> mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction.Lifecycle.CLOSING;
+            case OUTER_CLOSING -> mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction.Lifecycle.ROOT_CLOSING;
         };
     }
 }

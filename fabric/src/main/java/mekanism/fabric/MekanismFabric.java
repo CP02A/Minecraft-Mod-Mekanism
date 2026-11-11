@@ -7,7 +7,7 @@ public class MekanismFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        //Mekanism is constructed by the shim's mod loader via its neoforge-shim entrypoint (MekanismShimMod)
+        //Mekanism is constructed by the shim's mod loader via its mekanism_shim entrypoint (MekanismShimMod)
         ShimModLoader.loadAll();
     }
 }

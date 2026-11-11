@@ -4,9 +4,9 @@ import mekanism.fabric.shim.ShimModInitializer;
 import mekanism.tools.common.MekanismTools;
 import mekanism.tools.common.registries.ToolsRecipeSerializers;
 import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import mekanism.shim.neoforged.bus.api.IEventBus;
+import mekanism.shim.neoforged.fml.ModContainer;
+import mekanism.shim.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 /**
  * Constructs Mekanism: Tools' NeoForge style mod class.

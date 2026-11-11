@@ -23,8 +23,8 @@ import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.item.crafting.RecipeType;
 
 /**
- * Syncs the recipes of the types requested via {@link net.neoforged.neoforge.event.OnDatapackSyncEvent#sendRecipes} to clients, which then fire
- * {@link net.neoforged.neoforge.client.event.RecipesReceivedEvent} (like NeoForge's {@code RecipeContentPayload}).
+ * Syncs the recipes of the types requested via {@link mekanism.shim.neoforged.neoforge.event.OnDatapackSyncEvent#sendRecipes} to clients, which then fire
+ * {@link mekanism.shim.neoforged.neoforge.client.event.RecipesReceivedEvent} (like NeoForge's {@code RecipeContentPayload}).
  */
 public final class RecipeContentSync {
 

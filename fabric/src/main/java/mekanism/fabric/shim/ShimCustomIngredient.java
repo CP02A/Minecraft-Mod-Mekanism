@@ -14,9 +14,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
-import net.neoforged.neoforge.common.crafting.ICustomIngredient;
-import net.neoforged.neoforge.common.crafting.IngredientType;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import mekanism.shim.neoforged.neoforge.common.crafting.ICustomIngredient;
+import mekanism.shim.neoforged.neoforge.common.crafting.IngredientType;
+import mekanism.shim.neoforged.neoforge.registries.NeoForgeRegistries;
 
 /**
  * Wraps a NeoForge style custom ingredient as a Fabric custom ingredient.

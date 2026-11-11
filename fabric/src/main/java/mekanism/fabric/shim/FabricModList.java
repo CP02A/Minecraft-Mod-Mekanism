@@ -6,11 +6,11 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.ModMetadata;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforgespi.language.IModInfo;
-import net.neoforged.neoforgespi.language.ModFileScanData;
-import org.apache.maven.artifact.versioning.ArtifactVersion;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import mekanism.shim.neoforged.fml.ModList;
+import mekanism.shim.neoforged.neoforgespi.language.IModInfo;
+import mekanism.shim.neoforged.neoforgespi.language.ModFileScanData;
+import mekanism.shim.lib.maven.artifact.versioning.ArtifactVersion;
+import mekanism.shim.lib.maven.artifact.versioning.DefaultArtifactVersion;
 
 /**
  * The shim's mod list on Fabric: contains a container for each mod that uses the shim, and mod infos for all Fabric mods.

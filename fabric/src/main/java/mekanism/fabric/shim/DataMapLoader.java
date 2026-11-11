@@ -40,13 +40,13 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.tags.TagKey;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.conditions.ConditionalOps;
-import net.neoforged.neoforge.registries.datamaps.AdvancedDataMapType;
-import net.neoforged.neoforge.registries.datamaps.DataMapType;
-import net.neoforged.neoforge.registries.datamaps.DataMapValueMerger;
-import net.neoforged.neoforge.registries.datamaps.DataMapsUpdatedEvent;
-import net.neoforged.neoforge.shim.DataMapStorage;
+import mekanism.shim.neoforged.neoforge.common.NeoForge;
+import mekanism.shim.neoforged.neoforge.common.conditions.ConditionalOps;
+import mekanism.shim.neoforged.neoforge.registries.datamaps.AdvancedDataMapType;
+import mekanism.shim.neoforged.neoforge.registries.datamaps.DataMapType;
+import mekanism.shim.neoforged.neoforge.registries.datamaps.DataMapValueMerger;
+import mekanism.shim.neoforged.neoforge.registries.datamaps.DataMapsUpdatedEvent;
+import mekanism.shim.neoforged.neoforge.shim.DataMapStorage;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -196,7 +196,7 @@ public final class DataMapLoader implements ResourceManagerReloadListener {
     }
 
     private static boolean conditionsMet(JsonObject object, DynamicOps<JsonElement> ops) {
-        return !object.has(ConditionalOps.DEFAULT_CONDITIONS_KEY) || net.neoforged.neoforge.common.conditions.ICondition.conditionsMatched(ops, object);
+        return !object.has(ConditionalOps.DEFAULT_CONDITIONS_KEY) || mekanism.shim.neoforged.neoforge.common.conditions.ICondition.conditionsMatched(ops, object);
     }
 
     private static <R> Either<TagKey<R>, ResourceKey<R>> parseSource(Registry<R> registry, String key) {

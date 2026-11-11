@@ -60,12 +60,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.energy.EnergyHandler;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import mekanism.shim.neoforged.neoforge.capabilities.Capabilities;
+import mekanism.shim.neoforged.neoforge.transfer.ResourceHandler;
+import mekanism.shim.neoforged.neoforge.transfer.energy.EnergyHandler;
+import mekanism.shim.neoforged.neoforge.transfer.fluid.FluidResource;
+import mekanism.shim.neoforged.neoforge.transfer.item.ItemResource;
+import mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
  * Gameplay coverage of Mekanism's main module on Fabric: multiblocks, chemical transfer, the digital miner, QIO, teleporters, item interactions,

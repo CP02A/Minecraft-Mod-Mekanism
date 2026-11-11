@@ -8,6 +8,44 @@ plugins {
 // (see docs/multiloader.md). Classes that need a loader specific implementation exist with the same name in neoforge/src and fabric/src
 def commonSrc = rootProject.file('common/src')
 
+//The shim's classes live in mekanism.shim.neoforged.* rather than NeoForge's net.neoforged.* packages, and its libraries (NeoForge's event bus,
+// typetools, maven-artifact) are relocated into it (see shim/build.gradle), so no other mod's NeoForge shim or NeoForge classes can clash with it.
+// The shared sources are written against the real packages, so the copies compiled here get their references to the shim's classes rewritten.
+// Only the classes the shim provides are rewritten: other net.neoforged classes keep their names (e.g. NeoForge's config API, which Forge Config
+// API Port provides)
+def shimSourceRoot = rootProject.file('shim/src/main/java/mekanism/shim/neoforged')
+def shimClasses = fileTree(shimSourceRoot) {
+    include('**/*.java')
+    exclude('**/package-info.java')
+}.files.collect { 'net.neoforged.' + shimSourceRoot.toPath().relativize(it.toPath()).toString().replace(File.separator, '.').replaceAll(/\.java$/, '') } as Set
+def shimPackages = shimClasses.collect { it.substring(0, it.lastIndexOf('.')) } as Set
+def relocateShimReferences = { String line ->
+    if (!line.contains('net.neoforged') && !line.contains('org.apache.maven')) {
+        return line
+    }
+    line = line.replaceAll(/(?<![\w.])org\.apache\.maven\./, 'mekanism.shim.lib.maven.')
+    return line.replaceAll(/(?<![\w.])net\.neoforged(?:\.(?:\w+|\*))+(?=(\.@)?)/) { List<String> match ->
+        String name = match[0]
+        List<String> segments = name.split(/\./) as List
+        boolean relocated = name.startsWith('net.neoforged.bus.') || (2..<segments.size()).any { shimClasses.contains(segments.subList(0, it + 1).join('.')) }
+        if (!relocated) {
+            //Wildcard imports and package qualified annotated types (pkg.@Nullable Type)
+            String pkg = segments.last() == '*' ? segments.subList(0, segments.size() - 1).join('.') : match[1] == null ? null : name
+            relocated = pkg != null && shimPackages.contains(pkg)
+        }
+        return relocated ? 'mekanism.shim.' + name.substring('net.'.length()) : name
+    }
+}
+//Applied to all the tasks copying shared sources (sync*Sources)
+tasks.withType(Sync).configureEach {
+    if (name.startsWith('sync') && name.endsWith('Sources')) {
+        inputs.property('relocatedShimClasses', shimClasses.sort().join(','))
+        filesMatching('**/*.java') {
+            filter(relocateShimReferences)
+        }
+    }
+}
+
 //The shared sources are copied into the build directory instead of being added as source directories, as IntelliJ doesn't allow the same
 // directory to be a content root of both the :neoforge and the :fabric modules
 def syncSharedSources = tasks.register('syncSharedSources', Sync) {
@@ -116,10 +154,6 @@ repositories {
         filter { includeGroup('fuzs.forgeconfigapiport') }
     }
     exclusiveContent {
-        forRepository { maven { url = 'https://maven.neoforged.net/releases' } }
-        filter { includeModule('net.neoforged', 'bus') }
-    }
-    exclusiveContent {
         forRepository { maven { url = 'https://maven.neoforged.net/mojang-meta' } }
         filter { includeModule('net.neoforged', 'minecraft-dependencies') }
     }
@@ -161,7 +195,7 @@ dependencies {
         transitive = false
     }
 
-    //Fabric implementation of the subset of NeoForge's API the shared code uses, bundled (with its dependencies) as nested jars
+    //Fabric implementation of the subset of NeoForge's API the shared code uses (with its relocated libraries), bundled as a nested jar
     implementation(project(':shim')) {
         attributes {
             attribute(loaderAttribute, 'common')
@@ -172,9 +206,6 @@ dependencies {
             attribute(loaderAttribute, 'common')
         }
     }
-    include('net.neoforged:bus:8.0.5')
-    include('net.jodah:typetools:0.6.3')
-    include('org.apache.maven:maven-artifact:3.9.11')
     //NeoForge's config API on Fabric
     implementation("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${forge_config_api_port_version}")
     include("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${forge_config_api_port_version}")
@@ -315,15 +346,15 @@ idea {
 def checkInjectedInterfaces = tasks.register('checkInjectedInterfaces', Exec) {
     group = 'verification'
     description = 'Checks injected interfaces for conflicting default methods'
-    def shimClasses = project(':shim').sourceSets.main.output.classesDirs
+    def shimJar = project(':shim').tasks.named('shadowJar').flatMap { it.archiveFile }
     def mainClasses = sourceSets.main.output.classesDirs
     def mixinConfigs = fileTree('src/main/resources') { include('*.mixins.json') }
     def classpath = sourceSets.main.compileClasspath
     def script = file('check_injected_interfaces.py')
     def marker = layout.buildDirectory.file('checkInjectedInterfaces.txt')
     def argFileProvider = layout.buildDirectory.file('checkInjectedInterfaces.args')
-    dependsOn(project(':shim').tasks.named('classes'), tasks.named('classes'))
-    inputs.files(shimClasses, mainClasses, mixinConfigs, script, rootProject.file('shim/src/main/resources/META-INF/shim-injected-interfaces.json'))
+    dependsOn(tasks.named('classes'))
+    inputs.files(shimJar, mainClasses, mixinConfigs, script, rootProject.file('shim/src/main/resources/META-INF/shim-injected-interfaces.json'))
     inputs.files(classpath).withNormalizer(ClasspathNormalizer)
     outputs.file(marker)
     executable = System.getenv('PYTHON') ?: 'python'
@@ -337,7 +368,7 @@ def checkInjectedInterfaces = tasks.register('checkInjectedInterfaces', Exec) {
         mixinConfigs.each { arguments.addAll(['--mixin-config', it.absolutePath]) }
         mainClasses.each { arguments.addAll(['--mixin-classes', it.absolutePath]) }
         arguments.add(minecraft.absolutePath)
-        arguments.add(shimClasses.singleFile.absolutePath)
+        arguments.add(shimJar.get().asFile.absolutePath)
         arguments.addAll((jars - minecraft).collect { it.absolutePath })
         //Passed in a file, as the classpath can exceed Windows' command line length limit
         def argFile = argFileProvider.get().asFile

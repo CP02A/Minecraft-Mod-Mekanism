@@ -9,8 +9,8 @@ import net.minecraft.client.resources.model.cuboid.UnbakedCuboidGeometry;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.util.context.ContextMap;
-import net.neoforged.neoforge.client.model.NeoForgeModelProperties;
-import net.neoforged.neoforge.client.model.UnbakedElementsHelper;
+import mekanism.shim.neoforged.neoforge.client.model.NeoForgeModelProperties;
+import mekanism.shim.neoforged.neoforge.client.model.UnbakedElementsHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -24,7 +24,7 @@ public abstract class UnbakedCuboidGeometryMixin {
     public abstract List<CuboidModelElement> elements();
 
     /**
-     * Overrides {@link net.neoforged.neoforge.client.extensions.UnbakedGeometryExtension#bake(TextureSlots, ModelBaker, ModelState, ModelDebugName, ContextMap)}.
+     * Overrides {@link mekanism.shim.neoforged.neoforge.client.extensions.UnbakedGeometryExtension#bake(TextureSlots, ModelBaker, ModelState, ModelDebugName, ContextMap)}.
      */
     public QuadCollection bake(TextureSlots textures, ModelBaker modelBaker, ModelState modelState, ModelDebugName name, ContextMap additionalProperties) {
         var transform = additionalProperties.get(NeoForgeModelProperties.TRANSFORM);

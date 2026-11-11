@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.renderer.state.level.BlockOutlineRenderState;
-import net.neoforged.neoforge.client.CustomBlockOutlineRenderer;
+import mekanism.shim.neoforged.neoforge.client.CustomBlockOutlineRenderer;
 import org.jspecify.annotations.Nullable;
 
 /**

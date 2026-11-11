@@ -4,9 +4,9 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.resource.Resource;
+import mekanism.shim.neoforged.neoforge.transfer.fluid.FluidResource;
+import mekanism.shim.neoforged.neoforge.transfer.item.ItemResource;
+import mekanism.shim.neoforged.neoforge.transfer.resource.Resource;
 
 /**
  * Conversion between NeoForge's resources and Fabric's transfer variants.

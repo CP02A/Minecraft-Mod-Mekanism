@@ -16,11 +16,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import mekanism.shim.neoforged.neoforge.capabilities.Capabilities;
+import mekanism.shim.neoforged.neoforge.transfer.ResourceHandler;
+import mekanism.shim.neoforged.neoforge.transfer.fluid.FluidResource;
+import mekanism.shim.neoforged.neoforge.transfer.item.ItemResource;
+import mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
  * Tests the bridge between NeoForge's transfer capabilities (as used by Mekanism) and Fabric's transfer API.
@@ -138,7 +138,7 @@ public class TransferBridgeTests {
         helper.runAfterDelay(2, () -> {
             BlockPos absolute = helper.absolutePos(POS);
             ResourceHandler<ItemResource> items = Capabilities.Item.BLOCK.getCapability(helper.getLevel(), absolute, null, null, null);
-            net.neoforged.neoforge.transfer.energy.EnergyHandler energy = Capabilities.Energy.BLOCK.getCapability(helper.getLevel(), absolute, null, null, null);
+            mekanism.shim.neoforged.neoforge.transfer.energy.EnergyHandler energy = Capabilities.Energy.BLOCK.getCapability(helper.getLevel(), absolute, null, null, null);
             helper.assertTrue(items != null && energy != null, net.minecraft.network.chat.Component.literal("Expected item and energy handlers"));
             try (Transaction transaction = Transaction.openRoot()) {
                 int insertedOre = 0;
@@ -151,7 +151,7 @@ public class TransferBridgeTests {
                 helper.assertValueEqual(insertedOre, 1, "inserted iron ore");
                 int insertedEnergy = 0;
                 for (Direction side : Direction.values()) {
-                    net.neoforged.neoforge.transfer.energy.EnergyHandler sided = Capabilities.Energy.BLOCK.getCapability(helper.getLevel(), absolute, null, null, side);
+                    mekanism.shim.neoforged.neoforge.transfer.energy.EnergyHandler sided = Capabilities.Energy.BLOCK.getCapability(helper.getLevel(), absolute, null, null, side);
                     if (sided != null && (insertedEnergy = sided.insert(Integer.MAX_VALUE, transaction)) > 0) {
                         break;
                     }

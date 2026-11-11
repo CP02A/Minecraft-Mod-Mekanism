@@ -9,8 +9,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
-import net.neoforged.neoforge.common.extensions.ItemInstanceExtension;
-import net.neoforged.neoforge.common.extensions.TooltipFlagExtension;
+import mekanism.shim.neoforged.neoforge.common.extensions.ItemInstanceExtension;
+import mekanism.shim.neoforged.neoforge.common.extensions.TooltipFlagExtension;
 
 /**
  * Calls the methods that both a shim and a Fabric API injected interface declare a default for (found by {@code check_injected_interfaces.py}), which

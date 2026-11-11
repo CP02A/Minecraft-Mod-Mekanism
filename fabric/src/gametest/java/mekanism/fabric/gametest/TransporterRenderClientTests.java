@@ -9,7 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.transfer.item.ItemResource;
+import mekanism.shim.neoforged.neoforge.transfer.item.ItemResource;
 
 /**
  * Client game test for the logistical transporter's item rendering: sends stacks of different sizes of flat items down two lines of transporters (one along the x

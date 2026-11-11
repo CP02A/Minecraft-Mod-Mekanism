@@ -23,13 +23,13 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.neoforged.neoforge.client.ClientHooks;
-import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
-import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
-import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
-import net.neoforged.neoforge.client.gui.GuiLayer;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import mekanism.shim.neoforged.neoforge.client.ClientHooks;
+import mekanism.shim.neoforged.neoforge.client.event.RecipesReceivedEvent;
+import mekanism.shim.neoforged.neoforge.client.event.RenderGuiLayerEvent;
+import mekanism.shim.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+import mekanism.shim.neoforged.neoforge.client.gui.GuiLayer;
+import mekanism.shim.neoforged.neoforge.common.NeoForge;
+import mekanism.shim.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import org.slf4j.Logger;
 
 /**

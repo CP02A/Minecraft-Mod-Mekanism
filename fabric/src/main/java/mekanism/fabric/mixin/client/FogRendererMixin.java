@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.client.renderer.fog.environment.FogEnvironment;
 import net.minecraft.world.level.material.FogType;
-import net.neoforged.neoforge.client.ClientHooks;
+import mekanism.shim.neoforged.neoforge.client.ClientHooks;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

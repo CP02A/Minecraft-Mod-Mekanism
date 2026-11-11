@@ -13,11 +13,11 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.neoforged.neoforge.network.IContainerFactory;
+import mekanism.shim.neoforged.neoforge.network.IContainerFactory;
 import org.jspecify.annotations.Nullable;
 
 /**
- * NeoForge's support for sending additional data (written by {@link net.neoforged.neoforge.common.extensions.IMenuProviderExtension#writeClientSideData}) to
+ * NeoForge's support for sending additional data (written by {@link mekanism.shim.neoforged.neoforge.common.extensions.IMenuProviderExtension#writeClientSideData}) to
  * the client when opening a menu, which is passed to {@link IContainerFactory#create(int, Inventory, RegistryFriendlyByteBuf)}.
  */
 public final class AdvancedMenuOpening {

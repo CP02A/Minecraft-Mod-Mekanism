@@ -32,47 +32,47 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.ResourceKey;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityDataRegistry;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import mekanism.shim.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.item.Item;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.Event;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModLoader;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.IModBusEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
-import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
-import net.neoforged.fml.event.lifecycle.ModLifecycleEvent;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.fml.loading.modscan.ModAnnotation;
+import mekanism.shim.neoforged.api.distmarker.Dist;
+import mekanism.shim.neoforged.bus.api.Event;
+import mekanism.shim.neoforged.bus.api.IEventBus;
+import mekanism.shim.neoforged.bus.api.SubscribeEvent;
+import mekanism.shim.neoforged.fml.ModLoader;
+import mekanism.shim.neoforged.fml.common.EventBusSubscriber;
+import mekanism.shim.neoforged.fml.event.IModBusEvent;
+import mekanism.shim.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import mekanism.shim.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
+import mekanism.shim.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import mekanism.shim.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
+import mekanism.shim.neoforged.fml.event.lifecycle.InterModProcessEvent;
+import mekanism.shim.neoforged.fml.event.lifecycle.ModLifecycleEvent;
+import mekanism.shim.neoforged.fml.loading.FMLEnvironment;
+import mekanism.shim.neoforged.fml.loading.modscan.ModAnnotation;
 import mekanism.fabric.shim.transfer.CapabilityBridge;
-import net.neoforged.neoforge.capabilities.CapabilityHooks;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.NeoForgeMod;
-import net.neoforged.neoforge.common.tooltip.ItemTooltipHandler;
-import net.neoforged.neoforge.common.world.chunk.ForcedChunkManager;
-import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
-import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
-import net.neoforged.neoforge.event.RegisterCauldronInteractionEvent;
-import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.registries.NewDatapackRegistryEvent;
-import net.neoforged.neoforge.registries.NewRegistryEvent;
-import net.neoforged.neoforge.registries.RegisterEvent;
-import net.neoforged.neoforge.registries.datamaps.DataMapType;
-import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import net.neoforged.neoforge.shim.ShimHooks;
-import net.neoforged.neoforgespi.language.ModFileScanData;
+import mekanism.shim.neoforged.neoforge.capabilities.CapabilityHooks;
+import mekanism.shim.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import mekanism.shim.neoforged.neoforge.common.NeoForge;
+import mekanism.shim.neoforged.neoforge.common.NeoForgeMod;
+import mekanism.shim.neoforged.neoforge.common.tooltip.ItemTooltipHandler;
+import mekanism.shim.neoforged.neoforge.common.world.chunk.ForcedChunkManager;
+import mekanism.shim.neoforged.neoforge.event.AddServerReloadListenersEvent;
+import mekanism.shim.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
+import mekanism.shim.neoforged.neoforge.event.RegisterCauldronInteractionEvent;
+import mekanism.shim.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import mekanism.shim.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import mekanism.shim.neoforged.neoforge.registries.NewDatapackRegistryEvent;
+import mekanism.shim.neoforged.neoforge.registries.NewRegistryEvent;
+import mekanism.shim.neoforged.neoforge.registries.RegisterEvent;
+import mekanism.shim.neoforged.neoforge.registries.datamaps.DataMapType;
+import mekanism.shim.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
+import mekanism.shim.neoforged.neoforge.server.ServerLifecycleHooks;
+import mekanism.shim.neoforged.neoforge.shim.ShimHooks;
+import mekanism.shim.neoforged.neoforgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 
@@ -80,13 +80,13 @@ import org.slf4j.Logger;
  * Loads the mods that are written against NeoForge's API (via the shim) on Fabric: constructs them, registers their automatic event subscribers and
  * fires NeoForge's mod loading events at the appropriate times.
  * <p>
- * Mods declare a {@code neoforge-shim} entrypoint implementing {@link ShimModInitializer}.
+ * Mods declare a {@code mekanism_shim} entrypoint implementing {@link ShimModInitializer}.
  */
 public final class ShimModLoader {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final String ENTRYPOINT = "neoforge-shim";
-    public static final String CLIENT_ENTRYPOINT = "neoforge-shim-client";
+    public static final String ENTRYPOINT = "mekanism_shim";
+    public static final String CLIENT_ENTRYPOINT = "mekanism_shim_client";
     private static final Type EVENT_BUS_SUBSCRIBER = Type.getType(EventBusSubscriber.class);
 
     private static boolean loaded;

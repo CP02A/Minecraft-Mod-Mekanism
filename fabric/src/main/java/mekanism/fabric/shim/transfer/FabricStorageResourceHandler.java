@@ -5,9 +5,9 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.resource.Resource;
-import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import mekanism.shim.neoforged.neoforge.transfer.ResourceHandler;
+import mekanism.shim.neoforged.neoforge.transfer.resource.Resource;
+import mekanism.shim.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -28,7 +28,7 @@ public class FabricStorageResourceHandler<R extends Resource, V extends Transfer
     }
 
     static net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext toFabric(TransactionContext transaction) {
-        return (net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext) ((net.neoforged.neoforge.transfer.transaction.Transaction) transaction).nativeHandle();
+        return (net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext) ((mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction) transaction).nativeHandle();
     }
 
     @Nullable

@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Like NeoForge's patch of {@link TypedInstance#is(Holder)}: compares the values of the holders instead of the holders themselves, so that custom holders
- * (such as {@link net.neoforged.neoforge.registries.DeferredHolder}s, which Mekanism's registry objects are) match the registered holder of the same
+ * (such as {@link mekanism.shim.neoforged.neoforge.registries.DeferredHolder}s, which Mekanism's registry objects are) match the registered holder of the same
  * value. Vanilla compares the holders by identity, making checks like {@code state.is(MekanismBlocks.TELEPORTER_FRAME)} always fail.
  */
 @Mixin(TypedInstance.class)

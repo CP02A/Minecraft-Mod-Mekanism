@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.ScrollWheelHandler;
-import net.neoforged.neoforge.client.ClientHooks;
+import mekanism.shim.neoforged.neoforge.client.ClientHooks;
 import org.joml.Vector2i;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

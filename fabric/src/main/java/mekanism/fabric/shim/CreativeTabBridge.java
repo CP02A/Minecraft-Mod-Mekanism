@@ -9,9 +9,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
-import net.neoforged.fml.ModLoader;
-import net.neoforged.neoforge.common.util.InsertableLinkedOpenCustomHashSet;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import mekanism.shim.neoforged.fml.ModLoader;
+import mekanism.shim.neoforged.neoforge.common.util.InsertableLinkedOpenCustomHashSet;
+import mekanism.shim.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 /**
  * Fires NeoForge's {@link BuildCreativeModeTabContentsEvent} for every creative tab (through Fabric's creative tab output event), like NeoForge's

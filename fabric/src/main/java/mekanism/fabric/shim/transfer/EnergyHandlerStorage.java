@@ -1,8 +1,8 @@
 package mekanism.fabric.shim.transfer;
 
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.neoforged.neoforge.transfer.energy.EnergyHandler;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import mekanism.shim.neoforged.neoforge.transfer.energy.EnergyHandler;
+import mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction;
 import team.reborn.energy.api.EnergyStorage;
 
 /**

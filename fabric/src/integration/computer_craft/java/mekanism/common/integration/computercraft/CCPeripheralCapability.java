@@ -4,7 +4,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.capabilities.BlockCapability;
+import mekanism.shim.neoforged.neoforge.capabilities.BlockCapability;
 import org.jspecify.annotations.Nullable;
 
 /// Loader specific access to the block capability CC: Tweaked looks up peripherals with. CC: Tweaked's Fabric version looks them up through

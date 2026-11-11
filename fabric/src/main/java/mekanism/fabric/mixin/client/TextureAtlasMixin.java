@@ -1,8 +1,8 @@
 package mekanism.fabric.mixin.client;
 
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.neoforged.fml.ModLoader;
-import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
+import mekanism.shim.neoforged.fml.ModLoader;
+import mekanism.shim.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

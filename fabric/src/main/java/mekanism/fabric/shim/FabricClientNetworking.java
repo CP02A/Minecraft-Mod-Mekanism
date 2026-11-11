@@ -4,8 +4,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworkin
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.neoforge.network.handling.IPayloadHandler;
-import net.neoforged.neoforge.network.registration.HandlerThread;
+import mekanism.shim.neoforged.neoforge.network.handling.IPayloadHandler;
+import mekanism.shim.neoforged.neoforge.network.registration.HandlerThread;
 
 /**
  * Client side of {@link FabricNetworkBackend}, only loaded on the client.

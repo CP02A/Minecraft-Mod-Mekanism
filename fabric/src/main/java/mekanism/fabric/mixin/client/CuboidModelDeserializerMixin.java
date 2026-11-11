@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import java.lang.reflect.Type;
 import mekanism.fabric.shim.client.ModelPropertiesBridge;
 import net.minecraft.client.resources.model.cuboid.CuboidModel;
-import net.neoforged.neoforge.client.model.NeoForgeModelProperties;
+import mekanism.shim.neoforged.neoforge.client.model.NeoForgeModelProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

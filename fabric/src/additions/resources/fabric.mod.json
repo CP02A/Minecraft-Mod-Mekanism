@@ -24,10 +24,10 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-    "neoforge-shim": [
+    "mekanism_shim": [
       "mekanism.additions.fabric.AdditionsShimMod"
     ],
-    "neoforge-shim-client": [
+    "mekanism_shim_client": [
       "mekanism.additions.fabric.AdditionsShimClientMod"
     ],
     "jei_mod_plugin": [

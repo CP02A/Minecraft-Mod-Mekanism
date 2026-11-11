@@ -2,9 +2,9 @@ package mekanism.fabric.shim.transfer;
 
 import com.google.common.primitives.Ints;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import mekanism.shim.neoforged.neoforge.transfer.access.ItemAccess;
+import mekanism.shim.neoforged.neoforge.transfer.item.ItemResource;
+import mekanism.shim.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
  * Exposes a Fabric {@link ContainerItemContext} as a NeoForge {@link ItemAccess}.

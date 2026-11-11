@@ -1,10 +1,10 @@
 package mekanism.fabric.shim;
 
-import net.neoforged.bus.api.BusBuilder;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.event.IModBusEvent;
-import net.neoforged.neoforgespi.language.IModInfo;
+import mekanism.shim.neoforged.bus.api.BusBuilder;
+import mekanism.shim.neoforged.bus.api.IEventBus;
+import mekanism.shim.neoforged.fml.ModContainer;
+import mekanism.shim.neoforged.fml.event.IModBusEvent;
+import mekanism.shim.neoforged.neoforgespi.language.IModInfo;
 
 /**
  * Container for a mod that uses the shim, with its own mod event bus.

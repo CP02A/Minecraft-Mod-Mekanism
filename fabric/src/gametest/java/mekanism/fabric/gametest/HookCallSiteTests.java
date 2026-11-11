@@ -48,11 +48,11 @@ import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
-import net.neoforged.neoforge.transfer.energy.EnergyHandler;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import mekanism.shim.neoforged.neoforge.capabilities.Capabilities;
+import mekanism.shim.neoforged.neoforge.transfer.access.ItemAccess;
+import mekanism.shim.neoforged.neoforge.transfer.energy.EnergyHandler;
+import mekanism.shim.neoforged.neoforge.transfer.item.ItemResource;
+import mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
  * NeoForge extension hooks that are called from vanilla code NeoForge patches (see the hook table in docs/fabric-port-status.md), called by the shim's mixins.

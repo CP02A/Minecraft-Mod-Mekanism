@@ -24,14 +24,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
-import net.neoforged.neoforge.attachment.AttachmentInternals;
-import net.neoforged.neoforge.attachment.AttachmentSyncHandler;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.attachment.IAttachmentHolder;
-import net.neoforged.neoforge.attachment.IAttachmentSerializer;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import net.neoforged.neoforge.shim.AttachmentBackend;
+import mekanism.shim.neoforged.neoforge.attachment.AttachmentInternals;
+import mekanism.shim.neoforged.neoforge.attachment.AttachmentSyncHandler;
+import mekanism.shim.neoforged.neoforge.attachment.AttachmentType;
+import mekanism.shim.neoforged.neoforge.attachment.IAttachmentHolder;
+import mekanism.shim.neoforged.neoforge.attachment.IAttachmentSerializer;
+import mekanism.shim.neoforged.neoforge.registries.NeoForgeRegistries;
+import mekanism.shim.neoforged.neoforge.server.ServerLifecycleHooks;
+import mekanism.shim.neoforged.neoforge.shim.AttachmentBackend;
 import org.jspecify.annotations.Nullable;
 
 /**

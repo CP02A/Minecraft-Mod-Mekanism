@@ -41,13 +41,13 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import mekanism.common.registries.MekanismDataComponents;
-import net.neoforged.neoforge.transfer.energy.EnergyHandler;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.client.model.item.DynamicFluidContainerModel;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import mekanism.shim.neoforged.neoforge.transfer.energy.EnergyHandler;
+import mekanism.shim.neoforged.neoforge.capabilities.Capabilities;
+import mekanism.shim.neoforged.neoforge.client.model.item.DynamicFluidContainerModel;
+import mekanism.shim.neoforged.neoforge.transfer.ResourceHandler;
+import mekanism.shim.neoforged.neoforge.transfer.access.ItemAccess;
+import mekanism.shim.neoforged.neoforge.transfer.fluid.FluidResource;
+import mekanism.shim.neoforged.neoforge.transfer.transaction.Transaction;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -335,7 +335,7 @@ public class MekanismClientTests implements FabricClientGameTest {
         assertConnections(context, singleplayer, start.south(2), Direction.NORTH, Direction.SOUTH);
         //The model data the chunk meshing uses comes from the client level's ModelDataManager (snapshotted per meshing region)
         context.runOnClient(client -> {
-            if (client.level.getModelDataManager().getAt(start.south()) == net.neoforged.neoforge.model.data.ModelData.EMPTY) {
+            if (client.level.getModelDataManager().getAt(start.south()) == mekanism.shim.neoforged.neoforge.model.data.ModelData.EMPTY) {
                 throw new AssertionError("The client's ModelDataManager has no model data for the transmitter at " + start.south());
             }
             var region = new net.minecraft.client.renderer.chunk.RenderRegionCache().createRegion(client.level,

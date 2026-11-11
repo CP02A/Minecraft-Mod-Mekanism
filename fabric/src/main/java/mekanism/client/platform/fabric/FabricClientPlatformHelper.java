@@ -5,7 +5,7 @@ import mekanism.client.platform.IClientPlatformHelper;
 import java.util.List;
 import mekanism.fabric.shim.client.BlockOutlineBridge;
 import mekanism.fabric.shim.client.ModelPropertiesBridge;
-import net.neoforged.neoforge.client.fluid.FluidTintSource;
+import mekanism.shim.neoforged.neoforge.client.fluid.FluidTintSource;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.block.dispatch.ModelState;
@@ -16,7 +16,7 @@ import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.CustomBlockOutlineRenderer;
+import mekanism.shim.neoforged.neoforge.client.CustomBlockOutlineRenderer;
 import org.jspecify.annotations.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
@@ -32,7 +32,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.client.gui.Hud;
 import java.util.function.Supplier;
 import net.minecraft.network.chat.Component;
-import net.neoforged.fml.ModContainer;
+import mekanism.shim.neoforged.fml.ModContainer;
 
 public class FabricClientPlatformHelper implements IClientPlatformHelper {
 

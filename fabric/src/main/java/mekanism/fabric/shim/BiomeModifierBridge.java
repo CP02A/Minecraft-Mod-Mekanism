@@ -39,11 +39,11 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.neoforged.neoforge.common.world.BiomeModifier;
-import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
-import net.neoforged.neoforge.common.world.ModifiableStructureInfo;
-import net.neoforged.neoforge.common.world.StructureModifier;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import mekanism.shim.neoforged.neoforge.common.world.BiomeModifier;
+import mekanism.shim.neoforged.neoforge.common.world.ModifiableBiomeInfo;
+import mekanism.shim.neoforged.neoforge.common.world.ModifiableStructureInfo;
+import mekanism.shim.neoforged.neoforge.common.world.StructureModifier;
+import mekanism.shim.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
