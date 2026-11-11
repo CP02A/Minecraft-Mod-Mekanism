@@ -67,6 +67,8 @@
   ghost ingredient and recipe transfer handlers, `ScreenEvent.Opening` marking a GUI as switching to JEI, and screenshots of JEI's recipe view.
   `LookingAtClientTests`: the Jade, WTHIT and TOP client registrations (tooltip renderers, configs, bounding block redirection, element
   factories), and an energy cube's server synced energy in Jade's and WTHIT's overlays (screenshots, TOP's overlay shows as well).
+  `TransporterRenderClientTests`: items in logistical transporters (stack clusters, facing and lighting) from all four sides, close up, wide
+  and diagonally (screenshots only).
   Screenshots in `fabric/runs/gametestclient/screenshots`.
 - `./gradlew :fabric:runServer`: the dedicated server boots (`fabric/runs/server/eula.txt` is gitignored and must be created locally).
 
@@ -90,6 +92,16 @@
 - Client: joins a world and renders Mekanism blocks and items (custom energy cube model, NeoForge composite/OBJ loaders, model data and part
   visibility, fluid containers, emissive layers); model baking/atlas/fluid model/particle/tint/render pipeline events; machine GUIs with NeoForge
   menu extra data and side config; Mekanism's recipe book with saved/synced settings; synced recipes; EntityRenderersEvent.AddLayers.
+- Logistical transporter items (shared code, so NeoForge gets the same changes; `RenderLogisticalTransporter`, `LogisticalTransporterBase`):
+  - Rendering: stacks render as clusters like dropped items (vanilla's copy counts and spread), with the offset copies stacked towards the
+    viewer so they show on top. Items turn continuously around the y axis to face the camera, but keep the unrotated normals so they are lit
+    the same from every side (east/west facing items were much darker otherwise). Stacks of the same item, color and progress render once, with
+    the largest of their sizes.
+  - Smooth handoff between transporters: a stack moving into a transporter that hasn't ticked yet isn't moved again that tick (it used to
+    jump ahead one step); if the next transporter already ticked (it only syncs the stack next tick), the client removal is held back a tick so
+    the stack doesn't vanish. Client stacks move one step past the end of a transporter while waiting for the handoff (clamped in
+    `TransporterUtils.getStackPosition`, so no overshoot and snap back), and a synced progress of 0 is no longer bumped to 5 in
+    `TransporterStack.STREAM_CODEC`.
 - JEI (31.17.0.109): the integration's sources are shared in `common/src/integration/jei/<module>` (also compiled by `:neoforge`) and compiled
   into the `jei`/`<module>Jei` source sets with the Fabric `JeiFluidHelper` (`src/jei`; converts Mekanism's fluid stacks to JEI's Fabric fluid
   ingredients, and resolves NeoForge's fluid slot displays itself as JEI's Fabric fluid helper can't), packaged into the module jars and
