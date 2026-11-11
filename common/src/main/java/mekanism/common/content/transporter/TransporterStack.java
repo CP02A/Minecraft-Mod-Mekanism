@@ -47,7 +47,9 @@ public class TransporterStack {
           (color, progress, originalLocation, pathType, clientNext, clientPrev, itemStack) -> {
               TransporterStack stack = new TransporterStack();
               stack.color = color.orElse(null);
-              stack.progress = progress == 0 ? 5 : progress;
+              //Note: Stacks moving into the next transporter are synced with a progress of zero; don't bump it to five,
+              // as that makes them skip ahead when moving from one transporter to the next
+              stack.progress = progress;
               stack.originalLocation = originalLocation;
               stack.pathType = pathType;
               stack.clientNext = clientNext.orElse(Long.MAX_VALUE);

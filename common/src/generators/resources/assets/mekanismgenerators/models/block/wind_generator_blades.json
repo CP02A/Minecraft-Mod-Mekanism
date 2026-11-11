@@ -1,5 +1,5 @@
 {
-  "loader": "neoforge:obj",
+  "loader": { "id": "neoforge:obj" },
   "model": "mekanismgenerators:models/block/wind_generator_blades.obj",
   "flip_v": true,
   "gui_light": "front",

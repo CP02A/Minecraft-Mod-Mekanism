@@ -1,5 +1,8 @@
 package mekanism.client.platform.neoforge;
 
+import net.neoforged.neoforge.client.model.quad.BakedNormals;
+import net.neoforged.neoforge.client.model.quad.BakedColors;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import mekanism.client.platform.IClientPlatformHelper;
 import java.util.function.Supplier;
 import net.minecraft.network.chat.Component;
@@ -87,5 +90,14 @@ public class NeoForgeClientPlatformHelper implements IClientPlatformHelper {
     @Override
     public CuboidFace copyCuboidFace(CuboidFace face, CuboidFace.UVs uvs) {
         return new CuboidFace(face.cullForDirection(), face.tintIndex(), face.texture(), uvs, face.rotation(), face.faceData(), face.parent());
+    }
+
+    @Override
+    public BakedQuad flipQuad(BakedQuad quad) {
+        BakedColors colors = quad.bakedColors();
+        //Note: Normals are left unspecified so that they are derived from the flipped direction
+        return new BakedQuad(quad.position0(), quad.position3(), quad.position2(), quad.position1(),
+              quad.packedUV0(), quad.packedUV3(), quad.packedUV2(), quad.packedUV1(), quad.direction().getOpposite(), quad.materialInfo(),
+              BakedNormals.UNSPECIFIED, BakedColors.of(colors.color(0), colors.color(3), colors.color(2), colors.color(1)));
     }
 }

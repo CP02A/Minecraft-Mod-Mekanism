@@ -73,6 +73,14 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
     protected int nextId = 0;
     protected int delay = 0;
     protected int delayCount = 0;
+    /// Game time of the last tick this transporter ran on the server, used to tell whether a stack moving into this transporter arrives before or after its tick
+    private long lastServerTick = -1;
+    /// Stacks that moved into this transporter this tick before it ticked; they are already at the right progress, so they shouldn't be moved again this tick
+    private final IntSet enteredBeforeTick = new IntOpenHashSet();
+    private long enteredBeforeTickTime = -1;
+    /// Stacks that moved into a transporter that already ticked this tick. That transporter only syncs them to the client next tick, so we hold back
+    /// telling the client about the removal until then, to not have the stack disappear for a tick
+    private final IntSet deferredClientDeletes = new IntOpenHashSet();
     private final Map<Direction, BlockCapabilityCache<ResourceHandler<ItemResource>, @Nullable Direction>> capabilityCache = new EnumMap<>(Direction.class);
     private final Long2ReferenceMap<EnumMap<Direction, BlockCapabilityCache<ResourceHandler<ItemResource>, @Nullable Direction>>> fallbackHandlerCache = new Long2ReferenceRBTreeMap<>();
 
@@ -147,11 +155,18 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
 
     public void onUpdateClient() {
         for (TransporterStack stack : transit.values()) {
-            stack.progress = Math.min(100, stack.progress + tier.getSpeed());
+            //Note: Let stacks move one step past the end of the transporter, so that they keep moving smoothly while we wait for the server to move them to
+            // the next transporter, instead of stopping at the edge for a tick. If the server takes any longer than that, they stay put there (see TransporterUtils#getStackPosition)
+            stack.progress = Math.min(100 + tier.getSpeed(), stack.progress + tier.getSpeed());
         }
     }
 
     public void onUpdateServer(ServerLevel level) {
+        lastServerTick = level.getGameTime();
+        if (enteredBeforeTickTime != lastServerTick) {
+            //Stacks that entered on an earlier tick that we didn't run on (shouldn't happen, but make sure we don't skip moving them)
+            enteredBeforeTick.clear();
+        }
         InventoryNetwork network = getTransmitterNetwork();
         if (network != null) {
             //Pull items into the transporter
@@ -164,17 +179,29 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
                 //Attempt to pull
                 tryPull(level);
             }
-            if (!transit.isEmpty()) {
+            //Removals we held back last tick get sent to the client now
+            IntSet clientDeletes = new IntOpenHashSet(deferredClientDeletes);
+            deferredClientDeletes.clear();
+            if (!transit.isEmpty() || !clientDeletes.isEmpty()) {
                 long pos = getWorldPositionLong();
-                IntSet deletes;
-                try (Transaction transaction = Transaction.openRoot()) {
-                    deletes = tickTransit(level, pos, network, transaction);
-                    transaction.commit();
+                IntSet deletes = new IntOpenHashSet();
+                if (!transit.isEmpty()) {
+                    try (Transaction transaction = Transaction.openRoot()) {
+                        deletes = tickTransit(level, pos, network, transaction);
+                        transaction.commit();
+                    }
                 }
-                if (!deletes.isEmpty() || !needsSync.isEmpty()) {
+                enteredBeforeTick.clear();
+                for (IntIterator iterator = deletes.iterator(); iterator.hasNext(); ) {
+                    int stackId = iterator.nextInt();
+                    if (!deferredClientDeletes.contains(stackId)) {
+                        clientDeletes.add(stackId);
+                    }
+                }
+                if (!deletes.isEmpty() || !clientDeletes.isEmpty() || !needsSync.isEmpty()) {
                     //Notify clients, so that we send the information before we start clearing our lists
                     //Note: We have to copy needsSync so that it still has values when we clear the pending sync packets
-                    PacketUtils.sendToAllTracking(PacketTransporterBatch.create(pos, deletes, new Int2ObjectOpenHashMap<>(needsSync)), getTransmitterTile());
+                    PacketUtils.sendToAllTracking(PacketTransporterBatch.create(pos, clientDeletes, new Int2ObjectOpenHashMap<>(needsSync)), getTransmitterTile());
                     // Now remove any entries from transit that have been deleted
                     IntIterator deleteIterator = deletes.iterator();
                     while (deleteIterator.hasNext()) {
@@ -240,6 +267,10 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
                 }
             }
 
+            if (enteredBeforeTick.contains(stackId)) {
+                //The stack moved in from the previous transporter this tick, so it has already been moved for this tick
+                continue;
+            }
             int prevProgress = stack.progress;
             stack.progress += tier.getSpeed();
             if (stack.progress >= 100) {
@@ -256,7 +287,10 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
                             //If this is not the final transporter try transferring it to the next one
                             LogisticalTransporterBase transmitter = network.getTransmitter(next);
                             if (stack.canInsertToTransporter(transmitter, stack.getSide(this), this)) {
-                                transmitter.entityEntering(stack, stack.progress % 100);
+                                if (transmitter.entityEntering(level, stack, stack.progress % 100)) {
+                                    //The next transporter will only sync the stack to the client next tick, so keep showing it in this one until then
+                                    deferredClientDeletes.add(stackId);
+                                }
                                 deletes.add(stackId);
                                 continue;
                             }
@@ -539,7 +573,8 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
         getTransmitterTile().markForSave();
     }
 
-    private void entityEntering(TransporterStack stack, int progress) {
+    /// @return true if this transporter already ticked this tick, meaning the stack will only be synced to the client next tick
+    private boolean entityEntering(Level level, TransporterStack stack, int progress) {
         // Update the progress of the stack and add it as something that's both
         // in transit and needs sync down to the client.
         //
@@ -550,11 +585,17 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
         stack.progress = progress;
         addStack(stackId, stack);
         needsSync.put(stackId, stack);
+        boolean alreadyTicked = lastServerTick == level.getGameTime();
+        if (!alreadyTicked) {
+            enteredBeforeTick.add(stackId);
+            enteredBeforeTickTime = level.getGameTime();
+        }
 
         // N.B. We are not marking the chunk as dirty here! I don't believe it's needed, since
         // the next tick will generate the necessary save and if we crash before the next tick,
         // it's unlikely the data will be saved anyway (since chunks aren't saved until the end of
         // a tick).
+        return alreadyTicked;
     }
 
     @FunctionalInterface

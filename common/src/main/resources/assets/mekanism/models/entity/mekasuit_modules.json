@@ -1,5 +1,5 @@
 {
-  "loader": "neoforge:obj",
+  "loader": { "id": "neoforge:obj" },
   "model": "mekanism:models/entity/mekasuit_modules.obj",
   "flip_v": true,
   "textures": {

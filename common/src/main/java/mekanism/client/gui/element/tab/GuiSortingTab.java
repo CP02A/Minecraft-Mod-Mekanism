@@ -27,6 +27,11 @@ public class GuiSortingTab extends GuiInsetElement<TileEntityFactory<?>> {
     }
 
     @Override
+    protected boolean isPressed() {
+        return dataSource.isSorting();
+    }
+
+    @Override
     protected int getTabColor() {
         return SpecialColors.TAB_FACTORY_SORT.argb();
     }

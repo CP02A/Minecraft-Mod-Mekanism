@@ -1,5 +1,6 @@
 package mekanism.client.platform.fabric;
 
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import mekanism.client.platform.IClientPlatformHelper;
 import java.util.List;
 import mekanism.fabric.shim.client.BlockOutlineBridge;
@@ -109,5 +110,11 @@ public class FabricClientPlatformHelper implements IClientPlatformHelper {
     @Override
     public CuboidFace copyCuboidFace(CuboidFace face, CuboidFace.UVs uvs) {
         return new CuboidFace(face.cullForDirection(), face.tintIndex(), face.texture(), uvs, face.rotation());
+    }
+
+    @Override
+    public BakedQuad flipQuad(BakedQuad quad) {
+        return new BakedQuad(quad.position0(), quad.position3(), quad.position2(), quad.position1(),
+              quad.packedUV0(), quad.packedUV3(), quad.packedUV2(), quad.packedUV1(), quad.direction().getOpposite(), quad.materialInfo());
     }
 }

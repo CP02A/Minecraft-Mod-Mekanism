@@ -41,6 +41,11 @@ public class GuiConfigTypeTab extends GuiInsetElement<@Nullable Void> {
     }
 
     @Override
+    protected boolean isPressed() {
+        return config.getCurrentType() == transmission;
+    }
+
+    @Override
     public void updateTooltip(int mouseX, int mouseY) {
         setTooltip(typeTooltips.computeIfAbsent(transmission, trans -> TooltipUtils.create(TextComponentUtil.build(trans))));
     }

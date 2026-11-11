@@ -1,6 +1,5 @@
 package mekanism.client.gui.element.window;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -41,7 +40,6 @@ import org.jspecify.annotations.Nullable;
 
 public class GuiSideConfiguration<TILE extends TileEntityMekanism & ISideConfiguration> extends GuiWindow {
 
-    private final List<GuiConfigTypeTab> configTabs = new ArrayList<>();
     private final Map<RelativeSide, SideDataButton> sideConfigButtons = new EnumMap<>(RelativeSide.class);
     private final MekanismButton ejectButton;
     private final TILE tile;
@@ -73,9 +71,8 @@ public class GuiSideConfiguration<TILE extends TileEntityMekanism & ISideConfigu
             return Collections.emptyList();
         }));
         for (int i = 0; i < transmissions.size(); i++) {
-            GuiConfigTypeTab tab = new GuiConfigTypeTab(gui, transmissions.get(i), relativeX + (i < 4 ? -26 : width), relativeY + 2 + 28 * (i % 4), this, i < 4);
-            addChild(tab);
-            configTabs.add(tab);
+            //The current type's tab stays visible and is drawn pressed
+            addChild(new GuiConfigTypeTab(gui, transmissions.get(i), relativeX + (i < 4 ? -26 : width), relativeY + 2 + 28 * (i % 4), this, i < 4));
         }
         ejectButton = addChild(new MekanismImageButton(gui, relativeX + 136, relativeY + 6, 14, Mekanism.rl("button/auto_eject"),
               (_, _, _) -> PacketUtils.sendToServer(new PacketEjectConfiguration(this.tile.getBlockPos(), currentType))))
@@ -146,16 +143,16 @@ public class GuiSideConfiguration<TILE extends TileEntityMekanism & ISideConfigu
         currentType = type;
     }
 
+    public TransmissionType getCurrentType() {
+        return currentType;
+    }
+
     @Nullable
     private ConfigInfo getCurrentConfig() {
         return this.tile.getConfig().getConfig(currentType);
     }
 
     public void updateTabs() {
-        //Hide the current tab and make the others visible
-        for (GuiConfigTypeTab tab : configTabs) {
-            tab.visible = currentType != tab.getTransmissionType();
-        }
         //Disable or enable the eject button based on if the transmission type supports ejecting
         ConfigInfo config = getCurrentConfig();
         if (config == null) {//Should never actually be null but just in case handle it

@@ -70,7 +70,9 @@ public final class TransporterUtils {
     public static Vector3f getStackPosition(LogisticalTransporterBase transporter, TransporterStack stack, float partial) {
         return stack.getSide(transporter)
               .step()//Note: Direction#step returns a new Vector3f
-              .mul(((stack.progress + partial) / 100F) - 0.5F)
+              //Note: Clamp the interpolated progress, as client side stacks wait one step past the end of the transporter until the server moves them
+              // to the next transporter. Without the clamp they would overshoot further for a frame and then snap back
+              .mul((Math.min(stack.progress + partial, 100F + transporter.tier.getSpeed()) / 100F) - 0.5F)
               .add(0.5F, 0.25F, 0.5F);
     }
 

@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.core.Direction;
 import net.minecraft.util.CommonColors;
 import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
@@ -35,10 +36,24 @@ public class TransmitterRenderState extends BlockEntityRenderState {
 
         public List<TransporterStackRenderState> stacks = Collections.emptyList();
 
-        public record TransporterStackRenderState(Vector3f stackPos, ItemStackRenderState item, @Nullable EnumColor color) {
+        public static final class TransporterStackRenderState {
 
-            public TransporterStackRenderState(Vector3f stackPos, @Nullable EnumColor color) {
-                this(stackPos, new ItemStackRenderState(), color);
+            public final Vector3f stackPos;
+            public final ItemStackRenderState item = new ItemStackRenderState();
+            @Nullable
+            public final EnumColor color;
+            public final int seed;
+            /// Axis the stack is moving along
+            public final Direction.Axis travelAxis;
+            /// Number of items this render state represents (for stacks of the same type at the same position, the largest of them)
+            public int itemCount;
+
+            public TransporterStackRenderState(Vector3f stackPos, Direction.Axis travelAxis, @Nullable EnumColor color, int seed, int itemCount) {
+                this.stackPos = stackPos;
+                this.travelAxis = travelAxis;
+                this.color = color;
+                this.seed = seed;
+                this.itemCount = itemCount;
             }
         }
     }

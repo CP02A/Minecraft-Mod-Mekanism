@@ -9,6 +9,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.codec.HolderSetCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.holdersets.ICustomHolderSet;
@@ -44,8 +45,13 @@ public abstract class HolderSetCodecMixin<E> {
     @Inject(method = "decode", at = @At("HEAD"), cancellable = true)
     private <T> void mekanism$decodeCustom(DynamicOps<T> ops, T input, CallbackInfoReturnable<DataResult<Pair<HolderSet<E>, T>>> cir) {
         DataResult<MapLike<T>> map = ops.getMap(input);
-        if (map.isSuccess() && map.getOrThrow().get("type") != null) {
-            cir.setReturnValue(mekanism$customCodec.decode(ops, input).map(pair -> pair.mapFirst(set -> set)));
+        if (map.isSuccess()) {
+            T type = map.getOrThrow().get("type");
+            //Only handle objects whose type is a registered custom holder set type. Vanilla's codec also accepts inline objects for inlineable
+            // registries (for example an inline loot table with "type": "minecraft:chest"), which must keep going through vanilla's logic
+            if (type != null && Identifier.CODEC.parse(ops, type).result().filter(NeoForgeRegistries.HOLDER_SET_TYPES::containsKey).isPresent()) {
+                cir.setReturnValue(mekanism$customCodec.decode(ops, input).map(pair -> pair.mapFirst(set -> set)));
+            }
         }
     }
 

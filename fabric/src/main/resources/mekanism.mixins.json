@@ -97,6 +97,7 @@
     "client.ModelDiscoveryMixin",
     "client.ModelManagerMixin",
     "client.ModelManagerReloadStateAccessor",
+    "client.ModelWrapperMixin",
     "client.MouseHandlerMixin",
     "client.MultiPlayerGameModeDestroyMixin",
     "client.MultiPlayerGameModeMixin",

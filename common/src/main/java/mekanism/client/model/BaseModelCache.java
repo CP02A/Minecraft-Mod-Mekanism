@@ -165,13 +165,24 @@ public class BaseModelCache {
         }
 
         public Set<String> getPartNames() {
-            return settings == null ? Collections.emptySet() : settings.geometry().getRootComponentNames();
+            if (settings == null) {
+                return Collections.emptySet();
+            }
+            ObjGeometry geometry = settings.geometry();
+            return geometry == null ? Collections.emptySet() : geometry.getRootComponentNames();
         }
 
         private record ObjModelSettings(ResolvedModel resolvedModel, ModelBaker baker) {
 
+            @Nullable
             private ObjGeometry geometry() {
-                return (ObjGeometry) resolvedModel.getTopGeometry();
+                if (resolvedModel.getTopGeometry() instanceof ObjGeometry geometry) {
+                    return geometry;
+                }
+                //Another mod's model loader claimed this model (for example a different OBJ loader registered under neoforge:obj)
+                Mekanism.logger.error("Model {} was not loaded by NeoForge's OBJ loader, got geometry of type {}", resolvedModel.debugName(),
+                      resolvedModel.getTopGeometry().getClass().getName());
+                return null;
             }
         }
     }

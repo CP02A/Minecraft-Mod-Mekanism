@@ -1,5 +1,6 @@
 package mekanism.client.platform;
 
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import java.util.List;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -84,4 +85,9 @@ public interface IClientPlatformHelper {
      * {@return a copy of the face with the given uvs, keeping any loader specific data}
      */
     CuboidFace copyCuboidFace(CuboidFace face, CuboidFace.UVs uvs);
+
+    /**
+     * {@return a copy of the quad facing the opposite way (reversed winding and direction), keeping any loader specific data}
+     */
+    BakedQuad flipQuad(BakedQuad quad);
 }

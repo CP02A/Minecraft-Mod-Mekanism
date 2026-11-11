@@ -94,7 +94,8 @@
   into the `jei`/`<module>Jei` source sets with the Fabric `JeiFluidHelper` (`src/jei`; converts Mekanism's fluid stacks to JEI's Fabric fluid
   ingredients, and resolves NeoForge's fluid slot displays itself as JEI's Fabric fluid helper can't), packaged into the module jars and
   registered through `jei_mod_plugin` entrypoints (`MekanismFabricJeiPlugin` registers the screen hooks, using the shim's `ScreenEvent.Opening`).
-  All categories, catalysts, transfer handlers, GUI handlers, subtypes and aliases. Mekanism's recipe book window opening mostly off-screen at
+  All categories, catalysts, transfer handlers, GUI handlers, subtypes and aliases. JEI on Fabric only sees crafting recipes whose serializer is registered with Fabric's
+  `RecipeSynchronization` (JEI registers the `minecraft` ones), so `MekanismShimMod`/`ToolsShimMod` register `mek_data`, the special recipes and `paxel`. Mekanism's recipe book window opening mostly off-screen at
   small resolutions is shared code (`GuiRecipeBookWindowTab` places it below the GUI, unclamped), so not Fabric specific.
 - Jade (26.3.5), The One Probe (26.3-16.0.2) and WTHIT (21.0.0): the integrations' sources are shared in `common/src/integration/{jade,
   the_one_probe,wthit}` (also compiled by `:neoforge`; TOP's IMC registration `MekanismTOPIntegration` stays in `neoforge/src`), compiled into

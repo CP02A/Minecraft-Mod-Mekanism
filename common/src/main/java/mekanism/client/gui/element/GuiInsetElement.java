@@ -3,6 +3,7 @@ package mekanism.client.gui.element;
 import java.util.function.BooleanSupplier;
 import mekanism.client.gui.IGuiWrapper;
 import mekanism.client.render.MekanismRenderPipelines;
+import mekanism.common.Mekanism;
 import mekanism.common.inventory.warning.ISupportsWarning;
 import mekanism.common.inventory.warning.WarningTracker.WarningType;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -11,6 +12,8 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
 public abstract class GuiInsetElement<DATA_SOURCE extends @Nullable Object> extends GuiSideHolder implements ISupportsWarning<GuiInsetElement<DATA_SOURCE>> {
+
+    private static final Identifier BUTTON_PRESSED = Mekanism.rl("button_pressed");
 
     protected final int border;
     protected final int innerWidth;
@@ -69,6 +72,22 @@ public abstract class GuiInsetElement<DATA_SOURCE extends @Nullable Object> exte
 
     protected Identifier getOverlay() {
         return overlay;
+    }
+
+    /**
+     * @return {@code true} to draw the button in a pressed (selected) state.
+     */
+    protected boolean isPressed() {
+        return false;
+    }
+
+    @Nullable
+    @Override
+    protected Identifier getButtonVariant(boolean hoveredOrFocused) {
+        if (this.active && isPressed() && buttonBackground != ButtonBackground.NONE) {
+            return BUTTON_PRESSED;
+        }
+        return super.getButtonVariant(hoveredOrFocused);
     }
 
     @Override

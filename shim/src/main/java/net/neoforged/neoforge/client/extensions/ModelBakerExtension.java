@@ -6,11 +6,14 @@
 package net.neoforged.neoforge.client.extensions;
 
 import net.minecraft.Optionull;
+import net.minecraft.client.renderer.block.dispatch.ModelState;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelDebugName;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.client.resources.model.geometry.QuadCollection;
+import net.minecraft.client.resources.model.sprite.TextureSlots;
 import org.jspecify.annotations.Nullable;
 
 public interface ModelBakerExtension {
@@ -44,6 +47,15 @@ public interface ModelBakerExtension {
             @Override
             public String debugName() {
                 return debugName.debugName();
+            }
+
+            /**
+             * NeoForge patches {@link ResolvedModel#bakeTopGeometry} to pass the model's additional properties (root transform, part visibility) to the
+             * geometry. Vanilla's default method doesn't on Fabric, so do it here (inline models are for example the children of composite models).
+             */
+            @Override
+            public QuadCollection bakeTopGeometry(TextureSlots textureSlots, ModelBaker baker, ModelState state) {
+                return getTopGeometry().bake(textureSlots, baker, state, this, getTopAdditionalProperties());
             }
         };
     }

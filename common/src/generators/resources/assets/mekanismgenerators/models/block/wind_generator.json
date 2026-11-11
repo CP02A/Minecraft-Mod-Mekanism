@@ -98,7 +98,7 @@
       ]
     },
     "main": {
-      "loader": "neoforge:obj",
+      "loader": { "id": "neoforge:obj" },
       "model": "mekanismgenerators:models/block/wind_generator.obj",
       "flip_v": true,
       "textures": {

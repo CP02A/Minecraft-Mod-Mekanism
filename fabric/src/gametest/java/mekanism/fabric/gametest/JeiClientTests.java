@@ -9,6 +9,7 @@ import mekanism.client.gui.GuiMekanism;
 import mekanism.client.recipe_viewer.jei.MekanismJEI;
 import mekanism.client.recipe_viewer.type.RecipeViewerRecipeType;
 import mekanism.common.registries.MekanismBlocks;
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.fabric.constants.FabricTypes;
 import mezz.jei.api.fabric.ingredients.fluids.IJeiFluidIngredient;
@@ -27,6 +28,8 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import java.util.Set;
+import java.util.stream.Collectors;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 
@@ -129,6 +132,16 @@ public class JeiClientTests implements FabricClientGameTest {
         //Fluid slots (resolved from NeoForge's fluid slot displays and converted to JEI's Fabric fluid ingredients)
         if (!hasWaterInput(recipeManager, MekanismJEI.genericRecipeType(RecipeViewerRecipeType.SEPARATING))) {
             throw new AssertionError("No electrolytic separator recipe has water as a fluid input");
+        }
+
+        //Crafting recipes with Mekanism's serializers (on Fabric only recipes of serializers registered for synchronization reach the client)
+        Set<String> craftingRecipes = recipeManager.createRecipeLookup(RecipeTypes.CRAFTING).get()
+              .map(recipe -> recipe.id().identifier().toString())
+              .collect(Collectors.toSet());
+        for (String id : List.of("mekanismgenerators:generator/wind", "mekanism:energy_cube/basic", "mekanismtools:diamond_paxel")) {
+            if (!craftingRecipes.contains(id)) {
+                throw new AssertionError("JEI doesn't show the crafting recipe " + id);
+            }
         }
 
         //Catalysts

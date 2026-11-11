@@ -30,6 +30,7 @@ import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.SimpleModelWrapper;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.client.resources.model.sprite.MaterialBaker;
 import net.minecraft.client.resources.model.sprite.TextureSlots;
@@ -189,13 +190,13 @@ public class TransmitterBlockStateModel implements DynamicBlockStateModel {
                     partsVisibility.put(partName, true);
 
                     //bake core
-                    BlockStateModelPart baked = ClientServices.PLATFORM.bakeSimpleModel(bakerToUse, partVisibilityDelegate.as(baseModel), modelStateToUse);
+                    BlockStateModelPart baked = withBackfaces(ClientServices.PLATFORM.bakeSimpleModel(bakerToUse, partVisibilityDelegate.as(baseModel), modelStateToUse));
                     materialFlags |= baked.materialFlags();
                     baseParts.put(direction, connectionType, baked);
 
                     //if we have glass, bake that
                     if (glassModel != null) {
-                        baked = ClientServices.PLATFORM.bakeSimpleModel(bakerToUse, partVisibilityDelegate.as(glassModel), modelStateToUse);
+                        baked = withBackfaces(ClientServices.PLATFORM.bakeSimpleModel(bakerToUse, partVisibilityDelegate.as(glassModel), modelStateToUse));
                         glassParts.put(direction, connectionType, baked);
                         materialFlags |= baked.materialFlags();
                     }
@@ -206,6 +207,26 @@ public class TransmitterBlockStateModel implements DynamicBlockStateModel {
             }
 
             return new TransmitterBlockStateModel(baseParts, glassParts, baseModel.resolveParticleMaterial(baseModel.getTopTextureSlots(), modelBakery), materialFlags);
+        }
+
+        /// Adds a reversed copy of every quad, so that the inside of the transmitter is visible through its transparent parts
+        private static BlockStateModelPart withBackfaces(BlockStateModelPart part) {
+            if (!(part instanceof SimpleModelWrapper(QuadCollection quads, boolean useAmbientOcclusion, Material.Baked particleMaterial))) {
+                //Missing model or some other unexpected part, leave it as is
+                return part;
+            }
+            QuadCollection.Builder builder = new QuadCollection.Builder();
+            for (BakedQuad quad : quads.getQuads(null)) {
+                builder.addUnculledFace(quad);
+                builder.addUnculledFace(ClientServices.PLATFORM.flipQuad(quad));
+            }
+            for (Direction side : EnumUtils.DIRECTIONS) {
+                for (BakedQuad quad : quads.getQuads(side)) {
+                    builder.addCulledFace(side, quad);
+                    builder.addCulledFace(side, ClientServices.PLATFORM.flipQuad(quad));
+                }
+            }
+            return new SimpleModelWrapper(builder.build(), useAmbientOcclusion, particleMaterial);
         }
 
         private static Transformation makeIconStatusTransform(Direction direction) {

@@ -1,6 +1,6 @@
 {
   "parent": "block/block",
-  "loader": "neoforge:obj",
+  "loader": { "id": "neoforge:obj" },
   "model": "mekanism:models/block/transmitter_small.obj.mek",
   "flip_v": true,
   "textures": {

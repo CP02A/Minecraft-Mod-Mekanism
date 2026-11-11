@@ -1,5 +1,5 @@
 {
-  "loader": "neoforge:obj",
+  "loader": { "id": "neoforge:obj" },
   "model": "mekanism:models/block/transmitter_large.obj.mek",
   "mtl_override": "mekanism:models/block/transmitter_glass_large.mtl",
   "flip_v": true,
