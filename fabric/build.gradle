@@ -468,3 +468,59 @@ afterEvaluate {
         }
     }
 }
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+//All in one jar (Mekanism-fabric-<version>-all.jar), the Fabric counterpart of NeoForge's allJar, so a player only installs it and Fabric API. A Fabric
+// jar holds a single fabric.mod.json, so unlike on NeoForge the modules can't be merged into one mod. Instead it is a small wrapper mod (mekanism_all)
+// with the unchanged main and module jars nested through Fabric Loader's jar-in-jar (META-INF/jars plus the jars list of its fabric.mod.json), so each
+// keeps its own fabric.mod.json, entrypoints, mixins, access widener and nested jars (shim, Forge Config API Port, Team Reborn Energy...). The wrapper
+// rather than the main jar is the outer mod, as Fabric Loader silently picks one of two copies of a mod with the same version: with the main jar as the
+// outer mod, installing it next to the separate Mekanism jar dropped all the modules. Now a separate jar of the same version just takes the place of
+// the nested copy, and as the wrapper depends on the exact version of each nested mod, Fabric Loader keeps the nested copy over a separate jar of
+// another version (in both cases without a warning, so the README says to install only one of them)
+def allJarNestedJars = ['jar'] + secondaryModules.collect { "${it}Jar" }
+def allJarNested = allJarNestedJars.collect { tasks.named(it, Jar) }
+def allJarModIds = ['mekanism'] + secondaryModules.collect { "mekanism${it}" }
+def allJarMetadata = tasks.register('allJarMetadata') {
+    def nestedJarNames = allJarNested.collect { it.flatMap { jar -> jar.archiveFileName } }
+    def modVersion = version.toString()
+    def modIds = allJarModIds
+    def loaderRange = fabric_loader_version_range.toString()
+    def outputFile = layout.buildDirectory.file('allJar/fabric.mod.json')
+    inputs.property('nestedJarNames', nestedJarNames)
+    inputs.property('version', modVersion)
+    inputs.property('loaderRange', loaderRange)
+    outputs.file(outputFile)
+    doLast {
+        def metadata = [
+                schemaVersion: 1,
+                id           : 'mekanism_all',
+                version      : modVersion,
+                name         : 'Mekanism (all modules)',
+                description  : 'Mekanism with all its modules (Generators, Additions and Tools) in one jar. Install either this jar or the separate Mekanism jars, not both.',
+                authors      : ['Aidancbrady', 'Thommy101', 'Thiakil', 'pupnewfster', 'dizzyd'],
+                contact      : [homepage: 'https://aidancbrady.com/mekanism/', sources: 'https://github.com/mekanism/Mekanism',
+                                issues  : 'https://github.com/mekanism/Mekanism/issues'],
+                license      : 'MIT',
+                icon         : 'icon.png',
+                environment  : '*',
+                depends      : [fabricloader: loaderRange] + modIds.collectEntries { [(it): "=${modVersion}".toString()] },
+                jars         : nestedJarNames.collect { [file: "META-INF/jars/${it.get()}".toString()] }
+        ]
+        def file = outputFile.get().asFile
+        file.parentFile.mkdirs()
+        file.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(metadata)), 'UTF-8')
+    }
+}
+def allJar = tasks.register('allJar', Jar) {
+    group = 'build'
+    description = 'Assembles the jar with Mekanism and all its modules nested, the only Mekanism jar a player needs to install'
+    archiveClassifier = 'all'
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    from(allJarMetadata)
+    from(file('src/main/resources/assets/mekanism/icon.png'))
+    into('META-INF/jars') {
+        from(allJarNested)
+    }
+}
+tasks.named('assemble') { dependsOn(allJar) }

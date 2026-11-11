@@ -60,7 +60,7 @@ Use `build` instead of `assemble` to also run the tests and checks. Jars from a 
 | Mekanism: Generators | `MekanismGenerators-fabric-<version>.jar`     | `MekanismGenerators-<version>.jar`      |
 | Mekanism: Additions  | `MekanismAdditions-fabric-<version>.jar`      | `MekanismAdditions-<version>.jar`       |
 | Mekanism: Tools      | `MekanismTools-fabric-<version>.jar`          | `MekanismTools-<version>.jar`           |
-| All four in one jar  | (none)                                        | `Mekanism-<version>-all.jar`            |
+| All four in one jar  | `Mekanism-fabric-<version>-all.jar`           | `Mekanism-<version>-all.jar`            |
 
 The `-sources` jars (both loaders) and the NeoForge `-api` jar are for developers; don't put them in your `mods` folder.
 Generators, Additions and Tools each require the main Mekanism jar.
@@ -69,9 +69,14 @@ Generators, Additions and Tools each require the main Mekanism jar.
 For Minecraft **26.3**, put these in your `mods` folder:
 - [Fabric Loader](https://fabricmc.net/use/) **0.20.1** or newer
 - [Fabric API](https://modrinth.com/mod/fabric-api) (built against 0.166.0+26.3)
-- `Mekanism-fabric-<version>.jar`, plus any of the Generators, Additions and Tools jars you want
+- Mekanism, in **one** of these two ways (never both):
+  - `Mekanism-fabric-<version>-all.jar` alone: Mekanism with Generators, Additions and Tools all included
+  - or the separate jars: `Mekanism-fabric-<version>.jar`, plus any of the Generators, Additions and Tools jars you want
 
-Forge Config API Port (26.3.1) and Team Reborn Energy (5.0.0) are bundled inside the Mekanism jar, so you don't need to install them.
+Forge Config API Port (26.3.1) and Team Reborn Energy (5.0.0) are bundled inside the Mekanism jar (and so inside the `-all` jar), so you don't need
+to install them. The `-all` jar nests the unchanged Mekanism and module jars (Fabric jar-in-jar), so the mods still show up separately in the mod
+list. Fabric Loader doesn't report a mod that is installed twice; when the `-all` jar and a separate jar of the same version are both installed it
+just uses one copy, but don't rely on that and remove the separate jars when switching to the `-all` jar.
 
 Optional integrations, used when the mod is installed:
 [JEI](https://modrinth.com/mod/jei), [Jade](https://modrinth.com/mod/jade), [The One Probe](https://modrinth.com/mod/the-one-probe),
