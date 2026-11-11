@@ -27,7 +27,8 @@
       "mekanism.fabric.gametest.MekanismClientTests",
       "mekanism.fabric.gametest.GeneratorsClientTests",
       "mekanism.fabric.gametest.GameplayClientTests",
-      "mekanism.fabric.gametest.JeiClientTests"
+      "mekanism.fabric.gametest.JeiClientTests",
+      "mekanism.fabric.gametest.LookingAtClientTests"
     ],
     "jei_mod_plugin": [
       "mekanism.fabric.gametest.JeiTestPlugin"
