@@ -55,6 +55,7 @@ import net.neoforged.neoforge.capabilities.CapabilityHooks;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.NeoForgeMod;
+import net.neoforged.neoforge.common.tooltip.ItemTooltipHandler;
 import net.neoforged.neoforge.common.world.chunk.ForcedChunkManager;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
@@ -190,6 +191,7 @@ public final class ShimModLoader {
         attributes.forEach((type, supplier) -> FabricDefaultAttributeRegistry.register(type, supplier));
 
         ServerHooks.registerSpawnPlacements();
+        ItemTooltipHandler.init();
 
         DefaultItemComponentEvents.MODIFY.register(context -> {
             Map<Item, ModifyDefaultComponentsEvent.Initializer> byItem = new Object2ObjectOpenHashMap<>();

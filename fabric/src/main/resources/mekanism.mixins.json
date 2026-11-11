@@ -16,6 +16,7 @@
     "hooks.EntityTypeMixin",
     "hooks.ItemMixin",
     "hooks.ItemStackMixin",
+    "hooks.ItemStackTooltipMixin",
     "hooks.LevelChunkMixin",
     "hooks.LevelMixin",
     "hooks.LivingEntityMixin",
@@ -34,6 +35,7 @@
     "hooks.SpawnPlacementsMixin",
     "hooks.StructureMixin",
     "hooks.TicketStorageMixin",
+    "hooks.TooltipFlagDefaultMixin",
     "hooks.WorldGenRegionMixin"
   ],
   "client": [

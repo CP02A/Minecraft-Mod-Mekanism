@@ -1,6 +1,7 @@
 package mekanism.fabric.gametest;
 
 import mekanism.client.MekanismClient;
+import mekanism.client.key.MekanismKeyHandler;
 import mekanism.client.gui.GuiMekanism;
 import com.mojang.blaze3d.platform.InputConstants;
 import io.netty.buffer.Unpooled;
@@ -31,6 +32,12 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import mekanism.common.registries.MekanismDataComponents;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.model.item.DynamicFluidContainerModel;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -142,6 +149,7 @@ public class MekanismClientTests implements FabricClientGameTest {
             context.waitTicks(5);
 
             checkFluidContainerItems(context, singleplayer);
+            checkItemTooltips(context, singleplayer);
             checkTransmitterConnections(context, singleplayer);
         }
     }
@@ -186,6 +194,87 @@ public class MekanismClientTests implements FabricClientGameTest {
         context.waitTicks(10);
         context.takeScreenshot("mekanism-held-fluid-tank");
     }
+
+    /**
+     * Checks that NeoForge's tooltip appenders (RegisterTooltipAppendersEvent) add Mekanism's data component tooltips, and screenshots a hovered tooltip in
+     * the inventory. Expects a filled basic fluid tank in hotbar slot 0 ({@link #checkFluidContainerItems}).
+     */
+    private static void checkItemTooltips(ClientGameTestContext context, TestSingleplayerContext singleplayer) {
+        singleplayer.getServer().runOnServer(server -> {
+            ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+            player.getInventory().setItem(6, new ItemStack(MekanismBlocks.BASIC_ENERGY_CUBE));
+            EnergyHandler handler = ItemAccess.forPlayerSlot(player, 6).getCapability(Capabilities.Energy.ITEM);
+            if (handler == null) {
+                throw new AssertionError("No energy handler for the basic energy cube");
+            }
+            try (Transaction transaction = Transaction.openRoot()) {
+                handler.insert(1_000_000, transaction);
+                transaction.commit();
+            }
+        });
+        context.waitFor(client -> !client.player.getInventory().getItem(6).isEmpty() && client.player.getInventory().getItem(6).has(MekanismDataComponents.ATTACHED_ENERGY));
+        context.runOnClient(client -> {
+            List<String> energyCube = tooltipLines(client, client.player.getInventory().getItem(6));
+            if (energyCube.stream().noneMatch(line -> line.startsWith("Stored energy: ") && !line.endsWith(" 0 FE") && !line.endsWith(" 0 J"))) {
+                throw new AssertionError("Charged energy cube tooltip is missing its stored energy: " + energyCube);
+            }
+            List<String> fluidTank = tooltipLines(client, client.player.getInventory().getItem(0));
+            if (fluidTank.stream().skip(1).noneMatch(line -> line.contains("Water") && line.contains("mB"))) {
+                throw new AssertionError("Filled fluid tank tooltip is missing its stored fluid: " + fluidTank);
+            }
+            if (fluidTank.stream().noneMatch(line -> line.startsWith("Capacity"))) {
+                throw new AssertionError("Filled fluid tank tooltip is missing its capacity: " + fluidTank);
+            }
+        });
+        //Hover the charged energy cube in the survival inventory
+        String gameMode = context.computeOnClient(client -> client.gameMode.getPlayerMode().getSerializedName());
+        singleplayer.getServer().runCommand("gamemode survival @a");
+        context.waitFor(client -> !client.player.hasInfiniteMaterials());
+        context.setScreen(() -> new InventoryScreen(context.computeOnClient(client -> client.player)));
+        context.waitTicks(5);
+        double[] cursor = context.computeOnClient(client -> {
+            InventoryScreen screen = (InventoryScreen) client.gui.screen();
+            //Hotbar slot 6 of the inventory menu: the gui is 176x166, hotbar slots start at (8, 142) and are 18 pixels apart
+            int x = (screen.width - 176) / 2 + 8 + 6 * 18 + 8;
+            int y = (screen.height - 166) / 2 + 142 + 8;
+            double scale = client.getWindow().getGuiScale();
+            return new double[]{x * scale, y * scale};
+        });
+        context.getInput().setCursorPos(cursor[0], cursor[1]);
+        context.runOnClient(client -> client.gui.toastManager().clear());
+        //Show the details (the stored energy)
+        context.getInput().holdKey(MekanismKeyHandler.detailsKey);
+        context.waitTicks(5);
+        context.takeScreenshot("mekanism-energy-cube-tooltip");
+        context.getInput().releaseKey(MekanismKeyHandler.detailsKey);
+        context.setScreen(() -> null);
+        singleplayer.getServer().runCommand("gamemode " + gameMode + " @a");
+        context.waitTicks(5);
+    }
+
+    private static List<String> tooltipLines(net.minecraft.client.Minecraft client, ItemStack stack) {
+        return stack.getTooltipLines(Item.TooltipContext.of(client.level), client.player, ALL_INFORMATION).stream().map(Component::getString).toList();
+    }
+
+    /**
+     * Like a recipe viewer's flag: shows Mekanism's details without holding the details key.
+     */
+    private static final TooltipFlag ALL_INFORMATION = new TooltipFlag() {
+        @Override
+        public boolean isAdvanced() {
+            return false;
+        }
+
+        @Override
+        public boolean isCreative() {
+            return false;
+        }
+
+        @Override
+        public boolean shouldDisplayAllInformation() {
+            return true;
+        }
+    };
 
     private static void fillSlot(ServerPlayer player, int slot, ItemStack stack, FluidResource fluid) {
         player.getInventory().setItem(slot, stack);

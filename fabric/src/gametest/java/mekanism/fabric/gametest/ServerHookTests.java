@@ -158,4 +158,28 @@ public class ServerHookTests {
               Component.literal("Vanilla's search entries of the natural blocks tab should be kept"));
         helper.succeed();
     }
+
+    @GameTest
+    public void tooltipAppendersAreRun(GameTestHelper helper) {
+        //Mekanism's data component tooltips are added by NeoForge tooltip appenders (RegisterTooltipAppendersEvent). The server always shows the details
+        net.minecraft.world.item.ItemStack cube = new net.minecraft.world.item.ItemStack(MekanismBlocks.BASIC_ENERGY_CUBE);
+        Set<String> keys = new HashSet<>();
+        cube.getTooltipLines(net.minecraft.world.item.Item.TooltipContext.of(helper.getLevel()), null, net.minecraft.world.item.TooltipFlag.Default.NORMAL)
+              .forEach(line -> collectTranslationKeys(line, keys));
+        helper.assertTrue(keys.contains("tooltip.mekanism.stored_energy"), Component.literal("Energy cube tooltip is missing its stored energy: " + keys));
+        helper.assertTrue(keys.contains("capacity.mekanism.generic"), Component.literal("Energy cube tooltip is missing its capacity: " + keys));
+        helper.succeed();
+    }
+
+    private static void collectTranslationKeys(Component component, Set<String> keys) {
+        if (component.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents translatable) {
+            keys.add(translatable.getKey());
+            for (Object arg : translatable.getArgs()) {
+                if (arg instanceof Component argComponent) {
+                    collectTranslationKeys(argComponent, keys);
+                }
+            }
+        }
+        component.getSiblings().forEach(sibling -> collectTranslationKeys(sibling, keys));
+    }
 }
