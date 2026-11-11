@@ -25,7 +25,11 @@
     "fabric-client-gametest": [
       "mekanism.fabric.gametest.MekanismClientTests",
       "mekanism.fabric.gametest.GeneratorsClientTests",
-      "mekanism.fabric.gametest.GameplayClientTests"
+      "mekanism.fabric.gametest.GameplayClientTests",
+      "mekanism.fabric.gametest.JeiClientTests"
+    ],
+    "jei_mod_plugin": [
+      "mekanism.fabric.gametest.JeiTestPlugin"
     ]
   },
   "depends": {
