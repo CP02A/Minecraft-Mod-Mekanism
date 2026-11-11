@@ -1,7 +1,6 @@
 package mekanism.common.integration.computercraft;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.peripheral.PeripheralCapability;
 import mekanism.common.Mekanism;
 import mekanism.common.integration.MekanismHooks;
 import mekanism.common.integration.computer.ComputerFilterHelper;
@@ -18,6 +17,6 @@ public class MekanismComputerCraft {
     public MekanismComputerCraft(IEventBus modEventBus) {
         modEventBus.addListener(EventPriority.LOW, FMLCommonSetupEvent.class, _ -> ComputerCraftAPI.registerAPIFactory(CCApiObject.create(ComputerFilterHelper.class, "mekanismFilterHelper")));
         //If ComputerCraft is loaded add the capability for it
-        modEventBus.addListener(RegisterCapabilitiesEvent.class, event -> TileEntityBoundingBlock.proxyCapability(event, PeripheralCapability.get()));
+        modEventBus.addListener(RegisterCapabilitiesEvent.class, event -> TileEntityBoundingBlock.proxyCapability(event, CCPeripheralCapability.get()));
     }
 }
