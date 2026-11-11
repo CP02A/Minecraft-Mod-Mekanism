@@ -39,6 +39,7 @@
     "hooks.StructureMixin",
     "hooks.TicketStorageMixin",
     "hooks.TooltipFlagDefaultMixin",
+    "hooks.TypedInstanceMixin",
     "hooks.WorldGenRegionMixin"
   ],
   "client": [
