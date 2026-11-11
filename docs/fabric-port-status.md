@@ -1,13 +1,20 @@
 # Fabric port status (branch `multiloader-fabric`)
 
 ## Architecture
-- `shim/`: Fabric-only implementation of the NeoForge APIs Mekanism uses (`net.neoforged.*`, copied from NeoForge, LGPL-2.1).
-  Loader specifics go through ServiceLoader backends in `net.neoforged.neoforge.shim` (`ShimServices`).
+- `shim/`: Fabric-only implementation of the NeoForge APIs Mekanism uses (copied from NeoForge, LGPL-2.1), relocated from `net.neoforged.*`
+  to `mekanism.shim.neoforged.*` (same sub-packages) so it can't clash with another mod's NeoForge shim or Sinytra Connector's NeoForge
+  classes. Its libraries (NeoForge's event bus, typetools, maven-artifact) are shaded into the shim jar by the Shadow plugin and relocated to
+  `mekanism.shim.neoforged.bus`, `mekanism.shim.lib.typetools` and `mekanism.shim.lib.maven`; `:fabric` consumes that jar (also for
+  compiling) and nests it. The shared code keeps NeoForge's real packages (the NeoForge build is unchanged): `:fabric`'s `sync*Sources` tasks
+  rewrite the copied sources' references to the classes the shim provides (`relocateShimReferences`, built from the shim's source tree);
+  other `net.neoforged` classes keep their names (NeoForge's config API: `net.neoforged.fml.config.*`, `ModConfigSpec`, `TranslatableEnum`
+  and `ConfigurationScreen`, which Forge Config API Port provides). `fabric/src` uses the relocated names directly.
+  Loader specifics go through ServiceLoader backends in `mekanism.shim.neoforged.neoforge.shim` (`ShimServices`).
 - `common/src`: the shared sources and resources (and the generated data), compiled by both `:neoforge` and `:fabric` (see docs/multiloader.md).
   Loader specific classes have the same name in `neoforge/src` and `fabric/src` (`VirtualRecipeBookComponent`, `BlockPlasticFenceGate`).
 - `fabric/`: compiles `common/src/{api,main}/java` (and the modules, see Working) against the shim.
   - `mekanism/fabric/shim/`: backends (transactions, registries, network, attachments, data maps, biome modifiers),
-    `ShimModLoader` (constructs mods from the `neoforge-shim` / `neoforge-shim-client` entrypoints and fires the mod bus events),
+    `ShimModLoader` (constructs mods from the `mekanism_shim` / `mekanism_shim_client` entrypoints and fires the mod bus events),
     `GameEventBridge` (Fabric events -> NeoForge game events), `ServerHooks` (server side hooks called from mixins), `RecipeContentSync`
     (`OnDatapackSyncEvent#sendRecipes` / `RecipesReceivedEvent`), `AdvancedMenuOpening` (menu extra data from
     `IMenuProviderExtension#writeClientSideData` passed to `IContainerFactory`), `transfer/` (NeoForge item/fluid/energy block and item
@@ -115,7 +122,7 @@
   `theoneprobe` entrypoint (`MekanismTOPPlugin` in `fabric/src/integration/the_one_probe`) and WTHIT's `wthit_plugins.json`; all three are
   `suggests` and in the dev runs/game tests (Modrinth maven). Energy, fluid and chemical elements, multiblock contents, robit energy, builtin
   energy/fluid line removal and bounding block redirection, unchanged from NeoForge. WTHIT refuses to start when `net.neoforged.fml.ModList`
-  exists (which the shim provides), so `compat.WailaPlatformCheckMixin` (`@Pseudo`, only applies with WTHIT) hides the shim from that check.
+  exists, which the relocated shim no longer provides.
 - CC: Tweaked (1.121.0): the integration's sources are shared in `common/src/integration/computer_craft` (also compiled by `:neoforge`), compiled
   into the `integrationComputerCraft` source set and packaged into the main jar. `CCPeripheralCapability` is loader specific: CC's
   `PeripheralCapability` on NeoForge; on Fabric a shim block capability whose providing blocks (including the bounding block proxies) are
