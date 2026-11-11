@@ -47,7 +47,9 @@
   baby mobs in biome and structure spawn lists, FinalizeSpawnEvent spawn cancellation, SpawnPlacementCheck, plastic beacon beam colors, adding to
   existing creative tabs, tooltip appenders, grindstone merging; `GameplayTests`: dynamic tank, induction matrix charge/discharge, thermal
   evaporation, boiler and SPS forming, chemicals through pressurized tubes, digital miner mining, QIO importer into drives, teleporter, cardboard
-  box, configurator wrench/rotate, breaking bounding blocks, block entity save/load and drop/place persistence, configs loaded; `InjectedInterfaceTests`: formerly conflicting injected defaults)
+  box, configurator wrench/rotate, breaking bounding blocks, block entity save/load and drop/place persistence, configs loaded; `InjectedInterfaceTests`: formerly conflicting injected defaults; `ExtensionHookTests`: explosion resistance of bounding
+  blocks and the personal chest, pick block on bounding blocks, fluid tank fluid light, ore experience, piglin currency, free runners on powder snow,
+  electric bow flame, robit damage using energy)
 - `./gradlew :fabric:runGameTestClient` (opens a client, loads a world, checks model/atlas/fluid model events, modded recipe book settings
   codecs and that recipes reached the client, opens a machine GUI, clicks its side config tab and a side button (checked on the server) and
   opens Mekanism's recipe book, renders filled fluid tanks and buckets in hand/hotbar, emissive item layers, connects transmitters to each other and
@@ -79,6 +81,40 @@ work, chemicals flow through tubes (chemical registry bake callback), digital mi
 objects), cardboard box and configurator (`onItemUseFirst`/`doesSneakBypassUse`), multi-block machines drop when a bounding block is broken
 (`onDestroyedByPlayer`), block entity and item persistence, configs; an item-held GUI (portable teleporter) and its frequency packet.
 
+## Extension hooks Mekanism overrides
+Default methods of the shim's extension interfaces that Mekanism or its modules override, and where Fabric calls them (mixins in `mixin/hooks`
+unless noted; the call sites are the ones of NeoForge's patches).
+
+| Hook | Mekanism override(s) | Fabric status |
+|---|---|---|
+| Block `getExplosionResistance` | `BlockBase` (custom resistance), `BlockBounding` (main block's) | `ExplosionDamageCalculatorMixin`, tested |
+| Block `onBlockExploded` | `BlockMekanism` (meltdowns) | `BlockBehaviourExplosionMixin` (`onExplosionHit`), untested |
+| Block `getLightEmission` | `BlockFluidTank` (fluid light) | `BlockLightEngineMixin`, `LevelChunkLightMixin`, `LightCoordsUtilMixin` (render light), tested via render light |
+| Block `getCloneItemStack` | `BlockMekanism` (block data), `BlockBounding` (main block) | `ServerGamePacketListenerImplMixin`, tested |
+| Block `getExpDrop` | `BlockOre` | `BlockExperienceMixin` (`Block#dropResources`), tested |
+| Block `onDestroyedByPlayer` | `BlockBounding` | `ServerPlayerGameModeDestroyMixin`/`MultiPlayerGameModeDestroyMixin`, tested |
+| Block `getFriction`, `getBeaconColorMultiplier` | additions plastic blocks (beacon) | `EntityFrictionMixin` etc., `BeaconBlockEntityMixin`, tested |
+| Block `getRelocability` | `BlockMekanism`, `BlockBounding` | NeoForge only API, nothing to call |
+| Block `getPistonPushReaction` | `BlockMekanism` (immovable block entities) | not called; vanilla never pushes block entities |
+| Block `rotate` (level aware) | `BlockMekanism` | not called (structure rotation uses vanilla `rotate`) |
+| Block `getBlockPathType` | `BlockBase` | not called |
+| Block `shouldDisplayFluidOverlay` | `BlockTileGlass`, generators' laser focus matrix | not called (client fluid rendering) |
+| Block `onCaughtFire` | additions' obsidian TNT | not called |
+| BlockEntity `handleUpdateTag`, `onDataPacket` | `TileEntityUpdateable` and most tiles (reduced update tag) | `LevelChunkUpdateTagMixin`, `client.ClientPacketListenerBlockEntityMixin`; exercised (not asserted) by the client test |
+| BlockEntity `onLoad`, `onChunkUnloaded`, `getModelData` | various | already called |
+| Item `onItemUseFirst`, `doesSneakBypassUse` | cardboard box, configurator, turbine blade | `ServerPlayerGameModeMixin`/`MultiPlayerGameModeMixin`, tested |
+| Item `getEnchantmentLevel`, `getAllEnchantments` | Meka-Tool, MekaSuit (module enchantments), electric bow (flame) | `EnchantmentHelperMixin`, `EnchantmentsPredicateMixin` (server registries only), tested |
+| Item `isPiglinCurrency` | refined glowstone ingot | `PiglinAiMixin`, tested |
+| Item `canWalkOnPowderedSnow` | free runners, MekaSuit boots | `PowderSnowBlockMixin`, tested |
+| Item `onDestroyed` (damage source) | QIO dashboard, robit, Meka-Tool, MekaSuit, block items | `ItemEntityMixin`, untested |
+| Item `onGlideDamage` | MekaSuit | `LivingEntityGlideMixin`, untested |
+| Item `shouldCauseReequipAnimation`, `shouldCauseBlockBreakReset`, `isDamageable` | various | already called |
+| Item `supportsEnchantment` | armor, tools, bow, flamethrower | not called (vanilla's enchantment `supportedItems` are used) |
+| Item `canPerformAction` | configurator, Meka-Tool | only where the shim calls it; vanilla's tool behaviour is item class/tag based |
+| Item `isNotReplaceableByPickAction` | Meka-Tool, MekaSuit | not called |
+| Entity `onRemovedFromLevel` | robit (chunk ticket while following) | Fabric's `ENTITY_UNLOAD` events (`GameEventBridge`), untested |
+| LivingEntity `onDamageTaken` | robit (energy) | `LivingEntityMixin` (only when the damage was applied), tested |
+
 ## Not done yet (rough priority)
 1. Client: RenderLevelStageEvent, ScreenEvent and tooltip events (RenderTooltipEvent, ItemTooltipEvent, ...) are not fired (Mekanism doesn't
    subscribe to them). Vanilla's `AbstractContainerScreen#extractSlot` doesn't call `renderSlotContents` (Mekanism's screens call it themselves).
@@ -101,9 +137,13 @@ objects), cardboard box and configurator (`onItemUseFirst`/`doesSneakBypassUse`)
    - Vanilla's attribute tooltips are used instead of NeoForge's `AttributeUtil` ones.
    - Biome modifier climate/special effect changes and attribute removals aren't applied (warned once); direct (unregistered) features/carvers
      can't be added through Fabric's API.
-   - Level aware `IBlockExtension` hooks without a vanilla call site: `getExplosionResistance` (Mekanism's custom resistances),
-     `getLightEmission` (fluid tanks with glowing fluids), `getCloneItemStack` (pick block on bounding blocks), `onBlockExploded`, `getExpDrop`.
-     Datapack registries only get the bake callbacks of their `RegistryBuilder` configurator (no default key, add/clear callbacks).
+   - Extension hooks Mekanism overrides that still have no Fabric call site (see the hook table below): `supportsEnchantment` (anvil/enchant
+     command), `canPerformAction` (NeoForge only item abilities), `isNotReplaceableByPickAction`, `getBlockPathType`, level aware `rotate`,
+     `shouldDisplayFluidOverlay` (client fluid rendering), `onCaughtFire` (obsidian TNT), `getPistonPushReaction` (vanilla already refuses to push
+     block entities). `onBlockExploded` (meltdowns) is called but not covered by a test. The server's light engine runs off thread, where
+     `Level#getBlockEntity` returns null (also on NeoForge), so a fluid tank's fluid light only spreads on the client.
+   - Datapack registries only get the bake callbacks of their `RegistryBuilder` configurator: the robit skin registry's default key isn't applied
+     (Mekanism's robit falls back to the base skin itself); Mekanism uses no add/clear callbacks.
    - Already listed as not supported in the shim: tool modification events, enchantment level event, block drops experience, custom permission
      handlers, explosion events, BooleanAttribute/PercentageAttribute tooltip formatting.
 7. Integrations: the integration source sets (`neoforge/src/integration/*`: computer_craft, crafttweaker, curios, emi, framedblocks, jade, jei,
