@@ -1,13 +1,17 @@
 plugins {
     id('java-library')
     id('net.neoforged.moddev')
+    id('com.gradleup.shadow')
 }
 
 //Fabric-only implementation of the subset of NeoForge APIs that Mekanism's shared code uses.
 // Most classes are copied (and where necessary adapted) from NeoForge, and are licensed under the LGPL-2.1-only
 // (see LICENSE-NeoForge.txt). This project only compiles against vanilla Minecraft; anything that needs to call into
-// Fabric goes through the service interfaces in net.neoforged.neoforge.shim, which are implemented by :fabric.
+// Fabric goes through the service interfaces in mekanism.shim.neoforged.neoforge.shim, which are implemented by :fabric.
 // On NeoForge, the real NeoForge classes are used instead and this project is not included.
+// The classes live in mekanism.shim.neoforged.* (NeoForge's net.neoforged.* packages relocated), and the libraries are shaded into the jar and
+// relocated as well (see shadowJar), so neither can clash with another mod's NeoForge shim or Sinytra Connector's NeoForge classes. :fabric
+// rewrites the shared code's references to these classes when copying it (see relocateShimReferences in fabric/build.gradle).
 
 group = 'mekanism'
 base.archivesName = 'Mekanism-neoforge-shim'
@@ -49,12 +53,19 @@ neoForge {
     interfaceInjectionData.from('src/main/resources/META-INF/shim-injected-interfaces.json')
 }
 
+//Libraries shaded into the shim jar (relocated into mekanism.shim.*, see shadowJar)
+def shadeConfig = configurations.create('shade') {
+    canBeConsumed = false
+    transitive = false
+}
+configurations.named('compileOnly') { extendsFrom(shadeConfig) }
+
 dependencies {
     //The NeoForge event bus is a standalone library, so we can just use it directly on Fabric as well
-    api('net.neoforged:bus:8.0.5') {
-        exclude(group: 'org.ow2.asm')
-        exclude(group: 'org.apache.logging.log4j')
-    }
+    shade('net.neoforged:bus:8.0.5')
+    shade('net.jodah:typetools:0.6.3')
+    //Used by FML's version APIs
+    shade('org.apache.maven:maven-artifact:3.9.11')
     //NeoForge's config API is provided on Fabric by Forge Config API Port (https://github.com/Fuzss/forgeconfigapiport)
     compileOnlyApi("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${forge_config_api_port_version}") {
         transitive = false
@@ -63,7 +74,6 @@ dependencies {
     compileOnlyApi('com.electronwill.night-config:toml:3.8.4')
     //Used by FML's APIs; ASM is provided by the loader at runtime
     compileOnlyApi('org.ow2.asm:asm:9.8')
-    api('org.apache.maven:maven-artifact:3.9.11')
     compileOnly('org.jspecify:jspecify:1.0.0')
     compileOnly('org.jetbrains:annotations:26.0.2')
 }
@@ -77,12 +87,30 @@ tasks.withType(Jar).configureEach {
     from('LICENSE-NeoForge.txt')
 }
 
+//The shim jar with the libraries relocated into it. Their packages are Mekanism specific, so another mod's copy of a library can't replace ours
+def shadowJar = tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    archiveClassifier = ''
+    configurations = [shadeConfig]
+    relocate('net.neoforged.bus', 'mekanism.shim.neoforged.bus')
+    relocate('net.jodah.typetools', 'mekanism.shim.lib.typetools')
+    relocate('org.apache.maven', 'mekanism.shim.lib.maven')
+    exclude('META-INF/maven/**', 'META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/NOTICE')
+}
+tasks.named('jar', Jar) {
+    archiveClassifier = 'plain'
+}
+tasks.named('assemble') { dependsOn(shadowJar) }
+
 def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
 ['apiElements', 'runtimeElements'].each { variant ->
     configurations.named(variant) {
         attributes {
             attribute(loaderAttribute, 'common')
         }
+        //Consumers (:fabric) get the shaded jar, also for compiling (no classes directory variant, which would lack the relocated libraries)
+        outgoing.artifacts.clear()
+        outgoing.variants.clear()
+        outgoing.artifact(shadowJar)
     }
 }
 sourceSets.configureEach {
