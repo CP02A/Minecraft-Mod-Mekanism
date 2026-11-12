@@ -67,12 +67,17 @@ public final class TransporterUtils {
         return color.ordinal() == 0 ? null : color.getPrevious();
     }
 
+    /// @param partial The partial tick multiplied by the transporter's speed (progress units moved since the last tick)
     public static Vector3f getStackPosition(LogisticalTransporterBase transporter, TransporterStack stack, float partial) {
+        int speed = transporter.tier.getSpeed();
+        //Note: Clamp the interpolated progress, as client side stacks wait one step past the end of the transporter until the server moves them
+        // to the next transporter. Without the clamp they would overshoot further for a frame and then snap back
+        float progress = Math.min(stack.progress + partial, 100F + speed);
+        //And smooth out handoffs from the previous transporter (the render lag is always zero on the server)
+        progress -= stack.getRenderLag(partial / speed);
         return stack.getSide(transporter)
               .step()//Note: Direction#step returns a new Vector3f
-              //Note: Clamp the interpolated progress, as client side stacks wait one step past the end of the transporter until the server moves them
-              // to the next transporter. Without the clamp they would overshoot further for a frame and then snap back
-              .mul((Math.min(stack.progress + partial, 100F + transporter.tier.getSpeed()) / 100F) - 0.5F)
+              .mul((progress / 100F) - 0.5F)
               .add(0.5F, 0.25F, 0.5F);
     }
 

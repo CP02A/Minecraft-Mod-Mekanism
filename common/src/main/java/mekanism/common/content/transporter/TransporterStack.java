@@ -82,7 +82,42 @@ public class TransporterStack {
     private Path pathType;
     private LongList pathToTarget = new LongArrayList();
 
+    /// Client side only: how far (in progress units) the rendered position trails behind (positive) or leads (negative) the stack's progress. Used to
+    /// smooth out handoffs between transporters, where the server's position differs from the one the client rendered in the previous transporter
+    /// (see LogisticalTransporterBase#addSyncedStack). Shrinks to zero by [#clientRenderLagDecay] per tick, so the stack catches up gradually.
+    private float clientRenderLag;
+    private float clientRenderLagDecay;
+
     public TransporterStack() {
+    }
+
+    /// Client side only: starts rendering this stack `lag` progress units behind its actual progress, catching up over at least `minTicks` ticks, and
+    /// at most half of `speed` (progress per tick) faster or slower than normal
+    public void startRenderLag(float lag, int minTicks, int speed) {
+        clientRenderLag = lag;
+        clientRenderLagDecay = Math.min(Math.abs(lag) / minTicks, speed / 2F);
+    }
+
+    /// Client side only: continues the render lag of the stack this one replaces (a resync of the same stack)
+    public void copyRenderLag(TransporterStack other) {
+        clientRenderLag = other.clientRenderLag;
+        clientRenderLagDecay = other.clientRenderLagDecay;
+    }
+
+    /// Client side only: called once per client tick
+    public void tickRenderLag() {
+        clientRenderLag = approachZero(clientRenderLag, clientRenderLagDecay);
+    }
+
+    /// @param partialTick Fraction of the current tick
+    ///
+    /// @return the render lag at the given point of the current tick
+    public float getRenderLag(float partialTick) {
+        return clientRenderLag == 0 ? 0 : approachZero(clientRenderLag, clientRenderLagDecay * partialTick);
+    }
+
+    private static float approachZero(float value, float amount) {
+        return value > 0 ? Math.max(0, value - amount) : Math.min(0, value + amount);
     }
 
     private TransporterStack(ValueInput input) {

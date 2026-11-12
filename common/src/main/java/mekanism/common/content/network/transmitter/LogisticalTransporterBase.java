@@ -10,10 +10,12 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceRBTreeMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,6 +80,20 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
     /// Stacks that moved into a transporter that already ticked this tick. That transporter only syncs them to the client next tick, so we hold back
     /// telling the client about the removal until then, to not have the stack disappear for a tick
     private final IntSet deferredClientDeletes = new IntOpenHashSet();
+    /// Minimum number of ticks over which a stack handed off from the previous transporter catches up to its synced position on the client
+    private static final int HANDOFF_SMOOTHING_TICKS = 4;
+    /// Client side: stacks recently removed from this transporter, which the next transporter may only receive afterwards (see #addSyncedStack)
+    private final List<RemovedStack> clientRemoved = new ArrayList<>();
+
+    private static final class RemovedStack {
+
+        private final TransporterStack stack;
+        private int ticksLeft = 2;
+
+        private RemovedStack(TransporterStack stack) {
+            this.stack = stack;
+        }
+    }
     private final Map<Direction, BlockCapabilityCache<ResourceHandler<ItemResource>, @Nullable Direction>> capabilityCache = new EnumMap<>(Direction.class);
     private final Long2ReferenceMap<EnumMap<Direction, BlockCapabilityCache<ResourceHandler<ItemResource>, @Nullable Direction>>> fallbackHandlerCache = new Long2ReferenceRBTreeMap<>();
 
@@ -155,7 +171,78 @@ public abstract class LogisticalTransporterBase extends Transmitter<ResourceHand
             //Note: Let stacks move one step past the end of the transporter, so that they keep moving smoothly while we wait for the server to move them to
             // the next transporter, instead of stopping at the edge for a tick. If the server takes any longer than that, they stay put there (see TransporterUtils#getStackPosition)
             stack.progress = Math.min(100 + tier.getSpeed(), stack.progress + tier.getSpeed());
+            stack.tickRenderLag();
         }
+        if (!clientRemoved.isEmpty()) {
+            //Forget removed stacks once the next transporter had time to receive them
+            for (int i = clientRemoved.size() - 1; i >= 0; i--) {
+                if (--clientRemoved.get(i).ticksLeft <= 0) {
+                    clientRemoved.remove(i);
+                }
+            }
+        }
+    }
+
+    /// Client side: adds or updates a stack synced by the server. A stack that the server just moved over from the previous transporter can be at a
+    /// different position than the client rendered it in that transporter: if the previous transporter hadn't ticked yet when the stack moved into it,
+    /// the server moves it once more in the same tick, so it would jump ahead a step. Instead, it is rendered from where it was and catches up over a few
+    /// ticks. Only the rendered position changes, not the stack's progress (which stays in sync with the server)
+    public void addSyncedStack(int id, TransporterStack stack) {
+        TransporterStack existing = transit.get(id);
+        if (existing != null) {
+            //A resync of a stack we already have, keep smoothing it
+            stack.copyRenderLag(existing);
+        } else {
+            Level level = getLevel();
+            long prevPos = stack.getPrev(this);
+            if (level != null && prevPos != Long.MAX_VALUE) {
+                TileEntityTransmitter tile = WorldUtils.getTileEntity(TileEntityTransmitter.class, level, BlockPos.of(prevPos));
+                if (tile != null && tile.getTransmitter() instanceof LogisticalTransporterBase previous) {
+                    TransporterStack handedOff = previous.findHandedOffStack(stack, getWorldPositionLong());
+                    if (handedOff != null) {
+                        //Where the stack was rendered in the previous transporter, relative to this one
+                        float renderedProgress = handedOff.progress - handedOff.getRenderLag(0) - 100;
+                        float lag = stack.progress - renderedProgress;
+                        //Only smooth small differences (the expected one is a step or two), anything else isn't a plain handoff
+                        if (lag != 0 && Math.abs(lag) <= 4 * Math.max(tier.getSpeed(), previous.tier.getSpeed())) {
+                            stack.startRenderLag(lag, HANDOFF_SMOOTHING_TICKS, tier.getSpeed());
+                        }
+                    }
+                }
+            }
+        }
+        addStack(id, stack);
+    }
+
+    /// Client side: removes a stack the server deleted, remembering it for a moment so the next transporter can continue rendering it from where it was
+    public void deleteSyncedStack(int id) {
+        TransporterStack removed = transit.remove(id);
+        if (removed != null && removed.getNext(this) != Long.MAX_VALUE) {
+            clientRemoved.add(new RemovedStack(removed));
+        }
+    }
+
+    /// Client side: finds the stack (still in transit, or just removed) that the server moved from this transporter to the one at `nextPos`
+    @Nullable
+    private TransporterStack findHandedOffStack(TransporterStack stack, long nextPos) {
+        TransporterStack found = null;
+        for (TransporterStack candidate : transit.values()) {
+            if (isHandoffOf(candidate, stack, nextPos) && (found == null || candidate.progress > found.progress)) {
+                found = candidate;
+            }
+        }
+        for (RemovedStack removed : clientRemoved) {
+            if (isHandoffOf(removed.stack, stack, nextPos) && (found == null || removed.stack.progress > found.progress)) {
+                found = removed.stack;
+            }
+        }
+        return found;
+    }
+
+    private boolean isHandoffOf(TransporterStack candidate, TransporterStack stack, long nextPos) {
+        //Note: Only stacks at (or, if the client is a bit behind, close to) the end of this transporter can have been handed off
+        return candidate.progress + 2 * tier.getSpeed() >= 100 && candidate.getNext(this) == nextPos && candidate.originalLocation == stack.originalLocation
+               && candidate.color == stack.color && candidate.getItemType().equals(stack.getItemType());
     }
 
     public void onUpdateServer(ServerLevel level) {

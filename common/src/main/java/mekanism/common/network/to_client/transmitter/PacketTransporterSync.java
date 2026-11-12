@@ -33,7 +33,7 @@ public record PacketTransporterSync(long pos, int stackId, TransporterStack stac
     @Override
     public void handle(IPayloadContext context) {
         if (PacketUtils.blockEntity(context, pos) instanceof TileEntityLogisticalTransporterBase tile) {
-            tile.getTransmitter().addStack(stackId, stack);
+            tile.getTransmitter().addSyncedStack(stackId, stack);
         }
     }
 }

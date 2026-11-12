@@ -46,10 +46,10 @@ public record PacketTransporterBatch(long pos, IntSet deletes, Int2ObjectMap<Tra
             LogisticalTransporterBase transporter = tile.getTransmitter();
             for (ObjectIterator<Int2ObjectMap.Entry<TransporterStack>> iterator = Int2ObjectMaps.fastIterator(updates); iterator.hasNext(); ) {
                 Int2ObjectMap.Entry<TransporterStack> entry = iterator.next();
-                transporter.addStack(entry.getIntKey(), entry.getValue());
+                transporter.addSyncedStack(entry.getIntKey(), entry.getValue());
             }
             for (int toDelete : deletes) {
-                transporter.deleteStack(toDelete);
+                transporter.deleteSyncedStack(toDelete);
             }
         }
     }
