@@ -32,12 +32,16 @@
       "mekanism.fabric.gametest.JeiClientTests",
       "mekanism.fabric.gametest.LookingAtClientTests",
       "mekanism.fabric.gametest.SideConfigTabsClientTests",
-      "mekanism.fabric.gametest.TransporterRenderClientTests"
+      "mekanism.fabric.gametest.TransporterRenderClientTests",
+      "mekanism.fabric.gametest.InputIsolationClientTests"
     ],
     "jei_mod_plugin": [
       "mekanism.fabric.gametest.JeiTestPlugin"
     ]
   },
+  "mixins": [
+    "mekanism_fabric_tests.mixins.json"
+  ],
   "depends": {
     "mekanism": "*",
     "mekanismgenerators": "*",

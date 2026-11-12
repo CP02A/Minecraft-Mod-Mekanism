@@ -77,6 +77,12 @@
   `TransporterRenderClientTests`: items in logistical transporters (stack clusters, facing and lighting) from all four sides, close up, wide
   and diagonally (screenshots only).
   Screenshots in `fabric/runs/gametestclient/screenshots`.
+  The user's real keyboard and mouse can't disturb the run: Fabric's client game test API already drops real key, text, mouse, scroll, drop and
+  window focus/enter/resize events (only the tests' TestInput, which calls the keyboard/mouse handlers directly, gets through), keeps the window
+  focused (no pause on focus loss) and never grabs the cursor. The test mod's `MouseHandlerMixin` (gametest source set, client only) also stops
+  `MouseHandler#resyncMousePosition` from replacing the simulated cursor position with the real one. `InputIsolationClientTests` pushes real
+  key/mouse/wheel/text/focus events into SDL's queue and checks they are polled but ignored, while TestInput still walks, turns, scrolls, types and
+  opens the pause menu.
 - `./gradlew :fabric:runServer`: the dedicated server boots (`fabric/runs/server/eula.txt` is gitignored and must be created locally).
 
 ## Working

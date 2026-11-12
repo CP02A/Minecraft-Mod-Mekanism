@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "mekanism.fabric.gametest.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "MouseHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
