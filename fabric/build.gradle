@@ -257,7 +257,7 @@ loom {
             runDir('runs/gametest')
             source(sourceSets.gametest)
             vmArg('-Dfabric-api.gametest')
-            vmArg("-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest/report.xml').get().asFile}")
+            vmArg("-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('test-results/runGameTestServer/TEST-fabric-gametest.xml').get().asFile}")
         }
         //Starts a client, runs the client game tests (which load a world and take screenshots) and exits
         gameTestClient {
@@ -592,3 +592,10 @@ def allJar = tasks.register('allJar', Jar) {
     }
 }
 tasks.named('assemble') { dependsOn(allJar) }
+
+//Copies the release jars (main, module and all in one jars; no sources or dev jars) to <root>/build/dist/fabric, used by the root buildFabric task
+tasks.register('copyReleaseJars', Sync) {
+    description = 'Copies the release Fabric jars to build/dist/fabric in the root project'
+    from(tasks.named('jar'), secondaryModules.collect { tasks.named("${it}Jar") }, allJar)
+    into(rootProject.layout.buildDirectory.dir('dist/fabric'))
+}

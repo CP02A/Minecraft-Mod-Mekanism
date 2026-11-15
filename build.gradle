@@ -18,3 +18,28 @@ tasks.named('wrapper', Wrapper, {
 tasks.named('updateDaemonJvm', UpdateDaemonJvm, {
     languageVersion = JavaLanguageVersion.of("${java_version}")
 })
+
+//Standard commands, the same in all of the ports (see docs/Development.md, "Standard Gradle commands")
+tasks.register('uiTest') {
+    group = 'standard'
+    description = 'Runs all Fabric client game tests (UI tests): opens the game window, which ignores real keyboard/mouse input, never captures the mouse and has no sound'
+    dependsOn(':fabric:runGameTestClient')
+}
+
+tasks.register('nonUiTest') {
+    group = 'standard'
+    description = 'Runs all tests that need no window: unit tests, verification checks and the Fabric and NeoForge game test servers (JUnit XML in */build/test-results)'
+    dependsOn(':annotation-processor:check', ':shim:check', ':fabric:check', ':neoforge:check', ':fabric:runGameTestServer', ':neoforge:runGameTestServer')
+}
+
+tasks.register('buildFabric') {
+    group = 'standard'
+    description = 'Builds the release Fabric jars into build/dist/fabric'
+    dependsOn(':fabric:copyReleaseJars')
+}
+
+tasks.register('buildForge') {
+    group = 'standard'
+    description = 'Builds the release NeoForge jars into build/dist/neoforge'
+    dependsOn(':neoforge:copyReleaseJars')
+}

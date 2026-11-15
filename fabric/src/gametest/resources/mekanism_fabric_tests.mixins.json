@@ -3,7 +3,10 @@
   "package": "mekanism.fabric.gametest.mixin",
   "compatibilityLevel": "JAVA_25",
   "client": [
-    "MouseHandlerMixin"
+    "InputConstantsMixin",
+    "MouseHandlerMixin",
+    "SoundEngineMixin",
+    "WindowMixin"
   ],
   "injectors": {
     "defaultRequire": 1

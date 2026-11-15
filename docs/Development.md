@@ -96,3 +96,20 @@ All in one jar.
 ## Building
 
 Mekanism is built in the same way that the vast majority of other mods are. If you are using an IDE such as Eclipse or IntelliJ IDEA, the normal ways of building/launching it work. If you are just trying to build the jars yourself without an IDE and are new to building mods, this can be done by downloading the sources from GitHub and in the root directory running `gradlew build` or `gradlew.bat build`. The built jars will be output into the `build/libs/` folder.
+
+## Standard Gradle commands
+
+The same four commands exist in all of the ports, run from the root directory:
+
+| Command | What it does |
+|---|---|
+| `gradlew buildFabric` | Builds the release Fabric jars (`Mekanism-fabric`, the Additions/Generators/Tools module jars and the all in one `-all` jar) into `build/dist/fabric/`. |
+| `gradlew buildForge` | Builds the release NeoForge jars (main, module and `-all` jars) into `build/dist/neoforge/`. |
+| `gradlew nonUiTest` | Runs every test that needs no window: the unit tests and `check` verifications (injected interface and jar isolation checks, needs Python 3) of all projects, and the Fabric and NeoForge game test servers. Fails on any failure; JUnit XML reports end up in `*/build/test-results/`. |
+| `gradlew uiTest` | Runs all Fabric client game tests (`:fabric:runGameTestClient`). It opens a game window; screenshots go to `fabric/runs/gametestclient/screenshots`. |
+
+While `uiTest` runs, the PC can be used normally: the test mod's client mixins (`fabric/src/gametest`, never in the release jars, only active
+with `-Dfabric.client.gametest`) keep the window from taking the focus when it opens and make it unfocusable (`WindowMixin`), never capture or
+warp the mouse cursor (`InputConstantsMixin`, `WindowMixin`), never read the real cursor position (`MouseHandlerMixin`), and never load the sound
+library, so there is no sound at all, from the title screen on (`SoundEngineMixin`). Fabric's client game test API additionally drops all real
+keyboard/mouse events.

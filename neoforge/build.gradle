@@ -626,6 +626,8 @@ neoForge {
         configureRun(baseMods, run)
         sourceSet = sourceSets.gameTest
         loadedMods.add((Provider<ModModel>) mekanismTestMod)
+        //JUnit like XML report of the results (picked up by CI from */build/test-results)
+        programArguments.addAll('--report', layout.buildDirectory.file('test-results/runGameTestServer/TEST-neoforge-gametest.xml').get().asFile.absolutePath)
     })
     runs.register('gameTestClient', { run ->
         client()
@@ -1228,4 +1230,18 @@ def createSecondaryModrinthUpload(String output, String targetProjectId, TaskPro
             logger.lifecycle('Updated Modrinth extension')
         }
     })
+}
+
+//Copies the release jars (main, module and all in one jars; no api, sources or dev jars) to <root>/build/dist/neoforge, used by the root buildForge
+// task
+tasks.register('copyReleaseJars', Sync) {
+    description = 'Copies the release NeoForge jars to build/dist/neoforge in the root project'
+    from(jar, additionsJar, generatorsJar, toolsJar, allJar)
+    into(rootProject.layout.buildDirectory.dir('dist/neoforge'))
+}
+
+//The game test server writes its JUnit like report (see the gameTestServer run) but doesn't create the folder for it
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    def reportDir = layout.buildDirectory.dir('test-results/runGameTestServer')
+    doFirst { reportDir.get().asFile.mkdirs() }
 }
